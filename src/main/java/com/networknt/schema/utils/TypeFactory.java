@@ -102,6 +102,10 @@ public class TypeFactory {
             } else if (config != null && config.isLosslessNarrowing() && node.canConvertToExactIntegral()) {
                 return JsonType.INTEGER;
             } else {
+                // Handle NaN, Infinity and -Infinity
+                if (JsonNodeTypes.isNonFiniteNumber(node)) {
+                    return JsonType.UNKNOWN;
+                }
                 return JsonType.NUMBER;
             }
         case BOOLEAN:

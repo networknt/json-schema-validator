@@ -22,6 +22,11 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.serialization.NodeReader;
+
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.databind.json.JsonMapper;
+
 /**
  * EnumValidator test. 
  */
@@ -107,5 +112,72 @@ class EnumValidatorTest {
         assertEquals(1, messages.size());
         Error message = messages.get(0);
         assertEquals(": does not have a value in the enumeration [6, \"foo\", [], true, {\"foo\":12}]", message.toString());
+    }
+
+    @Test
+    void nan() {
+        String schemaData = "{\r\n"
+                + "  \"enum\": [NaN]\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        String inputData = "NaN";
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        assertTrue(messages.isEmpty()); // Note that Double.compare(NaN, NaN) == 0 as this is comparing constants and
+                                        // not the numeric operation
+    }
+
+    @Test
+    void infinity() {
+        String schemaData = "{\r\n"
+                + "  \"enum\": [Infinity]\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        String inputData = "Infinity";
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        assertTrue(messages.isEmpty());
+    }
+
+    @Test
+    void negativeInfinity() {
+        String schemaData = "{\r\n"
+                + "  \"enum\": [-Infinity]\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        String inputData = "-Infinity";
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        assertTrue(messages.isEmpty());
+    }
+
+    @Test
+    void nonFinite() {
+        String schemaData = "{\r\n"
+                + "  \"enum\": [10]\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        String inputData = "-Infinity";
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        assertFalse(messages.isEmpty());
+        inputData = "Infinity";
+        messages = schema.validate(inputData, InputFormat.JSON);
+        assertFalse(messages.isEmpty());
+        inputData = "NaN";
+        messages = schema.validate(inputData, InputFormat.JSON);
+        assertFalse(messages.isEmpty());
     }
 }

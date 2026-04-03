@@ -24,6 +24,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.i18n.ResourceBundleMessageSource;
+import com.networknt.schema.serialization.NodeReader;
+
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Test for ConstValidator.
@@ -92,4 +96,70 @@ class ConstValidatorTest {
         assertFalse(messages.isEmpty());
     }
 
+    @Test
+    void nan() {
+        String schemaData = "{\r\n"
+                + "  \"const\": NaN\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        String inputData = "NaN";
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        assertTrue(messages.isEmpty()); // Note that Double.compare(NaN, NaN) == 0 as this is comparing constants and
+                                        // not the numeric operation
+    }
+
+    @Test
+    void infinity() {
+        String schemaData = "{\r\n"
+                + "  \"const\": Infinity\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        String inputData = "Infinity";
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        assertTrue(messages.isEmpty());
+    }
+
+    @Test
+    void negativeInfinity() {
+        String schemaData = "{\r\n"
+                + "  \"const\": -Infinity\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        String inputData = "-Infinity";
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        assertTrue(messages.isEmpty());
+    }
+
+    @Test
+    void nonFinite() {
+        String schemaData = "{\r\n"
+                + "  \"const\": 10\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        String inputData = "-Infinity";
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        assertFalse(messages.isEmpty());
+        inputData = "Infinity";
+        messages = schema.validate(inputData, InputFormat.JSON);
+        assertFalse(messages.isEmpty());
+        inputData = "NaN";
+        messages = schema.validate(inputData, InputFormat.JSON);
+        assertFalse(messages.isEmpty());
+    }
 }

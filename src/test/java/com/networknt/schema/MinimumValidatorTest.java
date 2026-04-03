@@ -30,10 +30,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.serialization.NodeReader;
 
+import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class MinimumValidatorTest {
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }";
@@ -181,12 +184,12 @@ class MinimumValidatorTest {
             // Schema and document parsed with just double
             Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper.readTree(value);
-            List<Error> messages = v.validate(doc);
+            List<Error> messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
             assertTrue(messages.isEmpty(), format("Minimum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", minimum, value));
 
             // document parsed with BigDecimal
             doc = bigDecimalMapper.readTree(value);
-            List<Error> messages2 = v.validate(doc);
+            List<Error> messages2 = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
 
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             if (Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
@@ -202,7 +205,7 @@ class MinimumValidatorTest {
             // schema and document parsed with BigDecimal
             
             v = factory.getSchema(bigDecimalMapper.readTree(schema));
-            List<Error> messages3 = v.validate(doc);
+            List<Error> messages3 = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             String theValue = value.toLowerCase().replace("\"", "");
             if (minimum.toLowerCase().equals(theValue)) {
@@ -255,15 +258,15 @@ class MinimumValidatorTest {
         JsonNode doc = mapper.readTree(content);
         Schema v = factory.getSchema(mapper.readTree(schema));
 
-        List<Error> messages = v.validate(doc);
+        List<Error> messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
-        messages = v.validate(doc);
+        messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
         assertTrue(messages.isEmpty(), "Validation should succeed due to the bug of BigDecimal option of mapper");
 
         v = factory.getSchema(bigDecimalMapper.readTree(schema));
-        messages = v.validate(doc);
+        messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
         // Before 2.16.0 messages will be empty due to bug https://github.com/FasterXML/jackson-databind/issues/1770
         //assertTrue(messages.isEmpty(), "Validation should succeed due to the bug of BigDecimal option of mapper");
         assertFalse(messages.isEmpty(), "Validation should fail as Incorrect deserialization for BigDecimal numbers is fixed in 2.16.0");
@@ -315,6 +318,23 @@ class MinimumValidatorTest {
         assertEquals(1, schemaRegistry.getSchema(schemaString).validate("9", InputFormat.JSON).size());
     }
 
+    @Test
+    void nonFinite() {
+        String schemaData = "{\r\n"
+                + "  \"minimum\": 10\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        List<Error> errors = schema.validate("NaN", InputFormat.JSON);
+        assertEquals(0, errors.size());
+        errors = schema.validate("Infinity", InputFormat.JSON);
+        assertEquals(0, errors.size());
+        errors = schema.validate("-Infinity", InputFormat.JSON);
+        assertEquals(0, errors.size());
+    }
 }
 
 
