@@ -123,4 +123,28 @@ class MultipleOfValidatorTest {
         errors = schema.validate("-Infinity", InputFormat.JSON);
         assertEquals(0, errors.size());
     }
+
+    @Test
+    void nonFiniteSchemaShouldBeIgnored() {
+        String schemaData = "{\r\n"
+                + "  \"multipleOf\": NaN\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        List<Error> errors = schema.validate("NaN", InputFormat.JSON);
+        assertEquals(0, errors.size());
+    }
+
+    @Test
+    void stringSchemaShouldBeIgnored() {
+        String schemaData = "{\r\n"
+                + "  \"multipleOf\": \"test\"\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4).getSchema(schemaData);
+        List<Error> errors = schema.validate("10", InputFormat.JSON);
+        assertEquals(0, errors.size());
+    }
 }

@@ -40,6 +40,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 class MinimumValidatorTest {
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }";
+    private static final String MINIMUM = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"minimum\": %s }";
     private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}";
     private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s }";
     private static final String NEGATIVE_MESSAGE_TEMPLATE = "Expecting validation errors, value %s is smaller than minimum %s";
@@ -177,19 +178,19 @@ class MinimumValidatorTest {
         for (String[] aTestCycle : values) {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
-            String schema = format(NUMBER, minimum);
+            String schema = format(MINIMUM, minimum);
             SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
             SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
 
             // Schema and document parsed with just double
             Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper.readTree(value);
-            List<Error> messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
+            List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format("Minimum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", minimum, value));
 
             // document parsed with BigDecimal
             doc = bigDecimalMapper.readTree(value);
-            List<Error> messages2 = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
+            List<Error> messages2 = v.validate(doc);
 
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             if (Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
@@ -205,7 +206,7 @@ class MinimumValidatorTest {
             // schema and document parsed with BigDecimal
             
             v = factory.getSchema(bigDecimalMapper.readTree(schema));
-            List<Error> messages3 = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
+            List<Error> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             String theValue = value.toLowerCase().replace("\"", "");
             if (minimum.toLowerCase().equals(theValue)) {
@@ -252,21 +253,21 @@ class MinimumValidatorTest {
      */
     @Test
     void doubleValueCoarsingExceedRange() throws IOException {
-        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": -1.7976931348623159e+308 }";
+        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"minimum\": -1.7976931348623159e+308 }";
         String content = "-1.7976931348623160e+308";
 
         JsonNode doc = mapper.readTree(content);
         Schema v = factory.getSchema(mapper.readTree(schema));
 
-        List<Error> messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
+        List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
-        messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
+        messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed due to the bug of BigDecimal option of mapper");
 
         v = factory.getSchema(bigDecimalMapper.readTree(schema));
-        messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
+        messages = v.validate(doc);
         // Before 2.16.0 messages will be empty due to bug https://github.com/FasterXML/jackson-databind/issues/1770
         //assertTrue(messages.isEmpty(), "Validation should succeed due to the bug of BigDecimal option of mapper");
         assertFalse(messages.isEmpty(), "Validation should fail as Incorrect deserialization for BigDecimal numbers is fixed in 2.16.0");

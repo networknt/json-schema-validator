@@ -36,7 +36,12 @@ public class ConstValidator extends BaseKeywordValidator implements KeywordValid
         if (schemaNode.isNumber() && node.isNumber()) {
             boolean schemaIsNonFinite = JsonNodeTypes.isNonFiniteNumber(schemaNode);
             boolean nodeIsNonFinite = JsonNodeTypes.isNonFiniteNumber(node);
-            if (schemaIsNonFinite || nodeIsNonFinite) {
+            if (schemaIsNonFinite != nodeIsNonFinite) {
+                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
+                        .evaluationPath(executionContext.getEvaluationPath())
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(schemaNode.asString(schemaNode.toString()), node.asString()).build());                
+            } else if (schemaIsNonFinite || nodeIsNonFinite) {
                 // Handle the NaN, Infinity and -Infinity cases
                 // Note that Double.compare(NaN, NaN) == 0 as this is comparing constants and not the numeric operation 
                 if (Double.compare(schemaNode.doubleValue(), node.doubleValue()) != 0) {

@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s }";
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": %s }";
+    private static final String MAXIMUM = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"maximum\": %s }";
     private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": true}";
 
     private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
@@ -194,18 +195,18 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         for (String[] aTestCycle : values) {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
-            String schema = format(NUMBER, maximum);
+            String schema = format(MAXIMUM, maximum);
 
             // Schema and document parsed with just double
             Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper.readTree(value);
-            List<Error> messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();
+            List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value));
 
             // document parsed with BigDecimal
 
             doc = bigDecimalMapper.readTree(value);
-            List<Error> messages2 = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();
+            List<Error> messages2 = v.validate(doc);
             if (Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
                 assertTrue(messages2.isEmpty(), format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value));
             } else {
@@ -215,7 +216,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
 
             // schema and document parsed with BigDecimal
             v = factory.getSchema(bigDecimalMapper.readTree(schema));
-            List<Error> messages3 = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();
+            List<Error> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             String theValue = value.toLowerCase().replace("\"", "");
             if (maximum.toLowerCase().equals(theValue)) {
@@ -264,13 +265,13 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
      */
     @Test
     void doubleValueCoarsingExceedRange() throws IOException {
-        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": 1.7976931348623159e+308 }";
+        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"maximum\": 1.7976931348623159e+308 }";
         String content = "1.7976931348623160e+308";
 
         JsonNode doc = mapper.readTree(content);
         Schema v = factory.getSchema(mapper.readTree(schema));
 
-        List<Error> messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
+        List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
@@ -287,7 +288,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
          *       seems infeasible.
          */
         v = factory.getSchema(bigDecimalMapper.readTree(schema));
-        messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
+        messages = v.validate(doc);
         // Before 2.16.0 messages will be empty due to bug https://github.com/FasterXML/jackson-databind/issues/1770
         // assertTrue(messages.isEmpty(), "Validation should success because the bug of bigDecimalMapper, it will treat 1.7976931348623159e+308 as INFINITY");
         assertFalse(messages.isEmpty(), "Validation should fail as Incorrect deserialization for BigDecimal numbers is fixed in 2.16.0");

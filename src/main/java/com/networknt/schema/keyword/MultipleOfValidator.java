@@ -63,7 +63,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     protected BigDecimal getDivisor(JsonNode schemaNode) {
         if (schemaNode.isNumber()) {
             double divisor = schemaNode.doubleValue();
-            if (divisor != 0) {
+            if (divisor != 0 && Double.isFinite(divisor)) {
                 // convert to BigDecimal since double type is not accurate enough to do the
                 // division and multiple
                 return schemaNode.isBigDecimal() ? schemaNode.decimalValue().stripTrailingZeros() : BigDecimal.valueOf(divisor).stripTrailingZeros();
