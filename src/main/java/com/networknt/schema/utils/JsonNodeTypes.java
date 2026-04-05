@@ -89,11 +89,28 @@ public class JsonNodeTypes {
      */
     public static boolean isNumber(JsonNode node, SchemaRegistryConfig config) {
         if (node.isNumber()) {
+            if (isNonFiniteNumber(node)) {
+                return false;
+            }
             return true;
         } else if (config.isTypeLoose()) {
             if (TypeFactory.getValueNodeType(node, config) == JsonType.STRING) {
                 return Strings.isNumeric(node.asString());
             }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the node is a number and is one of NaN, Infinity or -Infinity
+     * 
+     * @param node to check
+     * @return true if it is NaN, Infinity or -Infinity
+     */
+    public static boolean isNonFiniteNumber(JsonNode node) {
+        if (node.isFloatingPointNumber() && !node.isBigDecimal() && !node.isBigInteger()
+                && !Double.isFinite(node.doubleValue())) {
+            return true;
         }
         return false;
     }

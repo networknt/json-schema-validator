@@ -30,13 +30,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.serialization.NodeReader;
 
+import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class MinimumValidatorTest {
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }";
+    private static final String MINIMUM = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"minimum\": %s }";
     private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}";
     private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s }";
     private static final String NEGATIVE_MESSAGE_TEMPLATE = "Expecting validation errors, value %s is smaller than minimum %s";
@@ -174,7 +178,7 @@ class MinimumValidatorTest {
         for (String[] aTestCycle : values) {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
-            String schema = format(NUMBER, minimum);
+            String schema = format(MINIMUM, minimum);
             SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
             SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
 
@@ -249,7 +253,7 @@ class MinimumValidatorTest {
      */
     @Test
     void doubleValueCoarsingExceedRange() throws IOException {
-        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": -1.7976931348623159e+308 }";
+        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"minimum\": -1.7976931348623159e+308 }";
         String content = "-1.7976931348623160e+308";
 
         JsonNode doc = mapper.readTree(content);
@@ -315,6 +319,23 @@ class MinimumValidatorTest {
         assertEquals(1, schemaRegistry.getSchema(schemaString).validate("9", InputFormat.JSON).size());
     }
 
+    @Test
+    void nonFinite() {
+        String schemaData = "{\r\n"
+                + "  \"minimum\": 10\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        List<Error> errors = schema.validate("NaN", InputFormat.JSON);
+        assertEquals(0, errors.size());
+        errors = schema.validate("Infinity", InputFormat.JSON);
+        assertEquals(0, errors.size());
+        errors = schema.validate("-Infinity", InputFormat.JSON);
+        assertEquals(0, errors.size());
+    }
 }
 
 

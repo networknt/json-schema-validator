@@ -16,12 +16,16 @@
 
 package com.networknt.schema;
 
+import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.serialization.NodeReader;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -35,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s }";
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": %s }";
+    private static final String MAXIMUM = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"maximum\": %s }";
     private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": true}";
 
     private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
@@ -190,7 +195,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         for (String[] aTestCycle : values) {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
-            String schema = format(NUMBER, maximum);
+            String schema = format(MAXIMUM, maximum);
 
             // Schema and document parsed with just double
             Schema v = factory.getSchema(mapper.readTree(schema));
@@ -260,7 +265,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
      */
     @Test
     void doubleValueCoarsingExceedRange() throws IOException {
-        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": 1.7976931348623159e+308 }";
+        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"maximum\": 1.7976931348623159e+308 }";
         String content = "1.7976931348623160e+308";
 
         JsonNode doc = mapper.readTree(content);
@@ -270,7 +275,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
-        messages = v.validate(doc);
+        messages = v.validate(doc).stream().filter(e -> !e.getKeyword().equals("type")).toList();;
         // "1.7976931348623158e+308" == "1.7976931348623157e+308" == Double.MAX_VALUE
         // new BigDecimal("1.7976931348623158e+308").compareTo(new BigDecimal("1.7976931348623157e+308")) > 0
         assertTrue(messages.isEmpty(), "Validation should success because the bug of bigDecimalMapper, it will treat 1.7976931348623159e+308 as INFINITY");
@@ -341,6 +346,24 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         """;
         final SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft7());
         assertEquals(1, schemaRegistry.getSchema(schemaString).validate("11", InputFormat.JSON).size());
+    }
+
+    @Test
+    void nonFinite() {
+        String schemaData = "{\r\n"
+                + "  \"maximum\": 10\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                        .build()))
+                .getSchema(schemaData);
+        List<Error> errors = schema.validate("NaN", InputFormat.JSON);
+        assertEquals(0, errors.size());
+        errors = schema.validate("Infinity", InputFormat.JSON);
+        assertEquals(0, errors.size());
+        errors = schema.validate("-Infinity", InputFormat.JSON);
+        assertEquals(0, errors.size());
     }
 }
 

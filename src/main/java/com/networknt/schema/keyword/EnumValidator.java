@@ -19,11 +19,13 @@ package com.networknt.schema.keyword;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.DecimalNode;
+import tools.jackson.databind.node.DoubleNode;
 import tools.jackson.databind.node.NullNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
+import com.networknt.schema.utils.JsonNodeTypes;
 import com.networknt.schema.utils.JsonType;
 import com.networknt.schema.utils.TypeFactory;
 import com.networknt.schema.SchemaContext;
@@ -129,6 +131,12 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
      * @return the node
      */
     protected JsonNode processNumberNode(JsonNode n) {
+        if (JsonNodeTypes.isNonFiniteNumber(n)) {
+            if (n.isDouble()) { // If it is already a DoubleNode don't create another one
+                return n;
+            }
+            return DoubleNode.valueOf(n.doubleValue());
+        }
         return DecimalNode.valueOf(n.decimalValue().stripTrailingZeros());
     }
 
