@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.TypeValidator;
@@ -1190,8 +1191,8 @@ public class Schema implements Validator {
     private JsonNode deserialize(String input, InputFormat inputFormat) {
         try {
             return this.getSchemaContext().getSchemaRegistry().readTree(input, inputFormat);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Invalid input", e);
+        } catch (JacksonException e) {
+            throw new UncheckedIOException(new IOException("Invalid input", e));
         }
     }
 
@@ -1213,6 +1214,8 @@ public class Schema implements Validator {
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Invalid input", e);
+        } catch (JacksonException e) {
+            throw new UncheckedIOException(new IOException("Invalid input", e));
         }
     }
 

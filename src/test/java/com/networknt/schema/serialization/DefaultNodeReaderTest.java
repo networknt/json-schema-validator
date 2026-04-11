@@ -16,7 +16,6 @@
 package com.networknt.schema.serialization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +29,7 @@ import com.networknt.schema.utils.JsonNodes;
  */
 class DefaultNodeReaderTest {
     @Test
-    void location() throws IOException {
+    void location() {
         String schemaData = "{\r\n"
                 + "  \"$id\": \"https://schema/myschema\",\r\n"
                 + "  \"properties\": {\r\n"
@@ -58,7 +57,7 @@ class DefaultNodeReaderTest {
     }
 
     @Test
-    void jsonLocation() throws IOException {
+    void jsonLocation() {
         String schemaData = "{\r\n"
                 + "  \"$id\": \"https://schema/myschema\",\r\n"
                 + "  \"properties\": {\r\n"
@@ -81,7 +80,7 @@ class DefaultNodeReaderTest {
     }
 
     @Test
-    void yamlLocation() throws IOException {
+    void yamlLocation() {
         String schemaData = "---\r\n"
                 + "\"$id\": 'https://schema/myschema'\r\n"
                 + "properties:\r\n"
