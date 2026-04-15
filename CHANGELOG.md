@@ -13,6 +13,14 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 3.0.2- 2026-04-14
+
+### Added
+
+### Changed
+- Upgrade Jackson from 3.1.0 to 3.1.1 to fix CWE-770 (#1236) Thanks @cjun-coveo
+- Support handling of non-finite numbers if present (#1241) Thanks @justin-tay
+
 ## 3.0.1- 2026-03-10
 
 ### Added
