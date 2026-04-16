@@ -16,7 +16,6 @@
 
 package com.networknt.schema;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.DefaultDialectRegistry;
@@ -617,13 +616,8 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final String schema, InputFormat inputFormat) {
-        try {
-            final JsonNode schemaNode = readTree(schema, inputFormat);
-            return newSchema(null, schemaNode);
-        } catch (JacksonException e) {
-            logger.error("Failed to load json schema!", e);
-            throw new SchemaException(e);
-        }
+        final JsonNode schemaNode = readTree(schema, inputFormat);
+        return newSchema(null, schemaNode);
     }
 
     /**
@@ -650,13 +644,8 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final InputStream schemaStream, InputFormat inputFormat) {
-        try {
-            final JsonNode schemaNode = readTree(schemaStream, inputFormat);
-            return newSchema(null, schemaNode);
-        } catch (JacksonException e) {
-            logger.error("Failed to load json schema!", e);
-            throw new SchemaException(e);
-        }
+        final JsonNode schemaNode = readTree(schemaStream, inputFormat);
+        return newSchema(null, schemaNode);
     }
 
     /**
@@ -692,13 +681,8 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri, final String schema, InputFormat inputFormat) {
-        try {
-            final JsonNode schemaNode = readTree(schema, inputFormat);
-            return newSchema(schemaUri, schemaNode);
-        } catch (JacksonException e) {
-            logger.error("Failed to load json schema!", e);
-            throw new SchemaException(e);
-        }
+        final JsonNode schemaNode = readTree(schema, inputFormat);
+        return newSchema(schemaUri, schemaNode);
     }
 
     /**
@@ -710,13 +694,8 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri, final InputStream schemaStream, InputFormat inputFormat) {
-        try {
-            final JsonNode schemaNode = readTree(schemaStream, inputFormat);
-            return newSchema(schemaUri, schemaNode);
-        } catch (JacksonException e) {
-            logger.error("Failed to load json schema!", e);
-            throw new SchemaException(e);
-        }
+        final JsonNode schemaNode = readTree(schemaStream, inputFormat);
+        return newSchema(schemaUri, schemaNode);
     }
 
     /**

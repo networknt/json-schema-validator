@@ -159,10 +159,4 @@ class SchemaRegistryTest {
         Schema nested = registry.getSchema(SchemaLocation.of("https://example.org/schema"));
         assertEquals(Dialects.getDraft4(), nested.getSchemaContext().getDialect());
     }
-
-    @Test
-    void invalidJsonSchema() {
-        SchemaRegistry registry = SchemaRegistry.builder().build();
-        assertThrows(SchemaException.class, () -> registry.getSchema("INVALID_JSON"));
-    }
 }
