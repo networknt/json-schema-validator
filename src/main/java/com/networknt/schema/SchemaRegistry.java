@@ -584,11 +584,11 @@ public class SchemaRegistry {
         return dialectRegistry.getDialect(key, this);
     }
 
-    JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
+    JsonNode readTree(String content, InputFormat inputFormat) {
         return this.nodeReader.readTree(content, inputFormat);
     }
 
-    JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException {
+    JsonNode readTree(InputStream content, InputFormat inputFormat) {
         return this.nodeReader.readTree(content, inputFormat);
     }
 
@@ -616,13 +616,8 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final String schema, InputFormat inputFormat) {
-        try {
-            final JsonNode schemaNode = readTree(schema, inputFormat);
-            return newSchema(null, schemaNode);
-        } catch (IOException ioe) {
-            logger.error("Failed to load json schema!", ioe);
-            throw new SchemaException(ioe);
-        }
+        final JsonNode schemaNode = readTree(schema, inputFormat);
+        return newSchema(null, schemaNode);
     }
 
     /**
@@ -649,13 +644,8 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final InputStream schemaStream, InputFormat inputFormat) {
-        try {
-            final JsonNode schemaNode = readTree(schemaStream, inputFormat);
-            return newSchema(null, schemaNode);
-        } catch (IOException ioe) {
-            logger.error("Failed to load json schema!", ioe);
-            throw new SchemaException(ioe);
-        }
+        final JsonNode schemaNode = readTree(schemaStream, inputFormat);
+        return newSchema(null, schemaNode);
     }
 
     /**
@@ -691,13 +681,8 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri, final String schema, InputFormat inputFormat) {
-        try {
-            final JsonNode schemaNode = readTree(schema, inputFormat);
-            return newSchema(schemaUri, schemaNode);
-        } catch (IOException ioe) {
-            logger.error("Failed to load json schema!", ioe);
-            throw new SchemaException(ioe);
-        }
+        final JsonNode schemaNode = readTree(schema, inputFormat);
+        return newSchema(schemaUri, schemaNode);
     }
 
     /**
@@ -709,13 +694,8 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri, final InputStream schemaStream, InputFormat inputFormat) {
-        try {
-            final JsonNode schemaNode = readTree(schemaStream, inputFormat);
-            return newSchema(schemaUri, schemaNode);
-        } catch (IOException ioe) {
-            logger.error("Failed to load json schema!", ioe);
-            throw new SchemaException(ioe);
-        }
+        final JsonNode schemaNode = readTree(schemaStream, inputFormat);
+        return newSchema(schemaUri, schemaNode);
     }
 
     /**

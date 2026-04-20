@@ -15,7 +15,6 @@
  */
 package com.networknt.schema.serialization;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import tools.jackson.databind.JsonNode;
@@ -32,9 +31,8 @@ public interface NodeReader {
      * @param content     the content
      * @param inputFormat the input format
      * @return the node
-     * @throws IOException IOException
      */
-    JsonNode readTree(String content, InputFormat inputFormat) throws IOException;
+    JsonNode readTree(String content, InputFormat inputFormat);
 
     /**
      * Deserialize content as a tree.
@@ -42,9 +40,8 @@ public interface NodeReader {
      * @param content input stream
      * @param inputFormat input format
      * @return the node
-     * @throws IOException IOException
      */
-    JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException;
+    JsonNode readTree(InputStream content, InputFormat inputFormat);
 
     /**
      * Creates a builder for {@link NodeReader}.

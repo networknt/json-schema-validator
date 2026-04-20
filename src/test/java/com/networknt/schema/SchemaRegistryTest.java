@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
+import tools.jackson.core.JacksonException;
 
 /**
  * Tests for JsonSchemaFactory.
@@ -158,5 +159,13 @@ class SchemaRegistryTest {
         result.validate(input, InputFormat.JSON);
         Schema nested = registry.getSchema(SchemaLocation.of("https://example.org/schema"));
         assertEquals(Dialects.getDraft4(), nested.getSchemaContext().getDialect());
+    }
+
+    @Test
+    void invalidJsonSchema() {
+        SchemaRegistry registry = SchemaRegistry.builder().build();
+        assertThrows(JacksonException.class, () -> {
+            registry.getSchema("INVALID_JSON");
+        });
     }
 }
