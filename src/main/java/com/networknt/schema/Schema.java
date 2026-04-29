@@ -1188,11 +1188,7 @@ public class Schema implements Validator {
      * @return the JsonNode.
      */
     private JsonNode deserialize(String input, InputFormat inputFormat) {
-        try {
-            return this.getSchemaContext().getSchemaRegistry().readTree(input, inputFormat);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Invalid input", e);
-        }
+        return this.getSchemaContext().getSchemaRegistry().readTree(input, inputFormat);
     }
 
     /**

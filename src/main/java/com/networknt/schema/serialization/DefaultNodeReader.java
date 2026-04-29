@@ -1,6 +1,5 @@
 package com.networknt.schema.serialization;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import tools.jackson.databind.JsonNode;
@@ -33,7 +32,7 @@ public class DefaultNodeReader implements NodeReader {
     }
 
     @Override
-    public JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
+    public JsonNode readTree(String content, InputFormat inputFormat) {
         if (this.jsonNodeFactoryFactory == null) {
             return getObjectMapper(inputFormat).readTree(content);
         } else {
@@ -42,7 +41,7 @@ public class DefaultNodeReader implements NodeReader {
     }
 
     @Override
-    public JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException {
+    public JsonNode readTree(InputStream content, InputFormat inputFormat) {
         if (this.jsonNodeFactoryFactory == null) {
             return getObjectMapper(inputFormat).readTree(content);
         } else {

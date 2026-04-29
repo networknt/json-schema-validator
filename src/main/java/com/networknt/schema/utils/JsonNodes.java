@@ -17,7 +17,6 @@ package com.networknt.schema.utils;
 
 import java.io.InputStream;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.JsonNode;
@@ -89,8 +88,6 @@ public class JsonNodes {
             ObjectReader reader = objectMapper.reader(nodeFactory);
             JsonNode result = reader.readTree(parser);
             return (result != null) ? result : nodeFactory.missingNode();
-        } catch (JacksonException e) {
-            throw new IllegalArgumentException("Invalid input", e);
         }
     }
 
@@ -109,8 +106,6 @@ public class JsonNodes {
             ObjectReader reader = objectMapper.reader(nodeFactory);
             JsonNode result = reader.readTree(parser);
             return (result != null) ? result : nodeFactory.missingNode();
-        } catch (JacksonException e) {
-            throw new IllegalArgumentException("Invalid input", e);
         }
     }
 

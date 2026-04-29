@@ -16,12 +16,11 @@
 
 package com.networknt.schema.serialization;
 
-import java.io.IOException;
-import java.io.InputStream;
-
+import com.networknt.schema.InputFormat;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import com.networknt.schema.InputFormat;
+
+import java.io.InputStream;
 
 /**
  * Basic implementation of {@link NodeReader}.
@@ -39,12 +38,12 @@ public class BasicNodeReader implements NodeReader {
     }
 
     @Override
-    public JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
+    public JsonNode readTree(String content, InputFormat inputFormat) {
         return getObjectMapper(inputFormat).readTree(content);
     }
 
     @Override
-    public JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException {
+    public JsonNode readTree(InputStream content, InputFormat inputFormat) {
         return getObjectMapper(inputFormat).readTree(content);
     }
 
