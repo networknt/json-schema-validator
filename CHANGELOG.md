@@ -13,6 +13,15 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 3.0.3- 2026-05-27
+
+### Added
+
+### Changed
+- fixes #1246 Coercion bug (#1247)
+- Cleanup of IOException leftovers after update to jackson3 (#1244) Thanks @afiluba
+
+
 ## 3.0.2- 2026-04-14
 
 ### Added
