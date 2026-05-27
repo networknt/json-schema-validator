@@ -416,7 +416,7 @@ public class Dialect {
 
     private static String readText(JsonNode node, String field) {
         JsonNode fieldNode = node.get(field);
-        return fieldNode != null && fieldNode.isString() ? fieldNode.asString() : null;
+        return fieldNode == null ? null : fieldNode.stringValue(null);
     }
 
     public String getId() {
