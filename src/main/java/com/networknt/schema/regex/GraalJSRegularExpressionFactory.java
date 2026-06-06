@@ -68,11 +68,11 @@ public class GraalJSRegularExpressionFactory implements RegularExpressionFactory
 
     @Override
     public RegularExpression getRegularExpression(String regex, SchemaContext schemaContext) {
-        SpecificationVersion dialect = schemaContext != null
+        SpecificationVersion specificationVersion = schemaContext != null
                 ? schemaContext.getDialect().getSpecificationVersion()
                 : null;
-        boolean unicode = dialect == null
-                || dialect.getOrder() >= SpecificationVersion.DRAFT_2019_09.getOrder();
+        boolean unicode = specificationVersion == null
+                || specificationVersion.getOrder() >= SpecificationVersion.DRAFT_2019_09.getOrder();
         return new GraalJSRegularExpression(regex, this.context, unicode);
     }
 }
