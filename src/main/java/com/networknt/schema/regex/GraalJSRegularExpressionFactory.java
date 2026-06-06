@@ -15,6 +15,9 @@
  */
 package com.networknt.schema.regex;
 
+import com.networknt.schema.SchemaContext;
+import com.networknt.schema.SpecificationVersion;
+
 import org.graalvm.polyglot.Context;
 
 /**
@@ -61,5 +64,13 @@ public class GraalJSRegularExpressionFactory implements RegularExpressionFactory
     @Override
     public RegularExpression getRegularExpression(String regex) {
         return new GraalJSRegularExpression(regex, this.context);
+    }
+
+    @Override
+    public RegularExpression getRegularExpression(String regex, SchemaContext schemaContext) {
+        SpecificationVersion dialect = schemaContext.getDialect().getSpecificationVersion();
+        boolean unicode = dialect == null
+                || dialect.getOrder() >= SpecificationVersion.DRAFT_2019_09.getOrder();
+        return new GraalJSRegularExpression(regex, this.context, unicode);
     }
 }

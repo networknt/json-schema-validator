@@ -16,6 +16,7 @@
 package com.networknt.schema.regex;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.Error;
 import com.networknt.schema.InputFormat;
+import com.networknt.schema.OutputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRegistryConfig;
@@ -45,5 +47,21 @@ public class RegularExpressionTest {
             executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
         assertFalse(errors.isEmpty());
+    }
+
+    @Test
+    public void testDraft7RegexFormatValidatorUsesNonUnicodeECMA262() {
+        SchemaRegistryConfig schemaRegistryConfig = SchemaRegistryConfig.builder()
+                .regularExpressionFactory(GraalJSRegularExpressionFactory.getInstance()).build();
+        SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(Dialects.getDraft202012(),
+                builder -> builder.schemaRegistryConfig(schemaRegistryConfig));
+        Schema schema = schemaRegistry.getSchema("{\r\n"
+                + "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\r\n"
+                + "  \"format\": \"regex\"\r\n"
+                + "}");
+        boolean valid = schema.validate("\"\\\\d+:\\\\[1-9]+|N\"", InputFormat.JSON, OutputFormat.BOOLEAN,
+                executionContext -> executionContext.executionConfig(
+                        executionConfig -> executionConfig.formatAssertionsEnabled(true)));
+        assertTrue(valid);
     }
 }
