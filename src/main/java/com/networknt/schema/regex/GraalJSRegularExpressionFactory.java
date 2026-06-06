@@ -68,7 +68,9 @@ public class GraalJSRegularExpressionFactory implements RegularExpressionFactory
 
     @Override
     public RegularExpression getRegularExpression(String regex, SchemaContext schemaContext) {
-        SpecificationVersion dialect = schemaContext.getDialect().getSpecificationVersion();
+        SpecificationVersion dialect = schemaContext != null
+                ? schemaContext.getDialect().getSpecificationVersion()
+                : null;
         boolean unicode = dialect == null
                 || dialect.getOrder() >= SpecificationVersion.DRAFT_2019_09.getOrder();
         return new GraalJSRegularExpression(regex, this.context, unicode);
