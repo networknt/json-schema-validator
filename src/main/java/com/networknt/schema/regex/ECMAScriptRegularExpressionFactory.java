@@ -15,6 +15,7 @@
  */
 package com.networknt.schema.regex;
 
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.Classes;
 
 /**
@@ -44,5 +45,10 @@ public class ECMAScriptRegularExpressionFactory implements RegularExpressionFact
     @Override
     public RegularExpression getRegularExpression(String regex) {
         return DELEGATE.getRegularExpression(regex);
+    }
+
+    @Override
+    public RegularExpression getRegularExpression(String regex, SchemaContext schemaContext) {
+        return DELEGATE.getRegularExpression(regex, schemaContext);
     }
 }

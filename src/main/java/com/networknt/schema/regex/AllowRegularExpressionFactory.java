@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.Error;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link RegularExpressionFactory} that allows regular expressions to be used.
@@ -34,9 +35,16 @@ public class AllowRegularExpressionFactory implements RegularExpressionFactory {
 
     @Override
     public RegularExpression getRegularExpression(String regex) {
+        return getRegularExpression(regex, null);
+    }
+
+    @Override
+    public RegularExpression getRegularExpression(String regex, SchemaContext schemaContext) {
         if (this.allowed.test(regex)) {
             // Allowed to delegate
-            return this.delegate.getRegularExpression(regex);
+            return schemaContext != null
+                    ? this.delegate.getRegularExpression(regex, schemaContext)
+                    : this.delegate.getRegularExpression(regex);
         }
         throw new InvalidSchemaException(Error.builder()
                 .message("Regular expression ''{0}'' is not allowed to be used.").arguments(regex).build());
