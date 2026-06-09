@@ -11,7 +11,8 @@ public interface RegularExpression {
 
     static RegularExpression compile(String regex, SchemaContext schemaContext) {
         if (null == regex) return s -> true;
-        return schemaContext.getSchemaRegistryConfig().getRegularExpressionFactory().getRegularExpression(regex);
+        return schemaContext.getSchemaRegistryConfig().getRegularExpressionFactory().getRegularExpression(regex,
+                schemaContext);
     }
 
 }

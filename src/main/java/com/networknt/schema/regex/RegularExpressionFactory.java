@@ -15,6 +15,8 @@
  */
 package com.networknt.schema.regex;
 
+import com.networknt.schema.SchemaContext;
+
 /**
  * Factory for {@link RegularExpression}.
  */
@@ -26,4 +28,15 @@ public interface RegularExpressionFactory {
      * @return the regular expression
      */
     RegularExpression getRegularExpression(String regex);
+
+    /**
+     * Gets a {@link RegularExpression} in the context of the schema being evaluated.
+     *
+     * @param regex the regular expression text value
+     * @param schemaContext the schema context
+     * @return the regular expression
+     */
+    default RegularExpression getRegularExpression(String regex, SchemaContext schemaContext) {
+        return getRegularExpression(regex);
+    }
 }
