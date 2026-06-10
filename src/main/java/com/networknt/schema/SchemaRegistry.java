@@ -469,9 +469,11 @@ public class SchemaRegistry {
      * @return the schema
      */
     protected Schema newSchema(SchemaLocation schemaUri, JsonNode schemaNode) {
+        SchemaLocation schemaLocation = getSchemaLocation(schemaUri);
+        validateSchemaNodeNotNull(schemaLocation, schemaNode);
         final SchemaContext schemaContext = createSchemaContext(schemaNode);
-        Schema jsonSchema = doCreate(schemaContext, getSchemaLocation(schemaUri),
-                schemaNode, null, false);
+        validateSchemaNodeType(schemaLocation, schemaNode, schemaContext);
+        Schema jsonSchema = doCreate(schemaContext, schemaLocation, schemaNode, null, false);
         preload(jsonSchema);
         return jsonSchema;
     }
@@ -507,8 +509,35 @@ public class SchemaRegistry {
 
     private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation,
             JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return Schema.from(withDialect(schemaContext, schemaNode), schemaLocation, schemaNode,
+        validateSchemaNodeNotNull(schemaLocation, schemaNode);
+        SchemaContext schemaContextToUse = withDialect(schemaContext, schemaNode);
+        return Schema.from(schemaContextToUse, schemaLocation, schemaNode,
                 parentSchema, suppressSubSchemaRetrieval);
+    }
+
+    private void validateSchemaNodeNotNull(SchemaLocation schemaLocation, JsonNode schemaNode) {
+        if (schemaNode == null) {
+            throw new SchemaException("Schema at " + schemaLocation + " must not be null");
+        }
+    }
+
+    private void validateSchemaNodeType(SchemaLocation schemaLocation, JsonNode schemaNode,
+            SchemaContext schemaContext) {
+        if (schemaNode.isObject()) {
+            return;
+        }
+        if (schemaNode.isBoolean() && supportsBooleanSchema(schemaContext)) {
+            return;
+        }
+        String expected = supportsBooleanSchema(schemaContext) ? "object or boolean" : "object";
+        throw new SchemaException("Schema at " + schemaLocation + " must be " + expected + " but was "
+                + schemaNode.getNodeType());
+    }
+
+    private boolean supportsBooleanSchema(SchemaContext schemaContext) {
+        return schemaContext != null
+                && schemaContext.getDialect().getSpecificationVersion().getOrder() >= SpecificationVersion.DRAFT_6
+                        .getOrder();
     }
 
     /**
