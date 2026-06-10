@@ -13,6 +13,14 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 3.0.4- 2026-06-10
+
+### Added
+
+### Changed
+- fixes #1248 validating draft4 schemas (#1249)
+
+
 ## 3.0.3- 2026-05-27
 
 ### Added
