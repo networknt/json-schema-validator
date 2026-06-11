@@ -64,8 +64,8 @@ public class RefValidator extends BaseKeywordValidator {
             // account the current uri of the parent schema.
             String schemaUriFinal = resolve(parentSchema, refUri);
             SchemaLocation schemaLocation = SchemaLocation.of(schemaUriFinal);
-            boolean validateLoadedSchema = index < 0
-                    || SchemaLocation.Fragment.isDocumentFragment(refValue.substring(index));
+            String fragment = index < 0 ? null : refValue.substring(index);
+            boolean validateLoadedSchema = fragment == null || !SchemaLocation.Fragment.isJsonPointerFragment(fragment);
             // This should retrieve schemas regardless of the protocol that is in the uri.
             return new SchemaRef(getSupplier(() -> {
                 Schema schemaResource = schemaContext.getSchemaResources().get(schemaUriFinal);
@@ -81,7 +81,7 @@ public class RefValidator extends BaseKeywordValidator {
                     }
                     return schemaResource;
                 } else {
-                    String newRefValue = refValue.substring(index);
+                    String newRefValue = fragment;
                     String find = schemaLocation.getAbsoluteIri() + newRefValue;
                     Schema findSchemaResource = schemaContext.getSchemaResources().get(find);
                     if (findSchemaResource == null) {
