@@ -686,6 +686,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final SchemaLocation schemaUri) {
         Schema schema = loadSchema(schemaUri);
+        validateSchemaNodeType(schema.getSchemaLocation(), schema.getSchemaNode(), schema.getSchemaContext());
         preload(schema);
         return schema;
     }

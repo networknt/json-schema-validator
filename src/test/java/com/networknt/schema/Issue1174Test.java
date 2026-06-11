@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -34,9 +35,32 @@ class Issue1174Test {
     }
 
     @Test
+    void textNodeShouldNotBeAcceptedAsLoadedRootSchema() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7,
+                builder -> builder.schemas(Collections.singletonMap("https://www.example.org/text-schema", "\"false\"")));
+
+        SchemaException exception = assertThrows(SchemaException.class,
+                () -> registry.getSchema(SchemaLocation.of("https://www.example.org/text-schema")));
+
+        assertTrue(exception.getMessage().contains("must be object or boolean"));
+        assertTrue(exception.getMessage().contains("STRING"));
+    }
+
+    @Test
     void booleanSchemaShouldBeAcceptedForDraft7() {
         SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = registry.getSchema("false");
+
+        List<Error> errors = schema.validate("42", InputFormat.JSON);
+
+        assertEquals(1, errors.size());
+    }
+
+    @Test
+    void loadedBooleanSchemaShouldBeAcceptedForDraft7() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7,
+                builder -> builder.schemas(Collections.singletonMap("https://www.example.org/false-schema", "false")));
+        Schema schema = registry.getSchema(SchemaLocation.of("https://www.example.org/false-schema"));
 
         List<Error> errors = schema.validate("42", InputFormat.JSON);
 
