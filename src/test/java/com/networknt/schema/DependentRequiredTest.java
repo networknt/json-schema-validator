@@ -19,8 +19,8 @@ class DependentRequiredTest {
             "   \"$schema\":\"https://json-schema.org/draft/2019-09/schema\"," +
             "   \"type\": \"object\"," +
             "   \"properties\": {" +
-            "       \"optional\": \"string\"," +
-            "       \"requiredWhenOptionalPresent\": \"string\"" +
+            "       \"optional\": { \"type\": \"string\" }," +
+            "       \"requiredWhenOptionalPresent\": { \"type\": \"string\" }" +
             "   }," +
             "   \"dependentRequired\": {" +
             "       \"optional\": [ \"requiredWhenOptionalPresent\" ]," +
