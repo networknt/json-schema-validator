@@ -472,7 +472,6 @@ public class SchemaRegistry {
         SchemaLocation schemaLocation = getSchemaLocation(schemaUri);
         validateSchemaNodeNotNull(schemaLocation, schemaNode);
         final SchemaContext schemaContext = createSchemaContext(schemaNode);
-        validateSchemaNodeType(schemaLocation, schemaNode, schemaContext);
         Schema jsonSchema = doCreate(schemaContext, schemaLocation, schemaNode, null, false);
         preload(jsonSchema);
         return jsonSchema;
