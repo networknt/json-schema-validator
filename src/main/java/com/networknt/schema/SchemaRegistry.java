@@ -784,7 +784,8 @@ public class SchemaRegistry {
                 synchronized (this) { // acquire lock on shared registry object to prevent deadlock
                     cachedUriSchema = schemaCache.get(schemaUri);
                     if (cachedUriSchema == null) {
-                        cachedUriSchema = getMappedSchema(schemaUri, validateLoadedSchema);
+                        cachedUriSchema = validateLoadedSchema ? getMappedSchema(schemaUri)
+                                : getMappedSchema(schemaUri, false);
                         if (cachedUriSchema != null) {
                             schemaCache.put(schemaUri, cachedUriSchema);
                         }
@@ -797,7 +798,7 @@ public class SchemaRegistry {
             }
             return cachedUriSchema;
         }
-        return getMappedSchema(schemaUri, validateLoadedSchema);
+        return validateLoadedSchema ? getMappedSchema(schemaUri) : getMappedSchema(schemaUri, false);
     }
 
     protected Schema getMappedSchema(final SchemaLocation schemaUri) {
