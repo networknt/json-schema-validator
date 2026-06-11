@@ -74,6 +74,18 @@ class Issue1174Test {
     }
 
     @Test
+    void textNodeShouldNotBeAcceptedAsReferencedDocumentFragmentSchema() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7,
+                builder -> builder.schemas(Collections.singletonMap("https://www.example.org/text-schema", "\"false\"")));
+        Schema schema = registry.getSchema("{\"$ref\":\"https://www.example.org/text-schema#\"}");
+
+        SchemaException exception = assertThrows(SchemaException.class, () -> schema.validate("42", InputFormat.JSON));
+
+        assertTrue(exception.getMessage().contains("must be object or boolean"));
+        assertTrue(exception.getMessage().contains("STRING"));
+    }
+
+    @Test
     void textNodeShouldNotBeAcceptedAsSubSchema() {
         SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
 
