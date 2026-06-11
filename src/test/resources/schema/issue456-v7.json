@@ -5,7 +5,9 @@
   "description": "Test description",
   "type": "object",
   "properties": {
-    "id": "string",
+    "id": {
+      "type": "string"
+    },
     "details": {
       "oneOf": [
         {

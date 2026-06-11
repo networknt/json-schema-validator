@@ -85,7 +85,9 @@
               "type": "string",
               "format": "date"
             },
-            "frequency": "integer"
+            "frequency": {
+              "type": "integer"
+            }
           },
           "required": [
             "drug",
@@ -109,12 +111,7 @@
             },
             "discharge-instructions": {
               "type": "string"
-            },
-            "required": [
-              "surgery-date",
-              "discharge-instructions"
-            ],
-            "unevaluatedProperties": false
+            }
           }
         }
       }
