@@ -44,12 +44,12 @@ class SchemaTest {
                 + "    \"name\": {\r\n"
                 + "      \"type\": \"string\",\r\n"
                 + "      \"description\": \"The name\"\r\n"
-                + "    },\r\n"
-                + "    \"required\": [\r\n"
-                + "      \"name\"\r\n"
-                + "    ]\r\n"
-                + "  }\r\n"
-                + "}";        
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"required\": [\r\n"
+                + "    \"name\"\r\n"
+                + "  ]\r\n"
+                + "}";
         String inputData = "{\r\n"
                 + "  \"name\": 1\r\n"
                 + "}";

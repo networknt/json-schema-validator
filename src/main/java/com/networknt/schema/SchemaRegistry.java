@@ -509,8 +509,17 @@ public class SchemaRegistry {
 
     private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation,
             JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
+        return doCreate(schemaContext, schemaLocation, schemaNode, parentSchema, suppressSubSchemaRetrieval, true);
+    }
+
+    private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation,
+            JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval,
+            boolean validateSchemaNodeType) {
         validateSchemaNodeNotNull(schemaLocation, schemaNode);
         SchemaContext schemaContextToUse = withDialect(schemaContext, schemaNode);
+        if (validateSchemaNodeType) {
+            validateSchemaNodeType(schemaLocation, schemaNode, schemaContextToUse);
+        }
         return Schema.from(schemaContextToUse, schemaLocation, schemaNode,
                 parentSchema, suppressSubSchemaRetrieval);
     }
@@ -752,6 +761,20 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema loadSchema(final SchemaLocation schemaUri) {
+        return loadSchema(schemaUri, true);
+    }
+
+    /**
+     * Loads the schema.
+     *
+     * @param schemaUri            the absolute IRI of the schema which can map to the
+     *                             retrieval IRI.
+     * @param validateLoadedSchema true to validate that the loaded node is a schema;
+     *                             false when loading a document container to resolve a
+     *                             fragment before using it as a schema
+     * @return the schema
+     */
+    public Schema loadSchema(final SchemaLocation schemaUri, boolean validateLoadedSchema) {
         if (schemaCacheEnabled) {
             // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
             // recursive update to the map.
@@ -761,19 +784,27 @@ public class SchemaRegistry {
                 synchronized (this) { // acquire lock on shared registry object to prevent deadlock
                     cachedUriSchema = schemaCache.get(schemaUri);
                     if (cachedUriSchema == null) {
-                        cachedUriSchema = getMappedSchema(schemaUri);
+                        cachedUriSchema = getMappedSchema(schemaUri, validateLoadedSchema);
                         if (cachedUriSchema != null) {
                             schemaCache.put(schemaUri, cachedUriSchema);
                         }
                     }
                 }
             }
+            if (validateLoadedSchema && cachedUriSchema != null) {
+                validateSchemaNodeType(cachedUriSchema.getSchemaLocation(), cachedUriSchema.getSchemaNode(),
+                        cachedUriSchema.getSchemaContext());
+            }
             return cachedUriSchema;
         }
-        return getMappedSchema(schemaUri);
+        return getMappedSchema(schemaUri, validateLoadedSchema);
     }
 
     protected Schema getMappedSchema(final SchemaLocation schemaUri) {
+        return getMappedSchema(schemaUri, true);
+    }
+
+    protected Schema getMappedSchema(final SchemaLocation schemaUri, boolean validateLoadedSchema) {
         InputStreamSource inputStreamSource = this.schemaLoader.getSchemaResource(schemaUri.getAbsoluteIri());
         if (inputStreamSource != null) {
             try (InputStream inputStream = inputStreamSource.getInputStream()) {
@@ -792,13 +823,13 @@ public class SchemaRegistry {
                     // Schema without fragment
                     SchemaContext schemaContext = new SchemaContext(dialect, this);
                     return doCreate(schemaContext, schemaUri, schemaNode, null,
-                            true /* retrieved via id, resolving will not change anything */);
+                            true /* retrieved via id, resolving will not change anything */, validateLoadedSchema);
                 } else {
                     // Schema with fragment pointing to sub schema
                     final SchemaContext schemaContext = createSchemaContext(schemaNode);
                     SchemaLocation documentLocation = new SchemaLocation(schemaUri.getAbsoluteIri());
                     Schema document = doCreate(schemaContext, documentLocation, schemaNode, null,
-                            false);
+                            false, false);
                     return document.getRefSchema(schemaUri.getFragment());
                 }
             } catch (IOException e) {

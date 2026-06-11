@@ -68,7 +68,7 @@ public class RefValidator extends BaseKeywordValidator {
             return new SchemaRef(getSupplier(() -> {
                 Schema schemaResource = schemaContext.getSchemaResources().get(schemaUriFinal);
                 if (schemaResource == null) {
-                    schemaResource = schemaContext.getSchemaRegistry().loadSchema(schemaLocation); 
+                    schemaResource = schemaContext.getSchemaRegistry().loadSchema(schemaLocation, index < 0);
                     if (schemaResource != null) {
                         copySchemaResources(schemaContext, schemaResource);
                     }

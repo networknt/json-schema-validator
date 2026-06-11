@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,6 +56,29 @@ class Issue1174Test {
 
         SchemaException exception = assertThrows(SchemaException.class,
                 () -> registry.getSchema(SchemaLocation.of("https://www.example.org/text-schema")));
+
+        assertTrue(exception.getMessage().contains("must be object or boolean"));
+        assertTrue(exception.getMessage().contains("STRING"));
+    }
+
+    @Test
+    void textNodeShouldNotBeAcceptedAsReferencedRootSchema() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7,
+                builder -> builder.schemas(Collections.singletonMap("https://www.example.org/text-schema", "\"false\"")));
+        Schema schema = registry.getSchema("{\"$ref\":\"https://www.example.org/text-schema\"}");
+
+        SchemaException exception = assertThrows(SchemaException.class, () -> schema.validate("42", InputFormat.JSON));
+
+        assertTrue(exception.getMessage().contains("must be object or boolean"));
+        assertTrue(exception.getMessage().contains("STRING"));
+    }
+
+    @Test
+    void textNodeShouldNotBeAcceptedAsSubSchema() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+
+        SchemaException exception = assertThrows(SchemaException.class,
+                () -> registry.getSchema("{\"type\":\"object\",\"properties\":{\"a\":\"false\"}}"));
 
         assertTrue(exception.getMessage().contains("must be object or boolean"));
         assertTrue(exception.getMessage().contains("STRING"));
