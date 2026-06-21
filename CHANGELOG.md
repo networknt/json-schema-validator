@@ -13,6 +13,43 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 2.0.2- 2026-06-21
+
+### Added
+
+### Changed
+
+* fixes #1248 validating draft4 schemas (#1249)
+
+* fixes #1248 validating draft4 schemas
+
+* Address regex factory review comments
+
+* Rename regex specification version variable
+
+* fixes #1174 TextNodes as schema seem to validate any value (#1250)
+
+* fixes #1174 TextNodes as schema seem to validate any value
+
+* Address loaded schema validation for issue 1174
+
+* Address schema node validation review comments
+
+* Preserve mapped schema override path
+
+* Validate referenced document fragment schemas
+
+* Remove duplicate schema type validation
+
+* Validate loaded schemas for anchor refs
+
+* fixes #1252 problem with additionalProperties schema in jsconfig schema (#1253)
+
+* Add method to SpecificationVersion to determine from schema node (#1221)
+
+* Manual adjustments for Jackson 2 compatibility and CVE fix
+
+
 ## 2.0.1- 2025-12-11
 
 ### Added
