@@ -13,6 +13,15 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 3.0.5- 2026-06-21
+
+### Added
+
+### Changed
+- fixes #1252 problem with additionalProperties schema in jsconfig schema (#1253)
+- fixes #1174 TextNodes as schema seem to validate any value (#1250)
+
+
 ## 3.0.4- 2026-06-10
 
 ### Added
