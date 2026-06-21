@@ -109,10 +109,6 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
         for (Iterator<Entry<String, JsonNode>> it = node.fields(); it.hasNext(); ) {
             Entry<String, JsonNode> entry = it.next();
             String pname = entry.getKey();
-            // skip the context items
-            if (pname.startsWith("#")) {
-                continue;
-            }
             if (!allowedProperties.contains(pname) && !handledByPatternProperties(pname)) {
                 if (!allowAdditionalProperties) {
                     executionContext.addError(error().instanceNode(node).property(pname)
@@ -156,10 +152,6 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
         // Else continue walking.
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
-            // skip the context items
-            if (pname.startsWith("#")) {
-                continue;
-            }
             if (!allowedProperties.contains(pname) && !handledByPatternProperties(pname)) {
                 if (allowAdditionalProperties) {
                     if (additionalPropertiesSchema != null) {
