@@ -28,9 +28,13 @@ class GraalJSRegularExpression implements RegularExpression {
     private final Value function;
     
     GraalJSRegularExpression(String regex, GraalJSRegularExpressionContext context) {
+        this(regex, context, true);
+    }
+
+    GraalJSRegularExpression(String regex, GraalJSRegularExpressionContext context, boolean unicode) {
         this.context = context;
         synchronized(context.getContext()) {
-            this.function = context.getRegExpBuilder().execute(regex);
+            this.function = context.getRegExpBuilder(unicode).execute(regex);
         }
     }
 

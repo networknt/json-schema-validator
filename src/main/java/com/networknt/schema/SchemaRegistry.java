@@ -282,6 +282,26 @@ public class SchemaRegistry {
      * Creates a new schema registry with a default schema dialect. The schema
      * dialect will only be used if the input does not specify a $schema.
      * <p>
+     * If the dialectId is null then the $schema is mandatory.
+     * <p>
+     * This uses a dialect registry that contains all the supported standard
+     * specification dialects, Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft
+     * 2020-12.
+     * 
+     * @param dialectId  the default dialect id used when the schema does not
+     *                   specify the $schema keyword
+     * @return the factory
+     */
+    public static SchemaRegistry withDefaultDialectId(String dialectId) {
+        return withDefaultDialectId(dialectId, null);
+    }
+
+    /**
+     * Creates a new schema registry with a default schema dialect. The schema
+     * dialect will only be used if the input does not specify a $schema.
+     * <p>
+     * If the dialectId is null then the $schema is mandatory.
+     * <p>
      * This uses a dialect registry that contains all the supported standard
      * specification dialects, Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft
      * 2020-12.
@@ -449,9 +469,10 @@ public class SchemaRegistry {
      * @return the schema
      */
     protected Schema newSchema(SchemaLocation schemaUri, JsonNode schemaNode) {
+        SchemaLocation schemaLocation = getSchemaLocation(schemaUri);
+        validateSchemaNodeNotNull(schemaLocation, schemaNode);
         final SchemaContext schemaContext = createSchemaContext(schemaNode);
-        Schema jsonSchema = doCreate(schemaContext, getSchemaLocation(schemaUri),
-                schemaNode, null, false);
+        Schema jsonSchema = doCreate(schemaContext, schemaLocation, schemaNode, null, false);
         preload(jsonSchema);
         return jsonSchema;
     }
@@ -487,8 +508,44 @@ public class SchemaRegistry {
 
     private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation,
             JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return Schema.from(withDialect(schemaContext, schemaNode), schemaLocation, schemaNode,
+        return doCreate(schemaContext, schemaLocation, schemaNode, parentSchema, suppressSubSchemaRetrieval, true);
+    }
+
+    private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation,
+            JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval,
+            boolean validateSchemaNodeType) {
+        validateSchemaNodeNotNull(schemaLocation, schemaNode);
+        SchemaContext schemaContextToUse = withDialect(schemaContext, schemaNode);
+        if (validateSchemaNodeType) {
+            validateSchemaNodeType(schemaLocation, schemaNode, schemaContextToUse);
+        }
+        return Schema.from(schemaContextToUse, schemaLocation, schemaNode,
                 parentSchema, suppressSubSchemaRetrieval);
+    }
+
+    private void validateSchemaNodeNotNull(SchemaLocation schemaLocation, JsonNode schemaNode) {
+        if (schemaNode == null) {
+            throw new SchemaException("Schema at " + schemaLocation + " must not be null");
+        }
+    }
+
+    private void validateSchemaNodeType(SchemaLocation schemaLocation, JsonNode schemaNode,
+            SchemaContext schemaContext) {
+        if (schemaNode.isObject()) {
+            return;
+        }
+        if (schemaNode.isBoolean() && supportsBooleanSchema(schemaContext)) {
+            return;
+        }
+        String expected = supportsBooleanSchema(schemaContext) ? "object or boolean" : "object";
+        throw new SchemaException("Schema at " + schemaLocation + " must be " + expected + " but was "
+                + schemaNode.getNodeType());
+    }
+
+    private boolean supportsBooleanSchema(SchemaContext schemaContext) {
+        return schemaContext != null
+                && schemaContext.getDialect().getSpecificationVersion().getOrder() >= SpecificationVersion.DRAFT_6
+                        .getOrder();
     }
 
     /**
@@ -647,6 +704,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final SchemaLocation schemaUri) {
         Schema schema = loadSchema(schemaUri);
+        validateSchemaNodeType(schema.getSchemaLocation(), schema.getSchemaNode(), schema.getSchemaContext());
         preload(schema);
         return schema;
     }
@@ -722,6 +780,20 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema loadSchema(final SchemaLocation schemaUri) {
+        return loadSchema(schemaUri, true);
+    }
+
+    /**
+     * Loads the schema.
+     *
+     * @param schemaUri            the absolute IRI of the schema which can map to the
+     *                             retrieval IRI.
+     * @param validateLoadedSchema true to validate that the loaded node is a schema;
+     *                             false when loading a document container to resolve a
+     *                             fragment before using it as a schema
+     * @return the schema
+     */
+    public Schema loadSchema(final SchemaLocation schemaUri, boolean validateLoadedSchema) {
         if (schemaCacheEnabled) {
             // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
             // recursive update to the map.
@@ -731,19 +803,28 @@ public class SchemaRegistry {
                 synchronized (this) { // acquire lock on shared registry object to prevent deadlock
                     cachedUriSchema = schemaCache.get(schemaUri);
                     if (cachedUriSchema == null) {
-                        cachedUriSchema = getMappedSchema(schemaUri);
+                        cachedUriSchema = validateLoadedSchema ? getMappedSchema(schemaUri)
+                                : getMappedSchema(schemaUri, false);
                         if (cachedUriSchema != null) {
                             schemaCache.put(schemaUri, cachedUriSchema);
                         }
                     }
                 }
             }
+            if (validateLoadedSchema && cachedUriSchema != null) {
+                validateSchemaNodeType(cachedUriSchema.getSchemaLocation(), cachedUriSchema.getSchemaNode(),
+                        cachedUriSchema.getSchemaContext());
+            }
             return cachedUriSchema;
         }
-        return getMappedSchema(schemaUri);
+        return validateLoadedSchema ? getMappedSchema(schemaUri) : getMappedSchema(schemaUri, false);
     }
 
     protected Schema getMappedSchema(final SchemaLocation schemaUri) {
+        return getMappedSchema(schemaUri, true);
+    }
+
+    protected Schema getMappedSchema(final SchemaLocation schemaUri, boolean validateLoadedSchema) {
         InputStreamSource inputStreamSource = this.schemaLoader.getSchemaResource(schemaUri.getAbsoluteIri());
         if (inputStreamSource != null) {
             try (InputStream inputStream = inputStreamSource.getInputStream()) {
@@ -762,13 +843,13 @@ public class SchemaRegistry {
                     // Schema without fragment
                     SchemaContext schemaContext = new SchemaContext(dialect, this);
                     return doCreate(schemaContext, schemaUri, schemaNode, null,
-                            true /* retrieved via id, resolving will not change anything */);
+                            true /* retrieved via id, resolving will not change anything */, validateLoadedSchema);
                 } else {
                     // Schema with fragment pointing to sub schema
                     final SchemaContext schemaContext = createSchemaContext(schemaNode);
                     SchemaLocation documentLocation = new SchemaLocation(schemaUri.getAbsoluteIri());
                     Schema document = doCreate(schemaContext, documentLocation, schemaNode, null,
-                            false);
+                            false, false);
                     return document.getRefSchema(schemaUri.getFragment());
                 }
             } catch (IOException e) {

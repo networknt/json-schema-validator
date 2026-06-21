@@ -22,12 +22,13 @@ import org.graalvm.polyglot.Value;
  * GraalJSRegularExpressionContext.
  */
 public class GraalJSRegularExpressionContext {
-    private static final String SOURCE = "pattern => {\n"
-            + "    const regex = new RegExp(pattern, 'u');\n"
+    private static final String SOURCE = "flags => pattern => {\n"
+            + "    const regex = new RegExp(pattern, flags);\n"
             + "    return text => text.match(regex)\n"
             + "};";
 
     private final Context context;
+    private final Value nonUnicodeRegExpBuilder;
     private final Value regExpBuilder;
 
     /**
@@ -41,7 +42,9 @@ public class GraalJSRegularExpressionContext {
     public GraalJSRegularExpressionContext(Context context) {
         this.context = context;
         synchronized(this.context) {
-            this.regExpBuilder = this.context.eval("js", SOURCE);
+            Value builder = this.context.eval("js", SOURCE);
+            this.nonUnicodeRegExpBuilder = builder.execute("");
+            this.regExpBuilder = builder.execute("u");
         }
     }
 
@@ -62,5 +65,15 @@ public class GraalJSRegularExpressionContext {
      */
     public Value getRegExpBuilder() {
         return regExpBuilder;
+    }
+
+    /**
+     * Gets the RegExp builder.
+     *
+     * @param unicode whether the unicode flag should be used
+     * @return the regexp builder
+     */
+    public Value getRegExpBuilder(boolean unicode) {
+        return unicode ? regExpBuilder : nonUnicodeRegExpBuilder;
     }
 }
