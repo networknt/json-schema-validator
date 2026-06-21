@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import com.networknt.schema.dialect.DialectId;
 
-import tools.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * The version of the JSON Schema specification that defines the standard
@@ -103,8 +103,8 @@ public enum SpecificationVersion {
      */
     public static Optional<SpecificationVersion> fromSchemaNode(JsonNode schemaNode) {
         JsonNode schema = schemaNode.get("$schema");
-        if (schema != null && schema.isString()) {
-            return fromDialectId(schema.stringValue());
+        if (schema != null && schema.isTextual()) {
+            return fromDialectId(schema.textValue());
         }
         return Optional.empty();
     }

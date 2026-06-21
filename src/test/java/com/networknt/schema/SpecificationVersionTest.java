@@ -19,22 +19,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 class SpecificationVersionTest {
     @Test
-    void fromSchemaNode() {
+    void fromSchemaNode() throws Exception {
         String schema = "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"$ref\":\"https://example.org/schema\"}";
-        JsonNode schemaNode = JsonMapper.shared().readTree(schema);
+        JsonNode schemaNode = new ObjectMapper().readTree(schema);
         assertEquals(SpecificationVersionDetector.detectOptionalVersion(schemaNode, false),
                 SpecificationVersion.fromSchemaNode(schemaNode));
     }
 
     @Test
-    void fromSchemaNodeMissing() {
+    void fromSchemaNodeMissing() throws Exception {
         String schema = "{\"type\":\"object\",\"$ref\":\"https://example.org/schema\"}";
-        JsonNode schemaNode = JsonMapper.shared().readTree(schema);
+        JsonNode schemaNode = new ObjectMapper().readTree(schema);
         assertEquals(SpecificationVersionDetector.detectOptionalVersion(schemaNode, false),
                 SpecificationVersion.fromSchemaNode(schemaNode));
     }

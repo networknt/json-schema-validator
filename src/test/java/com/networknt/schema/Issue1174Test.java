@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 class Issue1174Test {
     @Test
