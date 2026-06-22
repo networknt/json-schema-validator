@@ -186,9 +186,7 @@ public class ItemsLegacyValidator extends BaseKeywordValidator {
                         executionContext.evaluationPathAddLast("items");
                     }
                 } else if (this.additionalItems != null) {
-                    if (this.additionalItems) {
-//                        evaluatedItems.add(path);
-                    } else {
+                    if (!this.additionalItems) {
                         // no additional item allowed, return error
                         executionContext.evaluationPathRemoveLast(); // remove items
                         executionContext.evaluationPathAddLast("additionalItems");
