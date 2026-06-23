@@ -13,6 +13,17 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 2.0.3- 2026-06-23
+
+### Added
+
+### Changed
+
+* release with JDK 11
+* fixes 2.0.2 published jar is missing module-info.class — JPMS module com.networknt.schema no longer resolves
+
+
+
 ## 2.0.2- 2026-06-21
 
 ### Added
