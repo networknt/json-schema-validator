@@ -44,8 +44,8 @@ public class ExecutionContext {
     private final Map<NodePath, DiscriminatorState> discriminatorMapping = new HashMap<>();
     
     NodePath evaluationPath;
-    final ArrayDeque<Schema> evaluationSchema = new ArrayDeque<>(64);
-    final ArrayDeque<Object> evaluationSchemaPath = new ArrayDeque<>(64);
+    final ArrayDeque<Schema> evaluationSchema = new ArrayDeque<>();
+    final ArrayDeque<Object> evaluationSchemaPath = new ArrayDeque<>();
     
     public NodePath getEvaluationPath() {
         return evaluationPath;
