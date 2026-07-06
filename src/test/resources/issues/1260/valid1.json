@@ -1,0 +1,20 @@
+{
+  "fields": {
+    "entity": {
+      "status": {
+        "label": "Status"
+      },
+      "assessments": {
+        "entityOndemand": {
+          "label": "Ondemand assessment of entity",
+          "recurrence": "ondemand",
+          "questions": {
+            "assessmentDate": {
+              "type": "date"
+            }
+          }
+        }
+      }
+    }
+  }
+}

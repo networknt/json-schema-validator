@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "labeledField": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "date"
+          ]
+        }
+      }
+    },
+    "questions": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/question"
+      }
+    },
+    "assessmentDef": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "required": [
+        "recurrence"
+      ],
+      "properties": {
+        "recurrence": {
+          "type": "string",
+          "enum": [
+            "once",
+            "monthly",
+            "ondemand"
+          ],
+          "default": "once"
+        },
+        "relatedObjectType": {
+          "type": "string",
+          "enum": [
+            "otherEntity"
+          ]
+        },
+        "onDemandAssessmentExpirationDays": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "questions": {
+          "$ref": "#/$defs/questions"
+        }
+      },
+      "dependentSchemas": {
+        "recurrence": {
+          "oneOf": [
+            {
+              "properties": {
+                "recurrence": {
+                  "enum": [
+                    "monthly"
+                  ]
+                }
+              }
+            },
+            {
+              "properties": {
+                "recurrence": {
+                  "enum": [
+                    "once"
+                  ]
+                }
+              },
+              "required": [
+                "relatedObjectType"
+              ]
+            },
+            {
+              "properties": {
+                "recurrence": {
+                  "enum": [
+                    "ondemand"
+                  ]
+                },
+                "questions": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/questions"
+                    },
+                    {
+                      "properties": {
+                        "assessmentDate": {
+                          "$ref": "#/$defs/question"
+                        }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "expirationDate": {
+                          "$ref": "#/$defs/question"
+                        }
+                      }
+                    }
+                  ],
+                  "required": [
+                    "assessmentDate"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "onDemandAssessmentExpirationDays": {
+          "oneOf": [
+            {
+              "properties": {
+                "questions": {
+                  "expirationDate": {
+                    "$ref": "#/$defs/question"
+                  },
+                  "required": [
+                    "expirationDate"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fields"
+  ],
+  "properties": {
+    "fields": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity"
+      ],
+      "properties": {
+        "entity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/labeledField"
+            },
+            "assessments": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/assessmentDef"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
