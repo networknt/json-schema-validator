@@ -1,0 +1,21 @@
+{
+  "fields": {
+    "entity": {
+      "status": {
+        "label": "Status"
+      },
+      "assessments": {
+        "entityOndemand": {
+          "label": "Ondemand assessment of entity",
+          "recurrence": "ondemand",
+          "onDemandAssessmentExpirationDays": 180,
+          "questions": {
+            "assessmentDate": {
+              "type": "date"
+            }
+          }
+        }
+      }
+    }
+  }
+}
