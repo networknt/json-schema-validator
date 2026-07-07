@@ -232,7 +232,7 @@ The `json-schema-validator` package is published to Maven Central and is availab
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.4</version>
 </dependency>
 ```
 
@@ -243,7 +243,7 @@ The `json-schema-validator` package is published to Maven Central and is availab
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>3.0.5</version>
+    <version>3.0.6</version>
 </dependency>
 ```
 
@@ -255,7 +255,7 @@ The `json-schema-validator` package is published to Maven Central and is availab
 
 ```java
 dependencies {
-    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '2.0.1');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '2.0.4');
 }
 ```
 
@@ -265,7 +265,7 @@ dependencies {
 
 ```java
 dependencies {
-    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '3.0.5');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '3.0.6');
 }
 ```
 

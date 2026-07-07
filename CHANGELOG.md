@@ -13,6 +13,19 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 3.0.6- 2026-07-07
+
+### Added
+
+### Changed
+- Fall back to the library class loader for classpath resources (#1265) Thanks @joaodinissf
+- Add schema tests (#1260) (#1261) Thanks @gjvoosten
+- Bump jackson to 3.1.4 to fix CVE-2026-54512 and CVE-2026-54513 (#1263) Thanks @olinoskar
+- Reduce per-validation allocation in ExecutionContext (#1259) Thanks @nishantmehta
+- test: re-enable and strengthen recursive $ref SelfRefTest (#1258) Thanks @koteshyelamati
+- simplify additionalItems validation flow (#1256) Thanks @Oz-er
+
+
 ## 3.0.5- 2026-06-21
 
 ### Added
