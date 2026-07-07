@@ -35,11 +35,14 @@ public class ClasspathResourceLoader implements ResourceLoader {
 
     private final Supplier<ClassLoader> classLoaderSource;
 
+    /** Whether to fall back to this library's own class loader when the default source misses. */
+    private final boolean fallbackToOwnClassLoader;
+
     /**
      * Constructor.
      */
     public ClasspathResourceLoader() {
-        this(ClasspathResourceLoader::getClassLoader);
+        this(ClasspathResourceLoader::getClassLoader, true);
     }
 
     /**
@@ -48,7 +51,12 @@ public class ClasspathResourceLoader implements ResourceLoader {
      * @param classLoaderSource the class loader source
      */
     public ClasspathResourceLoader(Supplier<ClassLoader> classLoaderSource) {
+        this(classLoaderSource, false);
+    }
+
+    private ClasspathResourceLoader(Supplier<ClassLoader> classLoaderSource, boolean fallbackToOwnClassLoader) {
         this.classLoaderSource = classLoaderSource;
+        this.fallbackToOwnClassLoader = fallbackToOwnClassLoader;
     }
 
     @Override
@@ -70,6 +78,17 @@ public class ClasspathResourceLoader implements ResourceLoader {
                 InputStream result = classLoader.getResourceAsStream(resource);
                 if (result == null) {
                     result = classLoader.getResourceAsStream(resource.substring(1));
+                }
+                if (result == null && this.fallbackToOwnClassLoader) {
+                    // In OSGi the thread-context class loader is often non-null but cannot see this
+                    // library's bundled resources; retry with the library's own class loader.
+                    ClassLoader ownClassLoader = ResourceLoader.class.getClassLoader();
+                    if (ownClassLoader != null && ownClassLoader != classLoader) {
+                        result = ownClassLoader.getResourceAsStream(resource);
+                        if (result == null) {
+                            result = ownClassLoader.getResourceAsStream(resource.substring(1));
+                        }
+                    }
                 }
                 if (result == null) {
                     throw new FileNotFoundException(iri);
