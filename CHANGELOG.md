@@ -13,6 +13,15 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 2.0.4- 2026-07-07
+
+### Added
+
+### Changed
+
+* Fall back to the library class loader for classpath resources (#1266) Thanks @joaodinissf
+
+
 ## 2.0.3- 2026-06-23
 
 ### Added
