@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.networknt.schema.Error;
 import com.networknt.schema.InputFormat;
@@ -76,5 +78,17 @@ class IdnEmailFormatTest {
     void idnEmailWithLeadingNbspShouldFail() {
         List<Error> messages = validateIdnEmail(NBSP + "name@email.com");
         assertFalse(messages.isEmpty(), "idn-email with a leading non-breaking space (U+00A0) should be invalid");
+    }
+
+    /**
+     * The fix generalizes to other non-ASCII whitespace such as U+2003 EM SPACE
+     * and U+3000 IDEOGRAPHIC SPACE, mirroring the equivalent EmailFormatTest case.
+     */
+    @ParameterizedTest
+    @ValueSource(ints = { 0x2003, 0x3000 })
+    void idnEmailWithLeadingUnicodeWhitespaceShouldFail(int codePoint) {
+        String whitespace = new String(Character.toChars(codePoint));
+        List<Error> messages = validateIdnEmail(whitespace + "name@email.com");
+        assertFalse(messages.isEmpty(), "idn-email with a leading non-ASCII whitespace character should be invalid");
     }
 }
