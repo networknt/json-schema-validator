@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784770414151,
+  "lastUpdate": 1785245546883,
   "repoUrl": "https://github.com/networknt/json-schema-validator",
   "entries": {
     "JSON Schema Validator Benchmark": [
@@ -3598,6 +3598,96 @@ window.BENCHMARK_DATA = {
           {
             "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
             "value": 4464.82168510471,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "el.psy.kongroo.d@gmail.com",
+            "name": "el-psy-kongroo-d",
+            "username": "el-psy-kongroo-d"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "73eb8f2a0553c7c5ba4269940dbf311e1b82e90d",
+          "message": "Reject non-ASCII whitespace in idn-email and strengthen email format tests (#1268)\n\n* Reject non-ASCII whitespace in idn-email and strengthen email format tests\n\nFollow-up to #1267 applying the review suggestions:\n\n- Extract the non-ASCII-whitespace check to Strings.containsNonAsciiWhitespace\n  and reuse it from both EmailFormat and IdnEmailFormat.\n- idn-email shares EmailFormat's delegation and had the same bug (a leading\n  U+00A0 was accepted); it now rejects non-ASCII whitespace too. Adds a license\n  header to IdnEmailFormat (it had none) and a new IdnEmailFormatTest that also\n  verifies a non-ASCII letter is still accepted.\n- Strengthen EmailFormatTest: assert a quoted local part with an ASCII space\n  (\"joe bloggs\"@example.com) stays valid, and generalize the negative case over\n  U+00A0, U+2003 and U+3000.\n\nThe change stays deliberately narrow (whitespace only); non-ASCII letters are\nstill accepted in idn-email. Zero-width format characters (e.g. U+200B, U+FEFF)\nare out of scope and unchanged.\n\n* Generalize idn-email whitespace test over U+2003 and U+3000\n\n---------\n\nCo-authored-by: el-psy-kongroo-d <307969302+el-psy-kongroo-d@users.noreply.github.com>",
+          "timestamp": "2026-07-28T09:26:04-04:00",
+          "tree_id": "22e52f27a7bc7ae84cb57da3864ce88511dcca1f",
+          "url": "https://github.com/networknt/json-schema-validator/commit/73eb8f2a0553c7c5ba4269940dbf311e1b82e90d"
+        },
+        "date": 1785245546456,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
+            "value": 4469.881494379617,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1242.557571727064,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1307.937920020741,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 1395.000244864529,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3152.0968412491943,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 3898.81248406867,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1072.2750730820228,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1165.4181624760886,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 3138.815532834987,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3338.0528023563406,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 4842.265542401422,
             "unit": "ops/s",
             "extra": "iterations: 3\nforks: 1\nthreads: 1"
           }
