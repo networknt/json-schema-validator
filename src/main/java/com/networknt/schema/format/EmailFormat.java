@@ -18,6 +18,7 @@ package com.networknt.schema.format;
 
 import com.networknt.org.apache.commons.validator.routines.EmailValidator;
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.utils.Strings;
 
 /**
  * Format for email.
@@ -35,25 +36,10 @@ public class EmailFormat implements Format {
 
     @Override
     public boolean matches(ExecutionContext executionContext, String value) {
-        if (containsNonAsciiWhitespace(value)) {
+        if (Strings.containsNonAsciiWhitespace(value)) {
             return false;
         }
         return this.emailValidator.isValid(value);
-    }
-
-    /**
-     * Whether {@code value} contains a non-ASCII whitespace character such as
-     * {@code U+00A0} NON-BREAKING SPACE. The underlying validator only excludes
-     * ASCII whitespace, so such characters would otherwise be accepted in an
-     * email address. Note that {@link Character#isWhitespace(char)} deliberately
-     * excludes {@code U+00A0}, hence the additional
-     * {@link Character#isSpaceChar(char)} check.
-     */
-    private static boolean containsNonAsciiWhitespace(String value) {
-        if (value == null) {
-            return false;
-        }
-        return value.codePoints().anyMatch(ch -> ch > 0x7F && (Character.isWhitespace(ch) || Character.isSpaceChar(ch)));
     }
     
     @Override

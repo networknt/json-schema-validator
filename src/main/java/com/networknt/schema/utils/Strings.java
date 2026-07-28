@@ -169,4 +169,20 @@ public final class Strings {
 
         return segments.toArray(new String[segments.size()]);
     }
+
+    /**
+     * Whether the given string contains a non-ASCII whitespace character such as
+     * {@code U+00A0} NON-BREAKING SPACE. Note that {@link Character#isWhitespace(int)}
+     * deliberately excludes {@code U+00A0}, hence the additional
+     * {@link Character#isSpaceChar(int)} check.
+     *
+     * @param string the string to test, may be null
+     * @return true if the string contains a non-ASCII whitespace character
+     */
+    public static boolean containsNonAsciiWhitespace(String string) {
+        if (string == null) {
+            return false;
+        }
+        return string.codePoints().anyMatch(ch -> ch > 0x7F && (Character.isWhitespace(ch) || Character.isSpaceChar(ch)));
+    }
 }
