@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.CancellationException;
+
 import org.joni.exception.SyntaxException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -193,6 +195,18 @@ class JoniRegularExpressionTest {
     void noImplicitAnchors() {
         RegularExpression regex = new JoniRegularExpression("[a-z]{1,10}");
         assertTrue(regex.matches("1abc1"));
+    }
+
+    @Test
+    void matchingInterruptedThreadCancelsValidation() {
+        RegularExpression regex = new JoniRegularExpression("a+");
+        Thread.currentThread().interrupt();
+        try {
+            assertThrows(CancellationException.class, () -> regex.matches("a".repeat(1024)));
+        }
+        finally {
+            Thread.interrupted();
+        }
     }
 
     @Test

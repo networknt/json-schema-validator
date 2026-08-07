@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 
 public class PatternValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
@@ -72,6 +73,8 @@ public class PatternValidator extends BaseKeywordValidator {
                 return;
             }
         } catch (SchemaException | FailFastAssertionException e) {
+            throw e;
+        } catch (CancellationException e) {
             throw e;
         } catch (RuntimeException e) {
             logger.error("Failed to apply pattern '{}' at {}: {}", this.pattern, instanceLocation, e.getMessage());

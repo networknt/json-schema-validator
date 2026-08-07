@@ -2,6 +2,7 @@ package com.networknt.schema.regex;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CancellationException;
 import java.util.regex.Pattern;
 
 import org.jcodings.ApplyAllCaseFoldFunction;
@@ -70,7 +71,12 @@ class JoniRegularExpression implements RegularExpression {
     @Override
     public boolean matches(String value) {
         byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-        return this.pattern.matcher(bytes).search(0, bytes.length, Option.NONE) >= 0;
+        try {
+            return this.pattern.matcher(bytes).searchInterruptible(0, bytes.length, Option.NONE) >= 0;
+        }
+        catch (InterruptedException e) {
+            throw (CancellationException)new CancellationException("Regular expression matching was interrupted").initCause(e);
+        }
     }
 
     static class Arrays {
