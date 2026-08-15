@@ -405,17 +405,11 @@ public class SchemaLocation {
         if (pathType == null || this.fragment == null || pathType == this.fragment.getPathType()) {
             return toString();
         }
-        NodePath converted = new NodePath(pathType);
-        int count = this.fragment.getNameCount();
-        for (int i = 0; i < count; i++) {
-            Object element = this.fragment.getElement(i);
-            if (element instanceof Number) {
-                converted = converted.append(((Number) element).intValue());
-            } else if (element != null) {
-                converted = converted.append(element.toString());
-            }
+        // Anchors keep their URI-reference identity. Only JSON Pointer fragments convert.
+        if (PathType.URI_REFERENCE.equals(this.fragment.getPathType())) {
+            return toString();
         }
-        String fragmentText = converted.toString();
+        String fragmentText = formatFragment(pathType);
         if (this.absoluteIri == null) {
             return fragmentText;
         }
@@ -423,6 +417,25 @@ public class SchemaLocation {
             return this.absoluteIri + fragmentText;
         }
         return this.absoluteIri + "#" + fragmentText;
+    }
+
+    private String formatFragment(PathType pathType) {
+        StringBuilder currentPath = new StringBuilder(pathType.getRoot());
+        int count = this.fragment.getNameCount();
+        for (int i = 0; i < count; i++) {
+            Object element = this.fragment.getElement(i);
+            if (element instanceof Number) {
+                pathType.append(currentPath, ((Number) element).intValue());
+            } else {
+                String token = element == null ? "" : element.toString();
+                if (token.isEmpty() && pathType == PathType.JSON_PATH) {
+                    currentPath.append("['']");
+                } else {
+                    pathType.append(currentPath, token);
+                }
+            }
+        }
+        return currentPath.toString();
     }
 
     @Override

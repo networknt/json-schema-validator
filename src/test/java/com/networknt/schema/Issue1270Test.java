@@ -52,4 +52,19 @@ class Issue1270Test {
         assertTrue(exception.getMessage().contains("must be object or boolean"), exception.getMessage());
         assertTrue(exception.getMessage().contains("#/properties/required"), exception.getMessage());
     }
+
+    @Test
+    void schemaExceptionShouldKeepDiagnosticForEmptyPropertyName() {
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.JSON_PATH).build();
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7,
+                builder -> builder.schemaRegistryConfig(config));
+
+        SchemaException exception = assertThrows(SchemaException.class,
+                () -> registry.getSchema("{\"type\":\"object\",\"properties\":{\"\":[]}}"));
+
+        assertTrue(exception.getMessage().contains("must be object or boolean"), exception.getMessage());
+        assertTrue(exception.getMessage().contains("ARRAY"), exception.getMessage());
+        assertTrue(exception.getMessage().contains("$.properties['']"), exception.getMessage());
+        assertFalse(exception.getMessage().contains("JSONPath selector cannot be empty"), exception.getMessage());
+    }
 }
