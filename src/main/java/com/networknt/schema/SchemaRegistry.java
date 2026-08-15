@@ -22,6 +22,7 @@ import com.networknt.schema.dialect.DefaultDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.dialect.DialectRegistry;
+import com.networknt.schema.path.PathType;
 import com.networknt.schema.resource.InputStreamSource;
 import com.networknt.schema.resource.ResourceLoaders;
 import com.networknt.schema.resource.SchemaIdResolvers;
@@ -525,7 +526,7 @@ public class SchemaRegistry {
 
     private void validateSchemaNodeNotNull(SchemaLocation schemaLocation, JsonNode schemaNode) {
         if (schemaNode == null) {
-            throw new SchemaException("Schema at " + schemaLocation + " must not be null");
+            throw new SchemaException("Schema at " + formatSchemaLocation(schemaLocation) + " must not be null");
         }
     }
 
@@ -538,8 +539,13 @@ public class SchemaRegistry {
             return;
         }
         String expected = supportsBooleanSchema(schemaContext) ? "object or boolean" : "object";
-        throw new SchemaException("Schema at " + schemaLocation + " must be " + expected + " but was "
-                + schemaNode.getNodeType());
+        throw new SchemaException("Schema at " + formatSchemaLocation(schemaLocation) + " must be " + expected
+                + " but was " + schemaNode.getNodeType());
+    }
+
+    private String formatSchemaLocation(SchemaLocation schemaLocation) {
+        PathType pathType = this.schemaRegistryConfig != null ? this.schemaRegistryConfig.getPathType() : null;
+        return schemaLocation.toString(pathType);
     }
 
     private boolean supportsBooleanSchema(SchemaContext schemaContext) {

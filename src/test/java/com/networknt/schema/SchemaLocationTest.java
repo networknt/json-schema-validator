@@ -22,6 +22,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
 
 class SchemaLocationTest {
 
@@ -291,6 +292,14 @@ class SchemaLocationTest {
     void equalsEqualsNoFragmentToString() {
         assertEquals(SchemaLocation.of("https://example.com/example.yaml#").toString(),
                 SchemaLocation.of("https://example.com/example.yaml").toString());
+    }
+
+    @Test
+    void toStringHonorsRequestedPathType() {
+        SchemaLocation location = SchemaLocation.of("#/properties/required");
+        assertEquals("#/properties/required", location.toString());
+        assertEquals("#/properties/required", location.toString(PathType.JSON_POINTER));
+        assertEquals("$.properties.required", location.toString(PathType.JSON_PATH));
     }
 
 }

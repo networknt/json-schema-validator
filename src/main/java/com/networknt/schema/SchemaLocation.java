@@ -392,6 +392,39 @@ public class SchemaLocation {
 
     }
 
+    /**
+     * Formats this location using the requested path type for the fragment.
+     * <p>
+     * Schema locations are stored as JSON Pointer fragments. Validation messages
+     * can request a different representation through {@link SchemaRegistryConfig}.
+     *
+     * @param pathType the path type to use for the fragment
+     * @return the formatted location
+     */
+    public String toString(PathType pathType) {
+        if (pathType == null || this.fragment == null || pathType == this.fragment.getPathType()) {
+            return toString();
+        }
+        NodePath converted = new NodePath(pathType);
+        int count = this.fragment.getNameCount();
+        for (int i = 0; i < count; i++) {
+            Object element = this.fragment.getElement(i);
+            if (element instanceof Number) {
+                converted = converted.append(((Number) element).intValue());
+            } else if (element != null) {
+                converted = converted.append(element.toString());
+            }
+        }
+        String fragmentText = converted.toString();
+        if (this.absoluteIri == null) {
+            return fragmentText;
+        }
+        if (fragmentText.startsWith("$")) {
+            return this.absoluteIri + fragmentText;
+        }
+        return this.absoluteIri + "#" + fragmentText;
+    }
+
     @Override
     public String toString() {
         if (this.value == null) {
