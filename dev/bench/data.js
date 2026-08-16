@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1786887810427,
+  "lastUpdate": 1786921951806,
   "repoUrl": "https://github.com/networknt/json-schema-validator",
   "entries": {
     "JSON Schema Validator Benchmark": [
@@ -3778,6 +3778,96 @@ window.BENCHMARK_DATA = {
           {
             "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
             "value": 4698.061374929146,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "denisgregor2@protonmail.com",
+            "name": "Denis Gregor",
+            "username": "dngr2"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "285170f885ea78c81a81659c1ecb7292c710aaa0",
+          "message": "fix: uniqueItems compares numbers by value, not by node type (#1273)\n\n* fix: uniqueItems compares numbers by value, not by node type\n\nuniqueItems put each item into a HashSet<JsonNode> and relied on JsonNode\nequality, which is type-sensitive: IntNode(1) does not equal\nDoubleNode(1.0). Two mathematically equal numbers written differently were\ntherefore accepted as distinct items, and [1, 1.0] validated.\n\nThe suite's case for this rule is [1.0, 1.0, 1] (\"numbers are unique if\nmathematically unequal\"). It passes either way, because the two identical\ndecimals are caught before an integer is ever compared against a decimal,\nso the gap stayed hidden.\n\nItems are now compared by a derived key. Numbers reduce to a\nscale-independent BigDecimal, so 1, 1.0 and 1.00 are one value, and\n10000000000 matches 1.0e10. Only numbers are folded together: a number and\na boolean stay distinct, as do a number and its string form, which the\nsuite requires with nested [1] vs [true] and [0] vs [false]. Objects and\narrays are walked so the rule holds wherever the number sits, and map\nequality ignores property order.\n\nTests cover the integer/decimal pairs, differing scales, a large value in\nexponent form, nesting inside an object and an array, and the\nnumber-versus-boolean and number-versus-string cases that must stay\nunique. Four of them fail against the previous implementation.\n\nFull suite: 8487 tests, 0 failures.\n\n* fix: keep non-finite numbers out of the uniqueItems comparison\n\ndecimalValue() has no BigDecimal to return for NaN, Infinity or -Infinity and\nthrows, so folding numbers by value made uniqueItems raise instead of producing\na validation result for an instance a mapper had been configured to read with\nALLOW_NON_NUMERIC_NUMBERS.\n\nGuard with JsonNodeTypes.isNonFiniteNumber, as MultipleOfValidator.getDividend\nalready does. Those values fall through to comparing as nodes, which is what\nevery item did before numbers were folded, so their behaviour is unchanged.",
+          "timestamp": "2026-08-16T19:06:11-04:00",
+          "tree_id": "2e98e075246be9fb013a9c6f2ec24d88994c3cb7",
+          "url": "https://github.com/networknt/json-schema-validator/commit/285170f885ea78c81a81659c1ecb7292c710aaa0"
+        },
+        "date": 1786921949939,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
+            "value": 5904.3624304153645,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1475.6266379943063,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1499.2211884276928,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 1575.431180880444,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3781.5315707404993,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 4542.905017363509,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1111.9014162410344,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1226.0007337372579,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 3425.381051839515,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3851.4172318973215,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 5977.749915950643,
             "unit": "ops/s",
             "extra": "iterations: 3\nforks: 1\nthreads: 1"
           }
