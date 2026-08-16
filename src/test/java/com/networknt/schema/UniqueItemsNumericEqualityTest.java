@@ -5,6 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.serialization.NodeReader;
+
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.databind.json.JsonMapper;
+
 /**
  * uniqueItems compares numbers by mathematical value, so 1 and 1.0 are the same
  * item. Comparison went through JsonNode equality, which is type-sensitive:
@@ -70,5 +75,30 @@ class UniqueItemsNumericEqualityTest {
         assertFalse(valid("[{\"a\": 1}, {\"a\": 1.0}]"), "nested 1 and 1.0 are the same");
         assertFalse(valid("[[1], [1.0]]"), "1 and 1.0 inside arrays are the same");
         assertTrue(valid("[{\"a\": 1}, {\"a\": 2}]"));
+    }
+
+    /**
+     * NaN, Infinity and -Infinity are not JSON numbers, but a mapper can be
+     * configured to read them. BigDecimal cannot represent them, so they have to
+     * stay out of the numeric comparison; they keep comparing as nodes, which is
+     * what every item did before numbers were folded by value.
+     */
+    @Test
+    void nonFiniteNumbersDoNotFailValidation() {
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                        builder -> builder.nodeReader(NodeReader.builder()
+                                .jsonMapper(JsonMapper.builder()
+                                        .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build())
+                                .build()))
+                .getSchema("{\"type\":\"array\",\"uniqueItems\":true}");
+
+        assertTrue(schema.validate("[NaN, 1]", InputFormat.JSON).isEmpty());
+        assertTrue(schema.validate("[Infinity, -Infinity]", InputFormat.JSON).isEmpty());
+        assertTrue(schema.validate("[NaN, 1.0, 2]", InputFormat.JSON).isEmpty());
+        assertFalse(schema.validate("[NaN, NaN]", InputFormat.JSON).isEmpty(),
+                "non-finite numbers still compare as nodes");
+        assertFalse(schema.validate("[Infinity, 1, 1.0]", InputFormat.JSON).isEmpty(),
+                "finite numbers next to a non-finite one are still folded by value");
     }
 }

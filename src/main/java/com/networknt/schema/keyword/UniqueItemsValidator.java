@@ -22,6 +22,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
+import com.networknt.schema.utils.JsonNodeTypes;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -69,13 +70,16 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
      * comparing the nodes themselves let that duplicate through. Numbers are
      * therefore reduced to a scale-independent BigDecimal.
      *
-     * Only numbers are folded together. A number and a boolean stay distinct,
+     * NaN, Infinity and -Infinity have no BigDecimal form, so they are left out
+ * of that and keep comparing as nodes, as every item did before.
+ *
+ * Only numbers are folded together. A number and a boolean stay distinct,
      * as do a number and its string form, which the suite requires: nested [1]
      * and [true], and [0] and [false], are unique arrays. Objects and arrays are
      * walked so the rule holds wherever the number sits.
      */
     private static Object comparisonKey(JsonNode node) {
-        if (node.isNumber()) {
+        if (node.isNumber() && !JsonNodeTypes.isNonFiniteNumber(node)) {
             return node.decimalValue().stripTrailingZeros();
         }
         if (node.isArray()) {
