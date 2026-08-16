@@ -392,6 +392,52 @@ public class SchemaLocation {
 
     }
 
+    /**
+     * Formats this location using the requested path type for the fragment.
+     * <p>
+     * Schema locations are stored as JSON Pointer fragments. Validation messages
+     * can request a different representation through {@link SchemaRegistryConfig}.
+     *
+     * @param pathType the path type to use for the fragment
+     * @return the formatted location
+     */
+    public String toString(PathType pathType) {
+        if (pathType == null || this.fragment == null || pathType == this.fragment.getPathType()) {
+            return toString();
+        }
+        // Anchors keep their URI-reference identity. Only JSON Pointer fragments convert.
+        if (PathType.URI_REFERENCE.equals(this.fragment.getPathType())) {
+            return toString();
+        }
+        String fragmentText = formatFragment(pathType);
+        if (this.absoluteIri == null) {
+            return fragmentText;
+        }
+        if (fragmentText.startsWith("$")) {
+            return this.absoluteIri + fragmentText;
+        }
+        return this.absoluteIri + "#" + fragmentText;
+    }
+
+    private String formatFragment(PathType pathType) {
+        StringBuilder currentPath = new StringBuilder(pathType.getRoot());
+        int count = this.fragment.getNameCount();
+        for (int i = 0; i < count; i++) {
+            Object element = this.fragment.getElement(i);
+            if (element instanceof Number) {
+                pathType.append(currentPath, ((Number) element).intValue());
+            } else {
+                String token = element == null ? "" : element.toString();
+                if (token.isEmpty() && pathType == PathType.JSON_PATH) {
+                    currentPath.append("['']");
+                } else {
+                    pathType.append(currentPath, token);
+                }
+            }
+        }
+        return currentPath.toString();
+    }
+
     @Override
     public String toString() {
         if (this.value == null) {

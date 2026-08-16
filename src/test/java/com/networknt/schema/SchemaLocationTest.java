@@ -22,6 +22,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
 
 class SchemaLocationTest {
 
@@ -291,6 +292,29 @@ class SchemaLocationTest {
     void equalsEqualsNoFragmentToString() {
         assertEquals(SchemaLocation.of("https://example.com/example.yaml#").toString(),
                 SchemaLocation.of("https://example.com/example.yaml").toString());
+    }
+
+    @Test
+    void toStringHonorsRequestedPathType() {
+        SchemaLocation location = SchemaLocation.of("#/properties/required");
+        assertEquals("#/properties/required", location.toString());
+        assertEquals("#/properties/required", location.toString(PathType.JSON_POINTER));
+        assertEquals("$.properties.required", location.toString(PathType.JSON_PATH));
+    }
+
+    @Test
+    void toStringKeepsAnchorFragments() {
+        SchemaLocation location = SchemaLocation.of("https://example.com/schema#anchor");
+        assertEquals("https://example.com/schema#anchor", location.toString());
+        assertEquals("https://example.com/schema#anchor", location.toString(PathType.JSON_PATH));
+        assertEquals("https://example.com/schema#anchor", location.toString(PathType.JSON_POINTER));
+    }
+
+    @Test
+    void toStringEscapesEmptyPropertyNamesForJsonPath() {
+        SchemaLocation location = SchemaLocation.of("#/properties/");
+        assertEquals("#/properties/", location.toString());
+        assertEquals("$.properties['']", location.toString(PathType.JSON_PATH));
     }
 
 }
