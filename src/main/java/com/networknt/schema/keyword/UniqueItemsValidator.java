@@ -22,8 +22,13 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
+import com.networknt.schema.utils.JsonNodeTypes;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,15 +50,55 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
         
 
         if (unique) {
-            Set<JsonNode> set = new HashSet<>();
+            Set<Object> set = new HashSet<>();
             for (JsonNode n : node) {
-                if (!set.add(n)) {
+                if (!set.add(comparisonKey(n))) {
                     executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                             .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                             .build());
                 }
             }
         }
+    }
+
+    /**
+     * Builds the value this keyword compares items by.
+     *
+     * uniqueItems treats two numbers as the same item when they are
+     * mathematically equal, so 1, 1.0 and 1.00 are one value. JsonNode equality
+     * is type-sensitive -- IntNode(1) does not equal DoubleNode(1.0) -- so
+     * comparing the nodes themselves let that duplicate through. Numbers are
+     * therefore reduced to a scale-independent BigDecimal.
+     *
+     * NaN, Infinity and -Infinity have no BigDecimal form, so they are left out
+ * of that and keep comparing as nodes, as every item did before.
+ *
+ * Only numbers are folded together. A number and a boolean stay distinct,
+     * as do a number and its string form, which the suite requires: nested [1]
+     * and [true], and [0] and [false], are unique arrays. Objects and arrays are
+     * walked so the rule holds wherever the number sits.
+     */
+    private static Object comparisonKey(JsonNode node) {
+        if (node.isNumber() && !JsonNodeTypes.isNonFiniteNumber(node)) {
+            return node.decimalValue().stripTrailingZeros();
+        }
+        if (node.isArray()) {
+            List<Object> items = new ArrayList<>(node.size());
+            for (JsonNode item : node) {
+                items.add(comparisonKey(item));
+            }
+            return items;
+        }
+        if (node.isObject()) {
+            // Map equality ignores insertion order, which is what JSON objects want.
+            Map<String, Object> properties = new LinkedHashMap<>();
+            for (Map.Entry<String, JsonNode> property : node.properties()) {
+                properties.put(property.getKey(), comparisonKey(property.getValue()));
+            }
+            return properties;
+        }
+        // Strings, booleans and null compare as themselves; a node is its own key.
+        return node;
     }
 
 }
