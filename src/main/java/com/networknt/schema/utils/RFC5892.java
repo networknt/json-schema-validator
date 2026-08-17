@@ -105,7 +105,10 @@ public class RFC5892 {
         // RFC 5892 calls each segment in a host name a label. They are separated by all the recognized label separators.
         String[] labels = value.split(LABEL_SEPARATOR_REGEX);
         for (String label : labels) {
-            if (label.isEmpty()) continue; // A DNS entry may contain a trailing '.'.
+            // String.split() drops trailing empty strings, so a trailing '.' never
+            // produces an empty label here. A leading or interior empty label
+            // (e.g. ".example" or "a..b") is invalid.
+            if (label.isEmpty()) return false;
 
             String unicode = label;
             if (isACE(label)) {
