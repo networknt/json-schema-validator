@@ -11,7 +11,17 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 3.0.7- 2026-08-20
+
+### Added
+
 ### Changed
+- fixes #1277 upgrade jackson to 3.2.1 to resolve a security vulnerability
+- ix: uniqueItems compares numbers by value, not by node type (#1273) Thanks @dngr2
+- Honor PathType when formatting SchemaException locations (#1272) Thanks @kalayciburak
+- Reject non-ASCII whitespace in idn-email and format tests (#1268) Thanks @el-psy-kongroo-d
+- Reject non-ASCII whitespace in email format (#1267) Thanks @el-psy-kongroo-d
+
 
 ## 3.0.6- 2026-07-07
 
