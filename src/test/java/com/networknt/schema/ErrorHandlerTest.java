@@ -27,6 +27,14 @@ import org.junit.jupiter.api.Test;
  */
 class ErrorHandlerTest {
     @Test
+    void legacyConstructorDefaultsCustomMessageToFalse() {
+        Error error = new Error("type", null, null, null, new Object[0], null,
+                "type", () -> "standard message", null, null);
+
+        assertFalse(error.isCustomMessage());
+    }
+
+    @Test
     void errorMessage() {
         String schemaData = "{\r\n"
                 + "  \"type\": \"object\",\r\n"
