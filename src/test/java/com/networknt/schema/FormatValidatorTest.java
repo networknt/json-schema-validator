@@ -230,6 +230,11 @@ class FormatValidatorTest {
                 ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
         assertFalse(schema.validate("\"a..b\"", InputFormat.JSON,
                 ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+        // A value made up only of label separators has no labels and is invalid.
+        assertFalse(schema.validate("\"...\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+        assertFalse(schema.validate("\"。。\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
         // Ordinary host names remain valid.
         assertTrue(schema.validate("\"example\"", InputFormat.JSON,
                 ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
