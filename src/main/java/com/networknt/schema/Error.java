@@ -64,6 +64,13 @@ public class Error {
 
     Error(String keyword, NodePath evaluationPath, SchemaLocation schemaLocation,
             NodePath instanceLocation, Object[] arguments, Map<String, Object> details,
+            String messageKey, Supplier<String> messageSupplier, JsonNode instanceNode, JsonNode schemaNode) {
+        this(keyword, evaluationPath, schemaLocation, instanceLocation, arguments, details,
+                messageKey, messageSupplier, instanceNode, schemaNode, false);
+    }
+
+    Error(String keyword, NodePath evaluationPath, SchemaLocation schemaLocation,
+            NodePath instanceLocation, Object[] arguments, Map<String, Object> details,
             String messageKey, Supplier<String> messageSupplier, JsonNode instanceNode, JsonNode schemaNode,
             boolean customMessage) {
         super();
