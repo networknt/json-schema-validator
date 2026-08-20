@@ -57,8 +57,10 @@ class ErrorHandlerTest {
         assertFalse(messages.isEmpty());
         assertEquals("/foo", messages.get(0).getInstanceLocation().toString());
         assertEquals("should be an object", messages.get(0).getMessage());
+        assertTrue(messages.get(0).isCustomMessage());
         assertEquals("", messages.get(1).getInstanceLocation().toString());
         assertEquals("should not have properties other than foo", messages.get(1).getMessage());
+        assertTrue(messages.get(1).isCustomMessage());
     }
 
     @Test
@@ -87,6 +89,46 @@ class ErrorHandlerTest {
         assertFalse(messages.isEmpty());
         assertEquals("/keyword1", messages.get(0).getInstanceLocation().toString());
         assertEquals("关键字1必须为字符串", messages.get(0).getMessage());
+        assertTrue(messages.get(0).isCustomMessage());
+    }
+
+    @Test
+    void propertyNamedMessageDoesNotMarkStandardMessageAsCustom() {
+        String schemaData = "{\"type\":\"object\",\"properties\":{"
+                + "\"message\":{\"type\":\"string\"},"
+                + "\"count\":{\"type\":\"integer\"}}}";
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("message").build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{\"count\":\"invalid\"}", InputFormat.JSON).stream()
+                .collect(Collectors.toList());
+
+        assertEquals(1, messages.size());
+        assertFalse(messages.get(0).isCustomMessage());
+    }
+
+    @Test
+    void propertiesAndItemsPropertyNamesDoNotMarkStandardMessagesAsCustom() {
+        String nestedObject = "{\"type\":\"object\",\"properties\":{"
+                + "\"message\":{\"type\":\"string\"},"
+                + "\"n\":{\"type\":\"integer\"}}}";
+        String schemaData = "{\"type\":\"object\",\"properties\":{"
+                + "\"properties\":" + nestedObject + ","
+                + "\"items\":" + nestedObject + "}}";
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("message").build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
+
+        List<Error> messages = schema
+                .validate("{\"properties\":{\"n\":\"invalid\"},\"items\":{\"n\":\"invalid\"}}",
+                        InputFormat.JSON)
+                .stream().collect(Collectors.toList());
+
+        assertEquals(2, messages.size());
+        assertTrue(messages.stream().noneMatch(Error::isCustomMessage));
     }
 
 }

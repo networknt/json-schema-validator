@@ -64,6 +64,7 @@ public class MessageSourceError {
                 }
                 if (messagePattern != null && !"".equals(messagePattern)) {
                     this.message = messagePattern;
+                    this.customMessage = true;
                 }
             }
 

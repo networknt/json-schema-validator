@@ -11,6 +11,14 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 2.0.6- 2026-08-20
+
+### Added
+
+* Add `Error.isCustomMessage()` to identify schema-supplied validation messages.
+
+### Changed
+
 ## 2.0.5- 2026-08-20
 
 ### Added

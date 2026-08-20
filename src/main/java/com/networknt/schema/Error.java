@@ -42,7 +42,7 @@ import java.util.function.Supplier;
  *      "https://github.com/json-schema-org/json-schema-spec/blob/main/specs/output/jsonschema-validation-output-machines.md">JSON
  *      Schema</a>
  */
-@JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid" })
+@JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid", "customMessage" })
 @JsonPropertyOrder({ "keyword", "instanceLocation", "message", "evaluationPath", "schemaLocation",
         "messageKey", "arguments", "details" })
 @JsonInclude(Include.NON_NULL)
@@ -60,10 +60,12 @@ public class Error {
     private final Map<String, Object> details;
     private final JsonNode instanceNode;
     private final JsonNode schemaNode;
+    private final boolean customMessage;
 
     Error(String keyword, NodePath evaluationPath, SchemaLocation schemaLocation,
             NodePath instanceLocation, Object[] arguments, Map<String, Object> details,
-            String messageKey, Supplier<String> messageSupplier, JsonNode instanceNode, JsonNode schemaNode) {
+            String messageKey, Supplier<String> messageSupplier, JsonNode instanceNode, JsonNode schemaNode,
+            boolean customMessage) {
         super();
         this.keyword = keyword;
         this.instanceLocation = instanceLocation;
@@ -75,6 +77,7 @@ public class Error {
         this.messageSupplier = messageSupplier;
         this.instanceNode = instanceNode;
         this.schemaNode = schemaNode;
+        this.customMessage = customMessage;
     }
 
     /**
@@ -172,6 +175,16 @@ public class Error {
         return messageSupplier.get();
     }
 
+    /**
+     * Returns whether the error message was supplied by the schema through the
+     * configured error message keyword.
+     *
+     * @return true if the schema supplied the error message
+     */
+    public boolean isCustomMessage() {
+        return customMessage;
+    }
+
     public String getMessageKey() {
         return messageKey;
     }
@@ -252,6 +265,7 @@ public class Error {
         protected String messageKey;
         protected JsonNode instanceNode;
         protected JsonNode schemaNode;
+        protected boolean customMessage;
 
         public S keyword(String keyword) {
             this.keyword = keyword;
@@ -388,7 +402,8 @@ public class Error {
                 });
             }
             return new Error(keyword, evaluationPath, schemaLocation, instanceLocation,
-                    arguments, details, messageKey, messageSupplier, this.instanceNode, this.schemaNode);
+                    arguments, details, messageKey, messageSupplier, this.instanceNode, this.schemaNode,
+                    this.customMessage);
         }
 
         protected Object[] getMessageArguments() {
