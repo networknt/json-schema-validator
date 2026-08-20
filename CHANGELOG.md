@@ -11,6 +11,14 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 2.0.7- 2026-08-20
+
+### Added
+
+### Changed
+
+* Preserve binary compatibility for the `Error` constructor after adding custom-message metadata.
+
 ## 2.0.6- 2026-08-20
 
 ### Added
