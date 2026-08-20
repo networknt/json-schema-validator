@@ -11,7 +11,14 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 2.0.5- 2026-08-20
+
+### Added
+
 ### Changed
+
+* upgrade jackson to 2.22.1 to resolve a security vulnerability
+
 
 ## 2.0.4- 2026-07-07
 
