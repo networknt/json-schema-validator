@@ -220,4 +220,25 @@ class FormatValidatorTest {
         });
         assertEquals(0, messages.size());
     }
+
+    @Test
+    void idnHostnameRejectsEmptyLabels() {
+        String schemaData = "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"format\":\"idn-hostname\"}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        // A leading or interior empty label (a leading dot, or two adjacent dots) is invalid.
+        assertFalse(schema.validate("\".example\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+        assertFalse(schema.validate("\"a..b\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+        // A value made up only of label separators has no labels and is invalid.
+        assertFalse(schema.validate("\"...\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+        assertFalse(schema.validate("\"。。\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+        // Ordinary host names remain valid.
+        assertTrue(schema.validate("\"example\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+        assertTrue(schema.validate("\"sub.example.com\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+    }
 }
