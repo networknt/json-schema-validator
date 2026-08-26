@@ -105,9 +105,9 @@ public class RFC5892 {
             return false; // a value made up only of label separators (e.g. "." or "...") has no labels
         }
         for (String label : labels) {
-            // String.split() drops trailing empty strings, so a trailing '.' never
-            // produces an empty label here. A leading or interior empty label
-            // (e.g. ".example" or "a..b") is invalid.
+            // String.split() drops trailing empty strings, so a trailing label
+            // separator never produces an empty label here. A leading or interior
+            // empty label (e.g. ".example" or "a..b") is invalid.
             if (label.isEmpty()) return false;
 
             String unicode = label;
