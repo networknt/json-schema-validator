@@ -241,4 +241,16 @@ class FormatValidatorTest {
         assertTrue(schema.validate("\"sub.example.com\"", InputFormat.JSON,
                 ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
     }
+
+    @Test
+    void uriTemplateAllowsApostropheInLiteral() {
+        String schemaData = "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"format\":\"uri-template\"}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        // An apostrophe in a literal is valid.
+        assertTrue(schema.validate("\"a'b\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+        // Expression syntax still validates.
+        assertTrue(schema.validate("\"http://x/{y}\"", InputFormat.JSON,
+                ec -> ec.executionConfig(c -> c.formatAssertionsEnabled(true))).isEmpty());
+    }
 }
