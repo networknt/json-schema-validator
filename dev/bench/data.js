@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787710036802,
+  "lastUpdate": 1787862441608,
   "repoUrl": "https://github.com/networknt/json-schema-validator",
   "entries": {
     "JSON Schema Validator Benchmark": [
@@ -4408,6 +4408,96 @@ window.BENCHMARK_DATA = {
           {
             "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
             "value": 4521.924948069954,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "tom@wiremock.org",
+            "name": "Tom Akehurst",
+            "username": "tomakehurst"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8716b5b6359031589bb2db99815cd0b1cefe51f0",
+          "message": "Fix nullable allOf ref type check (#1279)\n\n* Fix nullable check for allOf + $ref compositions\n\nA property declared nullable: true and composed via allOf containing\nonly a $ref (e.g. OpenAPI 3.0 style composition) incorrectly rejected\nnull values. The schema owning the failing type keyword is resolved\nthrough $ref and is a cached object whose lexical parent reflects\nwhere it is declared in the document, not where it was referenced\nfrom, so the existing one-hop parent/grandparent nullable check never\nfound the nullable declaration on the referencing schema.\n\nWalk the dynamic evaluation stack instead, following through any\nchain of $ref schemas, to find the referencing schema and check it\n(and its lexical parent) for nullable: true.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\n\n* Add regression test confirming nullable allOf+$ref fix is dialect-scoped\n\nConfirms, per maintainer feedback on the upstream issue, that the\ndynamic evaluation stack walk added for nullable allOf + $ref\ncompositions has no effect outside dialects that enable the nullable\nkeyword (currently only OpenAPI 3.0.x) — null is still rejected for\nthe same schema shape under draft-07.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\n\n* Ignore nullable declared directly beside $ref\n\nPer PR review feedback (networknt/json-schema-validator#1279), the\ndynamic evaluation stack walk added to support nullable allOf + $ref\ncompositions incorrectly honored nullable: true declared as a direct\nsibling of $ref. That's a Reference Object, and the OpenAPI 3.0\nspecification requires siblings of $ref to be ignored, so it must\nnever grant nullability on its own.\n\nTrack whether the current frame in the walk was reached via $ref and,\nif so, skip checking that frame's own nullable — only its lexical\nparent (the schema actually composing it, e.g. the allOf owner) is\nconsulted. The allOf + $ref case that motivated the original fix\nstill passes.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Sonnet 5 <noreply@anthropic.com>",
+          "timestamp": "2026-08-27T16:20:46-04:00",
+          "tree_id": "382fc976564c49945db6cc667be24889d1917445",
+          "url": "https://github.com/networknt/json-schema-validator/commit/8716b5b6359031589bb2db99815cd0b1cefe51f0"
+        },
+        "date": 1787862438452,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
+            "value": 4645.157659509513,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1220.9050651153138,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1295.5166086567351,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 1363.8123798891336,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 2991.760529302656,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 3725.3455907779467,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1024.130708739529,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1109.4281789458375,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 3013.6050064807027,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3189.4322093940846,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 4567.011642184328,
             "unit": "ops/s",
             "extra": "iterations: 3\nforks: 1\nthreads: 1"
           }
