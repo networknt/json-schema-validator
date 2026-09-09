@@ -11,7 +11,6 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
-import com.networknt.schema.path.NodePath;
 
 public class JsonNodeTypes {
     private static final long V6_VALUE = SpecificationVersion.DRAFT_6.getOrder();
@@ -100,7 +99,7 @@ public class JsonNodeTypes {
                 return true;
             }
             Schema parentSchema = current.getParentSchema();
-            if (parentSchema != null && isComposingKeyword(current)) {
+            if (parentSchema != null && isComposingKeyword(current, parentSchema)) {
                 if (isNodeNullable(parentSchema.getSchemaNode())) {
                     return true;
                 }
@@ -116,23 +115,32 @@ public class JsonNodeTypes {
 
     /**
      * Determines if the given schema was reached from its lexical parent via a
-     * {@link #COMPOSING_KEYWORDS composing keyword}. Array-based keywords
-     * (e.g. {@code allOf}) append an index after the keyword name, so it's the
-     * second to last path element; single-schema keywords have no index, so
-     * the keyword name is the last element itself.
+     * {@link #COMPOSING_KEYWORDS composing keyword}, by checking whether the
+     * schema's node is one of the branches of a composing keyword on the parent.
+     * This is based on the schema node identity rather than the schema location,
+     * since the schema location can be rewritten by a dialect's {@code id}
+     * keyword and no longer reflect the lexical path, and a property literally
+     * named after a composing keyword (e.g. {@code allOf}) can otherwise be
+     * mistaken for one.
      *
      * @param schema the schema to check
+     * @param parentSchema the lexical parent of the schema
      * @return true if the schema was reached via a composing keyword
      */
-    private static boolean isComposingKeyword(Schema schema) {
-        NodePath fragment = schema.getSchemaLocation().getFragment();
-        Object lastElement = fragment.getElement(-1);
-        NodePath keywordPath = lastElement instanceof Number ? fragment.getParent() : fragment;
-        if (keywordPath == null) {
-            return false;
+    private static boolean isComposingKeyword(Schema schema, Schema parentSchema) {
+        JsonNode schemaNode = schema.getSchemaNode();
+        JsonNode parentNode = parentSchema.getSchemaNode();
+        for (String keyword : COMPOSING_KEYWORDS) {
+            JsonNode branches = parentNode.get(keyword);
+            if (branches != null && branches.isArray()) {
+                for (JsonNode branch : branches) {
+                    if (branch == schemaNode) {
+                        return true;
+                    }
+                }
+            }
         }
-        Object keyword = keywordPath.getElement(-1);
-        return keyword != null && COMPOSING_KEYWORDS.contains(keyword.toString());
+        return false;
     }
 
     /**

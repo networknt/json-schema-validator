@@ -485,4 +485,56 @@ class OpenApi30Test {
         assertEquals(1, messages.size());
         assertEquals("type", messages.get(0).getKeyword());
     }
+
+    @Test
+    void nullableNotLeakedThroughAncestorWhenPropertyNamedAllOfHoldsRefDirectly() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"outer\": {\r\n"
+                + "      \"nullable\": true,\r\n"
+                + "      \"type\": \"object\",\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"allOf\": { \"$ref\": \"#/components/schemas/Money\" }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"components\": {\r\n"
+                + "    \"schemas\": {\r\n"
+                + "      \"Money\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"required\": [\"amount\"],\r\n"
+                + "        \"properties\": {\r\n"
+                + "          \"amount\": { \"type\": \"integer\" }\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
+        Schema schema = factory.getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"outer\": { \"allOf\": null } }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("type", messages.get(0).getKeyword());
+    }
+
+    @Test
+    void nullableAllOfRefNotLostWhenBranchDeclaresId() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"value\": {\r\n"
+                + "      \"allOf\": [ { \"id\": \"http://example.com/inner\", \"type\": \"string\" } ],\r\n"
+                + "      \"nullable\": true\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
+        Schema schema = factory.getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
+        assertEquals(0, messages.size());
+    }
+
 }
