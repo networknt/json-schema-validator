@@ -62,14 +62,14 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean walk) {
-        if (node.isNull() && this.schemaContext.isNullableKeywordEnabled()
-                && JsonNodeTypes.isNullableAncestor(this.parentSchema, executionContext)) {
-            // A nullable oneOf must accept null regardless of how many branches it has.
-            // Each branch's own type check independently treats null as a match when
-            // nullable, which only yields a valid oneOf result when there's exactly one
-            // branch, so this is handled here instead.
-            return;
-        }
+        // A nullable oneOf must accept null regardless of how many branches it has.
+        // Each branch's own type check independently treats null as a match when
+        // nullable, which would otherwise only yield a valid oneOf result when
+        // there's exactly one branch, so the "exactly one branch matched" check
+        // below is skipped for this case instead. Branches are still evaluated
+        // normally so their annotations and walk listeners still fire.
+        boolean nullableNode = node.isNull() && this.schemaContext.isNullableKeywordEnabled()
+                && JsonNodeTypes.isNullableAncestor(this.parentSchema, executionContext);
         int numberOfValidSchema = 0;
         int index = 0;
         List<String> indexes = null;
@@ -198,7 +198,7 @@ public class OneOfValidator extends BaseKeywordValidator {
             executionContext.setFailFast(failFast);
         }
 
-        if (numberOfValidSchema != 1) {
+        if (!nullableNode && numberOfValidSchema != 1) {
             /*
              * Ensure there is always an "oneOf" error reported if number of valid schemas
              * is not equal to 1
