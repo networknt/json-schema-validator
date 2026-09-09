@@ -27,6 +27,7 @@ import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
+import com.networknt.schema.utils.JsonNodeTypes;
 import com.networknt.schema.utils.JsonType;
 import com.networknt.schema.utils.TypeFactory;
 
@@ -61,6 +62,14 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean walk) {
+        if (node.isNull() && this.schemaContext.isNullableKeywordEnabled()
+                && JsonNodeTypes.isNodeNullable(this.parentSchema.getSchemaNode())) {
+            // A nullable oneOf must accept null regardless of how many branches it has.
+            // Each branch's own type check independently treats null as a match when
+            // nullable, which only yields a valid oneOf result when there's exactly one
+            // branch, so this is handled here instead.
+            return;
+        }
         int numberOfValidSchema = 0;
         int index = 0;
         List<String> indexes = null;
