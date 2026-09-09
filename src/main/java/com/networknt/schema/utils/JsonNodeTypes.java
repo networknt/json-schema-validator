@@ -87,11 +87,11 @@ public class JsonNodeTypes {
      * nullable, walking up through composing keywords and {@code $ref} hops
      * that describe the same value, in either order and to any depth.
      *
-     * @param schema the schema owning the {@code type} keyword
+     * @param schema the schema to start the walk from
      * @param executionContext the execution context
      * @return true if a nullable schema is found
      */
-    private static boolean isNullableAncestor(Schema schema, ExecutionContext executionContext) {
+    public static boolean isNullableAncestor(Schema schema, ExecutionContext executionContext) {
         Schema current = schema;
         boolean isRefSchema = false;
         while (current != null) {

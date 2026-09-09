@@ -63,7 +63,7 @@ public class OneOfValidator extends BaseKeywordValidator {
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean walk) {
         if (node.isNull() && this.schemaContext.isNullableKeywordEnabled()
-                && JsonNodeTypes.isNodeNullable(this.parentSchema.getSchemaNode())) {
+                && JsonNodeTypes.isNullableAncestor(this.parentSchema, executionContext)) {
             // A nullable oneOf must accept null regardless of how many branches it has.
             // Each branch's own type check independently treats null as a match when
             // nullable, which only yields a valid oneOf result when there's exactly one

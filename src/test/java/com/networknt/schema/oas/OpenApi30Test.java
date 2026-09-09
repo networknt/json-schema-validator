@@ -560,4 +560,30 @@ class OpenApi30Test {
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
     }
+
+    @Test
+    void nullableMultiBranchOneOfRefWrappedInAllOf() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"value\": {\r\n"
+                + "      \"allOf\": [ {\r\n"
+                + "        \"oneOf\": [ { \"$ref\": \"#/components/schemas/A\" }, { \"$ref\": \"#/components/schemas/B\" } ]\r\n"
+                + "      } ],\r\n"
+                + "      \"nullable\": true\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"components\": {\r\n"
+                + "    \"schemas\": {\r\n"
+                + "      \"A\": { \"type\": \"object\", \"properties\": { \"a\": { \"type\": \"string\" } } },\r\n"
+                + "      \"B\": { \"type\": \"object\", \"properties\": { \"b\": { \"type\": \"string\" } } }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
+        Schema schema = factory.getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
+        assertEquals(0, messages.size());
+    }
 }
