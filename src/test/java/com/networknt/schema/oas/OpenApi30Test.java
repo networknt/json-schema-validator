@@ -562,6 +562,53 @@ class OpenApi30Test {
     }
 
     @Test
+    void nullableAllOfRefToEnumComponent() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"value\": {\r\n"
+                + "      \"allOf\": [ { \"$ref\": \"#/components/schemas/E\" } ],\r\n"
+                + "      \"nullable\": true\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"components\": {\r\n"
+                + "    \"schemas\": {\r\n"
+                + "      \"E\": { \"type\": \"string\", \"enum\": [\"a\", \"b\"] }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
+        Schema schema = factory.getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
+        assertEquals(0, messages.size());
+    }
+
+    @Test
+    void nullableEnumStillRejectsNonNullValueOutsideEnum() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"value\": {\r\n"
+                + "      \"allOf\": [ { \"$ref\": \"#/components/schemas/E\" } ],\r\n"
+                + "      \"nullable\": true\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"components\": {\r\n"
+                + "    \"schemas\": {\r\n"
+                + "      \"E\": { \"type\": \"string\", \"enum\": [\"a\", \"b\"] }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
+        Schema schema = factory.getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"value\": \"c\" }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("enum", messages.get(0).getKeyword());
+    }
+
+    @Test
     void nullableMultiBranchOneOfRefWrappedInAllOf() {
         String schemaData = "{\r\n"
                 + "  \"type\": \"object\",\r\n"
