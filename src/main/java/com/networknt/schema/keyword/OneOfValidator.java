@@ -69,7 +69,7 @@ public class OneOfValidator extends BaseKeywordValidator {
         // below is skipped for this case instead. Branches are still evaluated
         // normally so their annotations and walk listeners still fire.
         boolean nullableNode = node.isNull() && this.schemaContext.isNullableKeywordEnabled()
-                && JsonNodeTypes.isNullableAncestor(this.parentSchema, executionContext);
+                && JsonNodeTypes.isNullableAncestor(executionContext);
         int numberOfValidSchema = 0;
         int index = 0;
         List<String> indexes = null;

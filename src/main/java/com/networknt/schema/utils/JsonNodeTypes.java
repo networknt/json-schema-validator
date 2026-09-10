@@ -11,6 +11,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.keyword.KeywordType;
 
 public class JsonNodeTypes {
     private static final long V6_VALUE = SpecificationVersion.DRAFT_6.getOrder();
@@ -21,12 +22,23 @@ public class JsonNodeTypes {
     private static final String NULLABLE = "nullable";
 
     /**
-     * Keywords whose sub-schemas describe the same value as their parent,
-     * unlike {@code properties}/{@code items}/{@code additionalProperties}.
+     * Keywords whose sub-schemas describe the same value as the schema that
+     * declares them, unlike {@code properties}/{@code items}/
+     * {@code additionalProperties}, which describe a value nested inside it.
      * {@code not} is excluded since it negates rather than describes.
      */
-    private static final Set<String> COMPOSING_KEYWORDS = new HashSet<>(
-            Arrays.asList("allOf", "oneOf", "anyOf"));
+    private static final Set<String> VALUE_PRESERVING_KEYWORDS = new HashSet<>(Arrays.asList(
+            KeywordType.ALL_OF.getValue(), KeywordType.ANY_OF.getValue(), KeywordType.ONE_OF.getValue(),
+            KeywordType.IF_THEN_ELSE.getValue()));
+
+    /**
+     * Keywords that reach another schema by reference. The referencing schema
+     * describes the same value, but a {@code nullable} declared alongside the
+     * reference itself is a {@code $ref} sibling and is not applied.
+     */
+    private static final Set<String> REFERENCING_KEYWORDS = new HashSet<>(Arrays.asList(
+            KeywordType.REF.getValue(), KeywordType.DYNAMIC_REF.getValue(),
+            KeywordType.RECURSIVE_REF.getValue()));
 
     public static boolean isNodeNullable(JsonNode schema) {
         JsonNode nullable = schema.get(NULLABLE);
@@ -49,7 +61,7 @@ public class JsonNodeTypes {
 
             if (nodeType == JsonType.NULL) {
                 if (parentSchema != null && schemaContext.isNullableKeywordEnabled()
-                        && isNullableAncestor(parentSchema, executionContext)) {
+                        && isNullableAncestor(executionContext)) {
                     return true;
                 }
             }
@@ -83,89 +95,52 @@ public class JsonNodeTypes {
     }
 
     /**
-     * Determines if the schema owning the failing {@code type} keyword is
-     * nullable, walking up through composing keywords and {@code $ref} hops
-     * that describe the same value, in either order and to any depth.
+     * Determines whether the value currently being validated is declared
+     * nullable, either by the schema owning the executing keyword or by an
+     * ancestor that describes the same value.
+     * <p>
+     * The walk descends the evaluation stacks, which record both the schemas
+     * entered and the keyword each one was entered by, and stops at the first
+     * keyword that moves to a different value such as {@code properties} or
+     * {@code items}. It must therefore be called while a validation is in
+     * flight; outside one the stacks are empty and the result is false.
      *
-     * @param schema the schema to start the walk from
-     * @param executionContext the execution context
-     * @return true if a nullable schema is found
+     * @param executionContext the execution context of the in-flight validation
+     * @return true if the value being validated is declared nullable
      */
-    public static boolean isNullableAncestor(Schema schema, ExecutionContext executionContext) {
-        Schema current = schema;
-        boolean isRefSchema = false;
-        while (current != null) {
-            if (!isRefSchema && isNodeNullable(current.getSchemaNode())) {
+    public static boolean isNullableAncestor(ExecutionContext executionContext) {
+        Iterator<Schema> schemas = executionContext.getEvaluationSchema().descendingIterator();
+        Iterator<Object> keywords = executionContext.getEvaluationSchemaPath().descendingIterator();
+        // The top of the keyword stack is the keyword executing within the top
+        // schema. What the walk needs is the keyword each schema was entered
+        // by, which is the next one down.
+        if (keywords.hasNext()) {
+            keywords.next();
+        }
+        boolean viaReference = false;
+        while (schemas.hasNext()) {
+            Schema schema = schemas.next();
+            if (!schema.getSchemaContext().isNullableKeywordEnabled()) {
+                // Crossed into a resource whose dialect has no nullable
+                // keyword, where the member is only an annotation.
+                return false;
+            }
+            if (!viaReference && isNodeNullable(schema.getSchemaNode())) {
                 return true;
             }
-            Schema parentSchema = current.getParentSchema();
-            if (parentSchema != null && isComposingKeyword(current, parentSchema)) {
-                if (isNodeNullable(parentSchema.getSchemaNode())) {
-                    return true;
-                }
-                current = parentSchema;
-                isRefSchema = false;
-                continue;
+            if (!keywords.hasNext()) {
+                return false;
             }
-            current = findReferencingSchema(current, executionContext);
-            isRefSchema = true;
-        }
-        return false;
-    }
-
-    /**
-     * Determines if the given schema was reached from its lexical parent via a
-     * {@link #COMPOSING_KEYWORDS composing keyword}, by checking whether the
-     * schema's node is one of the branches of a composing keyword on the parent.
-     * This is based on the schema node identity rather than the schema location,
-     * since the schema location can be rewritten by a dialect's {@code id}
-     * keyword and no longer reflect the lexical path, and a property literally
-     * named after a composing keyword (e.g. {@code allOf}) can otherwise be
-     * mistaken for one.
-     *
-     * @param schema the schema to check
-     * @param parentSchema the lexical parent of the schema
-     * @return true if the schema was reached via a composing keyword
-     */
-    private static boolean isComposingKeyword(Schema schema, Schema parentSchema) {
-        JsonNode schemaNode = schema.getSchemaNode();
-        JsonNode parentNode = parentSchema.getSchemaNode();
-        for (String keyword : COMPOSING_KEYWORDS) {
-            JsonNode branches = parentNode.get(keyword);
-            if (branches != null && branches.isArray()) {
-                for (JsonNode branch : branches) {
-                    if (branch == schemaNode) {
-                        return true;
-                    }
-                }
+            String enteredBy = String.valueOf(keywords.next());
+            if (REFERENCING_KEYWORDS.contains(enteredBy)) {
+                viaReference = true;
+            } else if (VALUE_PRESERVING_KEYWORDS.contains(enteredBy)) {
+                viaReference = false;
+            } else {
+                return false;
             }
         }
         return false;
-    }
-
-    /**
-     * Finds the schema that referenced the given schema through {@code $ref}, if
-     * any, by looking at the schema evaluated immediately before it on the
-     * dynamic evaluation stack.
-     *
-     * @param schema the schema that may have been reached through {@code $ref}
-     * @param executionContext the execution context
-     * @return the referencing schema, or null if none is found
-     */
-    private static Schema findReferencingSchema(Schema schema, ExecutionContext executionContext) {
-        Iterator<Schema> ancestors = executionContext.getEvaluationSchema().descendingIterator();
-        while (ancestors.hasNext()) {
-            if (ancestors.next() == schema) {
-                if (ancestors.hasNext()) {
-                    Schema candidate = ancestors.next();
-                    if (candidate.getSchemaNode().get(REF) != null) {
-                        return candidate;
-                    }
-                }
-                return null;
-            }
-        }
-        return null;
     }
 
     private static long detectVersion(SchemaContext schemaContext) {
