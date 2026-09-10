@@ -11,6 +11,9 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+* Resolve the OpenAPI `nullable` keyword through `allOf`/`oneOf`/`anyOf`, `if`/`then`/`else` and `$ref`/`$dynamicRef`/`$recursiveRef` ancestors, to any depth and in any order. `nullable` on a schema composed through these keywords now applies to the value they describe, for both the `type` and `enum` keywords.
+* `nullable` on a container no longer applies to the values described by its `properties`, `items` and `additionalProperties` subschemas. Previously a `nullable` container made an inline (non-`$ref`) child accept `null`. Schemas relying on that must declare `nullable` on the child itself.
+
 ## 2.0.7- 2026-08-20
 
 ### Added

@@ -562,6 +562,85 @@ class OpenApi30Test {
     }
 
     @Test
+    void nullableContainerNotLeakedIntoInlineProperty() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"order\": {\r\n"
+                + "      \"nullable\": true,\r\n"
+                + "      \"type\": \"object\",\r\n"
+                + "      \"properties\": { \"name\": { \"type\": \"string\" } }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
+        Schema schema = factory.getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"order\": { \"name\": null } }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("type", messages.get(0).getKeyword());
+    }
+
+    @Test
+    void nullableContainerNotLeakedIntoInlineItem() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"list\": {\r\n"
+                + "      \"nullable\": true,\r\n"
+                + "      \"type\": \"array\",\r\n"
+                + "      \"items\": { \"type\": \"string\" }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
+        Schema schema = factory.getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"list\": [ null ] }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("type", messages.get(0).getKeyword());
+    }
+
+    @Test
+    void nullableContainerNotLeakedIntoInlineAdditionalProperties() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"meta\": {\r\n"
+                + "      \"nullable\": true,\r\n"
+                + "      \"type\": \"object\",\r\n"
+                + "      \"additionalProperties\": { \"type\": \"string\" }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
+        Schema schema = factory.getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"meta\": { \"extra\": null } }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("type", messages.get(0).getKeyword());
+    }
+
+    @Test
+    void nullableContainerStillAllowsNullForItself() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"order\": {\r\n"
+                + "      \"nullable\": true,\r\n"
+                + "      \"type\": \"object\",\r\n"
+                + "      \"properties\": { \"name\": { \"type\": \"string\" } }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
+        Schema schema = factory.getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"order\": null }", InputFormat.JSON);
+        assertEquals(0, messages.size());
+    }
+
+    @Test
     void nullableAllOfRefToEnumComponent() {
         String schemaData = "{\r\n"
                 + "  \"type\": \"object\",\r\n"
