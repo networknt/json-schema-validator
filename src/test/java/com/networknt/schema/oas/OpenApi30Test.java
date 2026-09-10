@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
@@ -38,6 +40,24 @@ import com.networknt.schema.Error;
  * OpenApi30Test.
  */
 class OpenApi30Test {
+    /** The trailing components block shared by the nullable tests below. */
+    private static final String MONEY_COMPONENT = "  \"components\": {\r\n"
+            + "    \"schemas\": {\r\n"
+            + "      \"Money\": {\r\n"
+            + "        \"type\": \"object\",\r\n"
+            + "        \"required\": [\"amount\"],\r\n"
+            + "        \"properties\": {\r\n"
+            + "          \"amount\": { \"type\": \"integer\" }\r\n"
+            + "        }\r\n"
+            + "      }\r\n"
+            + "    }\r\n"
+            + "  }\r\n"
+            + "}\r\n";
+
+    private static Schema openApi30Schema(String schemaData) {
+        return SchemaRegistry.withDialect(Dialects.getOpenApi30()).getSchema(schemaData);
+    }
+
     /**
      * Test with the explicitly configured OpenApi30 instance.
      */
@@ -91,8 +111,7 @@ class OpenApi30Test {
                 + "  \"maximum\": 100,\r\n"
                 + "  \"exclusiveMaximum\": true\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
         assertFalse(schema.validate("100", InputFormat.JSON, OutputFormat.BOOLEAN));
     }
 
@@ -107,36 +126,24 @@ class OpenApi30Test {
                 + "  \"maximum\": 100,\r\n"
                 + "  \"exclusiveMinimum\": true\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
         assertFalse(schema.validate("0", InputFormat.JSON, OutputFormat.BOOLEAN));
     }
 
-    @Test
-    void nullableAllOfRef() {
+    @ParameterizedTest
+    @ValueSource(strings = { "allOf", "oneOf", "anyOf" })
+    void nullableComposingKeywordRefAcceptsNull(String composingKeyword) {
         String schemaData = "{\r\n"
                 + "  \"type\": \"object\",\r\n"
                 + "  \"required\": [\"value\"],\r\n"
                 + "  \"properties\": {\r\n"
                 + "    \"value\": {\r\n"
-                + "      \"allOf\": [ { \"$ref\": \"#/components/schemas/Money\" } ],\r\n"
+                + "      \"" + composingKeyword + "\": [ { \"$ref\": \"#/components/schemas/Money\" } ],\r\n"
                 + "      \"nullable\": true\r\n"
                 + "    }\r\n"
                 + "  },\r\n"
-                + "  \"components\": {\r\n"
-                + "    \"schemas\": {\r\n"
-                + "      \"Money\": {\r\n"
-                + "        \"type\": \"object\",\r\n"
-                + "        \"required\": [\"amount\"],\r\n"
-                + "        \"properties\": {\r\n"
-                + "          \"amount\": { \"type\": \"integer\" }\r\n"
-                + "        }\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  }\r\n"
-                + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+                + MONEY_COMPONENT;
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -153,20 +160,8 @@ class OpenApi30Test {
                 + "      \"nullable\": true\r\n"
                 + "    }\r\n"
                 + "  },\r\n"
-                + "  \"components\": {\r\n"
-                + "    \"schemas\": {\r\n"
-                + "      \"Money\": {\r\n"
-                + "        \"type\": \"object\",\r\n"
-                + "        \"required\": [\"amount\"],\r\n"
-                + "        \"properties\": {\r\n"
-                + "          \"amount\": { \"type\": \"integer\" }\r\n"
-                + "        }\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  }\r\n"
-                + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+                + MONEY_COMPONENT;
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -199,8 +194,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"order\": { \"customer\": null } }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -238,8 +232,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -271,68 +264,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
-
-        List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
-        assertEquals(0, messages.size());
-    }
-
-    @Test
-    void nullableOneOfRef() {
-        String schemaData = "{\r\n"
-                + "  \"type\": \"object\",\r\n"
-                + "  \"required\": [\"value\"],\r\n"
-                + "  \"properties\": {\r\n"
-                + "    \"value\": {\r\n"
-                + "      \"oneOf\": [ { \"$ref\": \"#/components/schemas/Money\" } ],\r\n"
-                + "      \"nullable\": true\r\n"
-                + "    }\r\n"
-                + "  },\r\n"
-                + "  \"components\": {\r\n"
-                + "    \"schemas\": {\r\n"
-                + "      \"Money\": {\r\n"
-                + "        \"type\": \"object\",\r\n"
-                + "        \"required\": [\"amount\"],\r\n"
-                + "        \"properties\": {\r\n"
-                + "          \"amount\": { \"type\": \"integer\" }\r\n"
-                + "        }\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  }\r\n"
-                + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
-
-        List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
-        assertEquals(0, messages.size());
-    }
-
-    @Test
-    void nullableAnyOfRef() {
-        String schemaData = "{\r\n"
-                + "  \"type\": \"object\",\r\n"
-                + "  \"required\": [\"value\"],\r\n"
-                + "  \"properties\": {\r\n"
-                + "    \"value\": {\r\n"
-                + "      \"anyOf\": [ { \"$ref\": \"#/components/schemas/Money\" } ],\r\n"
-                + "      \"nullable\": true\r\n"
-                + "    }\r\n"
-                + "  },\r\n"
-                + "  \"components\": {\r\n"
-                + "    \"schemas\": {\r\n"
-                + "      \"Money\": {\r\n"
-                + "        \"type\": \"object\",\r\n"
-                + "        \"required\": [\"amount\"],\r\n"
-                + "        \"properties\": {\r\n"
-                + "          \"amount\": { \"type\": \"integer\" }\r\n"
-                + "        }\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  }\r\n"
-                + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -355,8 +287,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -373,20 +304,8 @@ class OpenApi30Test {
                 + "      \"items\": { \"$ref\": \"#/components/schemas/Money\" }\r\n"
                 + "    }\r\n"
                 + "  },\r\n"
-                + "  \"components\": {\r\n"
-                + "    \"schemas\": {\r\n"
-                + "      \"Money\": {\r\n"
-                + "        \"type\": \"object\",\r\n"
-                + "        \"required\": [\"amount\"],\r\n"
-                + "        \"properties\": {\r\n"
-                + "          \"amount\": { \"type\": \"integer\" }\r\n"
-                + "        }\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  }\r\n"
-                + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+                + MONEY_COMPONENT;
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"list\": [ null ] }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -404,20 +323,8 @@ class OpenApi30Test {
                 + "      \"additionalProperties\": { \"$ref\": \"#/components/schemas/Money\" }\r\n"
                 + "    }\r\n"
                 + "  },\r\n"
-                + "  \"components\": {\r\n"
-                + "    \"schemas\": {\r\n"
-                + "      \"Money\": {\r\n"
-                + "        \"type\": \"object\",\r\n"
-                + "        \"required\": [\"amount\"],\r\n"
-                + "        \"properties\": {\r\n"
-                + "          \"amount\": { \"type\": \"integer\" }\r\n"
-                + "        }\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  }\r\n"
-                + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+                + MONEY_COMPONENT;
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"meta\": { \"extra\": null } }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -425,7 +332,7 @@ class OpenApi30Test {
     }
 
     @Test
-    void nullableAdditionalPropertiesDoNotNotLeakedWhenPropertyNamedAllOf() {
+    void nullableAdditionalPropertiesNotLeakedWhenPropertyNamedAllOf() {
         String schemaData = "{\r\n"
                 + "  \"type\": \"object\",\r\n"
                 + "  \"properties\": {\r\n"
@@ -435,20 +342,8 @@ class OpenApi30Test {
                 + "      \"additionalProperties\": { \"$ref\": \"#/components/schemas/Money\" }\r\n"
                 + "    }\r\n"
                 + "  },\r\n"
-                + "  \"components\": {\r\n"
-                + "    \"schemas\": {\r\n"
-                + "      \"Money\": {\r\n"
-                + "        \"type\": \"object\",\r\n"
-                + "        \"required\": [\"amount\"],\r\n"
-                + "        \"properties\": {\r\n"
-                + "          \"amount\": { \"type\": \"integer\" }\r\n"
-                + "        }\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  }\r\n"
-                + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+                + MONEY_COMPONENT;
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"allOf\": { \"extra\": null } }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -466,20 +361,8 @@ class OpenApi30Test {
                 + "      \"items\": { \"$ref\": \"#/components/schemas/Money\" }\r\n"
                 + "    }\r\n"
                 + "  },\r\n"
-                + "  \"components\": {\r\n"
-                + "    \"schemas\": {\r\n"
-                + "      \"Money\": {\r\n"
-                + "        \"type\": \"object\",\r\n"
-                + "        \"required\": [\"amount\"],\r\n"
-                + "        \"properties\": {\r\n"
-                + "          \"amount\": { \"type\": \"integer\" }\r\n"
-                + "        }\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  }\r\n"
-                + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+                + MONEY_COMPONENT;
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"allOf\": [ null ] }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -499,20 +382,8 @@ class OpenApi30Test {
                 + "      }\r\n"
                 + "    }\r\n"
                 + "  },\r\n"
-                + "  \"components\": {\r\n"
-                + "    \"schemas\": {\r\n"
-                + "      \"Money\": {\r\n"
-                + "        \"type\": \"object\",\r\n"
-                + "        \"required\": [\"amount\"],\r\n"
-                + "        \"properties\": {\r\n"
-                + "          \"amount\": { \"type\": \"integer\" }\r\n"
-                + "        }\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  }\r\n"
-                + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+                + MONEY_COMPONENT;
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"outer\": { \"allOf\": null } }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -530,8 +401,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -554,8 +424,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -573,8 +442,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"order\": { \"name\": null } }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -593,8 +461,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"list\": [ null ] }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -613,8 +480,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"meta\": { \"extra\": null } }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -633,8 +499,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"order\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -656,8 +521,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -679,8 +543,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": \"c\" }", InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -706,8 +569,7 @@ class OpenApi30Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = openApi30Schema(schemaData);
 
         List<Error> messages = schema.validate("{ \"value\": null }", InputFormat.JSON);
         assertEquals(0, messages.size());
