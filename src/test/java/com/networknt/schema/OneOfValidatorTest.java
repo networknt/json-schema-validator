@@ -502,10 +502,12 @@ class OneOfValidatorTest {
 
     @Test
     void nullableMultiBranchStillWalksBranches() {
+        // Three branches, so that stopping at the second match is detectable.
         String schemaData = "{\r\n"
                 + "  \"oneOf\": [\r\n"
                 + "    { \"type\": \"object\", \"properties\": { \"a\": { \"type\": \"string\" } } },\r\n"
-                + "    { \"type\": \"object\", \"properties\": { \"b\": { \"type\": \"string\" } } }\r\n"
+                + "    { \"type\": \"object\", \"properties\": { \"b\": { \"type\": \"string\" } } },\r\n"
+                + "    { \"type\": \"object\", \"properties\": { \"c\": { \"type\": \"string\" } } }\r\n"
                 + "  ],\r\n"
                 + "  \"nullable\": true\r\n"
                 + "}";
@@ -527,7 +529,21 @@ class OneOfValidatorTest {
         Result result = schema.walk("null", InputFormat.JSON, true, executionContext -> executionContext
                 .walkConfig(walkConfig -> walkConfig.keywordWalkHandler(keywordWalkHandler)));
         assertTrue(result.getErrors().isEmpty());
-        assertEquals(2, propertiesWalks.size());
+        assertEquals(3, propertiesWalks.size());
+    }
+
+    @Test
+    void nullableOneOfStillReportsErrorsWhenNoBranchMatches() {
+        String schemaData = "{\r\n"
+                + "  \"oneOf\": [\r\n"
+                + "    { \"type\": \"object\", \"required\": [\"a\"] }\r\n"
+                + "  ],\r\n"
+                + "  \"nullable\": true,\r\n"
+                + "  \"not\": { \"type\": \"null\" }\r\n"
+                + "}";
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi30()).getSchema(schemaData);
+        List<Error> messages = schema.validate("null", InputFormat.JSON);
+        assertFalse(messages.isEmpty());
     }
 
 }

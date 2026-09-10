@@ -62,12 +62,11 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean walk) {
-        // A nullable oneOf must accept null regardless of how many branches it has.
-        // Each branch's own type check independently treats null as a match when
-        // nullable, which would otherwise only yield a valid oneOf result when
-        // there's exactly one branch, so the "exactly one branch matched" check
-        // below is skipped for this case instead. Branches are still evaluated
-        // normally so their annotations and walk listeners still fire.
+        // A nullable oneOf must accept null regardless of how many branches it
+        // has. Every branch independently accepts null when nullable, so the
+        // "exactly one branch matched" requirement would reject a value the
+        // schema explicitly permits. Only that requirement is relaxed below:
+        // if no branch matches, the branch errors are still reported.
         boolean nullableNode = node.isNull() && this.schemaContext.isNullableKeywordEnabled()
                 && JsonNodeTypes.isNullableAncestor(executionContext);
         int numberOfValidSchema = 0;
@@ -109,7 +108,11 @@ public class OneOfValidator extends BaseKeywordValidator {
                     indexes.add(Integer.toString(index));
                 }
 
-                if (numberOfValidSchema > 1) {
+                // Skipping the remaining branches is only safe when a second
+                // match settles the outcome. For a nullable null it does not,
+                // and stopping early would deprive later branches of their
+                // annotations and walk listeners.
+                if (numberOfValidSchema > 1 && !nullableNode) {
                     if (canShortCircuit == null) {
                         canShortCircuit = canShortCircuit(executionContext);
                     }
@@ -198,7 +201,8 @@ public class OneOfValidator extends BaseKeywordValidator {
             executionContext.setFailFast(failFast);
         }
 
-        if (!nullableNode && numberOfValidSchema != 1) {
+        boolean nullMatchedMoreThanOneBranch = nullableNode && numberOfValidSchema > 1;
+        if (!nullMatchedMoreThanOneBranch && numberOfValidSchema != 1) {
             /*
              * Ensure there is always an "oneOf" error reported if number of valid schemas
              * is not equal to 1
