@@ -534,16 +534,17 @@ class OneOfValidatorTest {
 
     @Test
     void nullableOneOfStillReportsErrorsWhenNoBranchMatches() {
+        // The branch rejects null on its own terms, so nothing matches and the
+        // oneOf assertion must survive the nullable relaxation.
         String schemaData = "{\r\n"
                 + "  \"oneOf\": [\r\n"
-                + "    { \"type\": \"object\", \"required\": [\"a\"] }\r\n"
+                + "    { \"not\": { \"type\": \"null\" } }\r\n"
                 + "  ],\r\n"
-                + "  \"nullable\": true,\r\n"
-                + "  \"not\": { \"type\": \"null\" }\r\n"
+                + "  \"nullable\": true\r\n"
                 + "}";
         Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi30()).getSchema(schemaData);
         List<Error> messages = schema.validate("null", InputFormat.JSON);
-        assertFalse(messages.isEmpty());
+        assertTrue(messages.stream().anyMatch(message -> "oneOf".equals(message.getKeyword())));
     }
 
 }
