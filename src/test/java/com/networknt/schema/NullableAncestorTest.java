@@ -148,6 +148,20 @@ class NullableAncestorTest {
     }
 
     @Test
+    void nullableBesideRefIsHonouredWhenDialectKeepsSiblings() {
+        // Unlike OpenAPI 3.0, 2020-12 keeps members declared alongside $ref, so
+        // this nullable applies to the referenced schema's type check too.
+        String schemaData = "{\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"v\": { \"$ref\": \"#/$defs/M\", \"nullable\": true }\r\n"
+                + "  },\r\n"
+                + "  \"$defs\": { \"M\": { \"type\": \"object\" } }\r\n"
+                + "}\r\n";
+        List<Error> messages = schema(schemaData).validate("{ \"v\": null }", InputFormat.JSON);
+        assertEquals(0, messages.size());
+    }
+
+    @Test
     void refPointingIntoComposingBranchDoesNotInheritNullable() {
         String schemaData = "{\r\n"
                 + "  \"nullable\": true,\r\n"

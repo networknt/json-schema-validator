@@ -15,6 +15,7 @@ import com.networknt.schema.keyword.KeywordType;
 
 public class JsonNodeTypes {
     private static final long V6_VALUE = SpecificationVersion.DRAFT_6.getOrder();
+    private static final long DRAFT_2019_09_VALUE = SpecificationVersion.DRAFT_2019_09.getOrder();
 
     private static final String TYPE = "type";
     private static final String ENUM = "enum";
@@ -33,8 +34,8 @@ public class JsonNodeTypes {
 
     /**
      * Keywords that reach another schema by reference. The referencing schema
-     * describes the same value, but a {@code nullable} declared alongside the
-     * reference itself is a {@code $ref} sibling and is not applied.
+     * describes the same value, though in dialects that drop members declared
+     * alongside a reference its own {@code nullable} does not count.
      */
     private static final Set<String> REFERENCING_KEYWORDS = new HashSet<>(Arrays.asList(
             KeywordType.REF.getValue(), KeywordType.DYNAMIC_REF.getValue(),
@@ -125,7 +126,8 @@ public class JsonNodeTypes {
                 // keyword, where the member is only an annotation.
                 return false;
             }
-            if (!viaReference && isNodeNullable(schema.getSchemaNode())) {
+            if (!(viaReference && ignoresReferenceSiblings(schema))
+                    && isNodeNullable(schema.getSchemaNode())) {
                 return true;
             }
             if (!keywords.hasNext()) {
@@ -141,6 +143,19 @@ public class JsonNodeTypes {
             }
         }
         return false;
+    }
+
+    /**
+     * Determines whether the schema's dialect drops members declared alongside
+     * a reference, as the drafts before 2019-09 do. Mirrors the sibling
+     * handling when a schema's validators are assembled.
+     *
+     * @param schema the schema holding the reference
+     * @return true if members declared alongside a reference are dropped
+     */
+    private static boolean ignoresReferenceSiblings(Schema schema) {
+        return schema.getSchemaContext().getDialect().getSpecificationVersion()
+                .getOrder() < DRAFT_2019_09_VALUE;
     }
 
     private static long detectVersion(SchemaContext schemaContext) {
