@@ -13,6 +13,9 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 * Resolve the OpenAPI `nullable` keyword through `allOf`/`oneOf`/`anyOf`, `if`/`then`/`else` and `$ref`/`$dynamicRef`/`$recursiveRef` ancestors, to any depth and in any order. `nullable` on a schema composed through these keywords now applies to the value they describe, for both the `type` and `enum` keywords.
 * `nullable` on a container no longer applies to the values described by its `properties`, `items` and `additionalProperties` subschemas. Previously a `nullable` container made an inline (non-`$ref`) child accept `null`. Schemas relying on that must declare `nullable` on the child itself.
+* `oneOf` no longer requires exactly one matching branch when the value is `null` and a `nullable` ancestor permits it. Every branch accepts `null` in that case, so `{"nullable": true, "oneOf": [ ... ]}` previously reported that more than one branch matched. Branch errors are still reported when no branch matches.
+* `nullable` no longer applies inside a `not` subschema, so `{"nullable": true, "not": {"type": "string"}}` now accepts `null` where it previously reported a `not` error.
+* With `typeLoose` enabled, the string `"null"` no longer satisfies an `enum` on a `nullable` schema. `{"enum": ["a"], "nullable": true}` previously accepted the string `"null"` as well as an actual `null`; only an actual `null` is accepted now.
 
 ## 2.0.7- 2026-08-20
 

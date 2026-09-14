@@ -528,6 +528,28 @@ class OpenApi30Test {
     }
 
     @Test
+    void typeLooseNullableEnumRejectsTheStringNull() {
+        // The accepted set no longer holds a NullNode, so the typeLoose text
+        // comparison no longer sees "null" as one of the permitted values.
+        String schemaData = "{\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"v\": { \"enum\": [\"a\"], \"nullable\": true }\r\n"
+                + "  }\r\n"
+                + "}\r\n";
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+        Schema schema = SchemaRegistry
+                .withDialect(Dialects.getOpenApi30(), builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
+
+        List<Error> messages = schema.validate("{ \"v\": \"null\" }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("enum", messages.get(0).getKeyword());
+
+        assertEquals(0, schema.validate("{ \"v\": null }", InputFormat.JSON).size());
+        assertEquals(0, schema.validate("{ \"v\": \"a\" }", InputFormat.JSON).size());
+    }
+
+    @Test
     void nullableEnumStillRejectsNonNullValueOutsideEnum() {
         String schemaData = "{\r\n"
                 + "  \"type\": \"object\",\r\n"
