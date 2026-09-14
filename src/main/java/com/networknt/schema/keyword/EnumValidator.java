@@ -19,11 +19,11 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
+import com.networknt.schema.utils.JsonNodeTypes;
 import com.networknt.schema.utils.JsonType;
 import com.networknt.schema.utils.TypeFactory;
 import com.networknt.schema.SchemaContext;
@@ -73,15 +73,14 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
                 separator = ", ";
             }
 
-            // check if the parent schema declares the fields as nullable
-            if (schemaContext.isNullableKeywordEnabled()) {
-                JsonNode nullable = parentSchema.getSchemaNode().get("nullable");
-                if (nullable != null && nullable.asBoolean()) {
-                    nodes.add(NullNode.getInstance());
-                    separator = ", ";
-                    sb.append(separator);
-                    sb.append("null");
-                }
+            // Whether null is accepted depends on the ancestors the value is
+            // reached through, which is only known during validation. This
+            // just reports null as permitted when the owning schema says so.
+            if (schemaContext.isNullableKeywordEnabled()
+                    && JsonNodeTypes.isNodeNullable(parentSchema.getSchemaNode())) {
+                separator = ", ";
+                sb.append(separator);
+                sb.append("null");
             }
             sb.append(']');
 
@@ -93,6 +92,10 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
+        if (node.isNull() && this.schemaContext.isNullableKeywordEnabled()
+                && JsonNodeTypes.isNullableAncestor(executionContext)) {
+            return;
+        }
         if (node.isNumber()) {
             node = processNumberNode(node);
         } else if (node.isArray()) {

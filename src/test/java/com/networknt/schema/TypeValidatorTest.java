@@ -179,4 +179,33 @@ class TypeValidatorTest {
         final List<Error> errors = validator.validate(inputData, InputFormat.JSON);
         assertEquals(1, errors.size());
     }
+
+    @Test
+    void nullableAllOfRefIgnoredOutsideNullableDialect() {
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"required\": [\"value\"],\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"value\": {\r\n"
+                + "      \"allOf\": [ { \"$ref\": \"#/definitions/Money\" } ],\r\n"
+                + "      \"nullable\": true\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"definitions\": {\r\n"
+                + "    \"Money\": {\r\n"
+                + "      \"type\": \"object\",\r\n"
+                + "      \"required\": [\"amount\"],\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"amount\": { \"type\": \"integer\" }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        final Schema validator = factory.getSchema(schemaData);
+
+        final List<Error> errors = validator.validate("{ \"value\": null }", InputFormat.JSON);
+        assertEquals(1, errors.size());
+    }
 }
