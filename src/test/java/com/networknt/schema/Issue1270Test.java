@@ -21,11 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.path.PathType;
 
 class Issue1270Test {
 
     private static final String INVALID_PROPERTY_SCHEMA = "{\"type\":\"object\",\"properties\":{\"required\":[]}}";
+
+    private static final String REDEFINED_DISCRIMINATOR_SCHEMA = "{\"allOf\":["
+            + "{\"discriminator\":{\"propertyName\":\"a\"}},"
+            + "{\"discriminator\":{\"propertyName\":\"b\"}}]}";
 
     @Test
     void schemaExceptionShouldHonorJsonPathLocationFormatting() {
@@ -66,5 +71,32 @@ class Issue1270Test {
         assertTrue(exception.getMessage().contains("ARRAY"), exception.getMessage());
         assertTrue(exception.getMessage().contains("$.properties['']"), exception.getMessage());
         assertFalse(exception.getMessage().contains("JSONPath selector cannot be empty"), exception.getMessage());
+    }
+
+    @Test
+    void discriminatorSchemaExceptionShouldHonorJsonPathLocationFormatting() {
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.JSON_PATH).build();
+        SchemaRegistry registry = SchemaRegistry.withDialect(Dialects.getOpenApi31(),
+                builder -> builder.schemaRegistryConfig(config));
+        Schema schema = registry.getSchema(REDEFINED_DISCRIMINATOR_SCHEMA);
+
+        SchemaException exception = assertThrows(SchemaException.class,
+                () -> schema.validate("{}", InputFormat.JSON));
+
+        assertTrue(exception.getMessage().contains("is redefining the discriminator property"),
+                exception.getMessage());
+        assertTrue(exception.getMessage().contains("$.allOf[1].discriminator"), exception.getMessage());
+        assertFalse(exception.getMessage().contains("#/allOf/1/discriminator"), exception.getMessage());
+    }
+
+    @Test
+    void discriminatorSchemaExceptionShouldKeepJsonPointerByDefault() {
+        SchemaRegistry registry = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = registry.getSchema(REDEFINED_DISCRIMINATOR_SCHEMA);
+
+        SchemaException exception = assertThrows(SchemaException.class,
+                () -> schema.validate("{}", InputFormat.JSON));
+
+        assertTrue(exception.getMessage().contains("#/allOf/1/discriminator"), exception.getMessage());
     }
 }
