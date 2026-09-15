@@ -116,7 +116,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
              * affect validation but just helps to filter the messages.
              */
             if (this.schemaContext.getSchemaRegistryConfig().isStrict("discriminator", Boolean.FALSE)) {
-                throw new SchemaException("Schema at " + this.schemaLocation
+                throw new SchemaException("Schema at " + formatSchemaLocation()
                         + " has a discriminator keyword for which another discriminator keyword has already been set for at "
                         + instanceLocation);
             }
@@ -131,7 +131,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
              * to the specification.
              */
             if (!"".equals(this.propertyName) && !existing.getPropertyName().equals(this.propertyName)) {
-                throw new SchemaException("Schema at " + this.schemaLocation
+                throw new SchemaException("Schema at " + formatSchemaLocation()
                         + " is redefining the discriminator property that has already been set for at "
                         + instanceLocation);
             }
@@ -154,7 +154,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
                  */
                 if (existing.isExplicitMapping() && !existing.getMappedSchema().equals(mappedSchema)) {
                     throw new SchemaException(
-                            "Schema at " + this.schemaLocation + " is mapping that has already been set for "
+                            "Schema at " + formatSchemaLocation() + " is mapping that has already been set for "
                                     + instanceLocation + " from " + existing.getMappedSchema() + " to " + mappedSchema);
                 }
             }
@@ -216,5 +216,9 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
      */
     public Map<String, String> getMapping() {
         return mapping;
+    }
+
+    private String formatSchemaLocation() {
+        return this.schemaLocation.toString(this.schemaContext.getSchemaRegistryConfig().getPathType());
     }
 }
