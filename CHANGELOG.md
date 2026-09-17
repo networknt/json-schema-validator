@@ -10,6 +10,12 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Added
 
 ### Changed
+- Resolve the OpenAPI `nullable` keyword through `allOf`/`oneOf`/`anyOf`, `if`/`then`/`else` and `$ref`/`$dynamicRef`/`$recursiveRef` ancestors, to any depth and in any order. `nullable` on a schema composed through these keywords now applies to the value they describe, for both the `type` and `enum` keywords.
+- `nullable` on a container no longer applies to the values described by its `properties`, `items` and `additionalProperties` subschemas. Previously a `nullable` container made its children accept `null`. Schemas relying on that must declare `nullable` on the child itself.
+- `oneOf` no longer requires exactly one matching branch when the value is `null` and a `nullable` ancestor permits it. Every branch accepts `null` in that case, so `{"nullable": true, "oneOf": [ ... ]}` previously reported that more than one branch matched. Branch errors are still reported when no branch matches.
+- `nullable` no longer applies inside a `not` subschema, so `{"nullable": true, "not": {"type": "string"}}` now accepts `null` where it previously reported a `not` error.
+- With `typeLoose` enabled, the empty string no longer satisfies an `enum` on a `nullable` schema. `null` was previously held in the accepted set and compared as text, where it renders as the empty string, so `{"enum": ["a"], "nullable": true}` accepted `""`. Only an actual `null` is accepted now.
+- A `nullable` declared alongside `$ref` is now ignored at the root of an OpenAPI 3.0 schema as it already was elsewhere, so `{"$ref": "...", "nullable": true}` rejects `null`. Siblings of a Reference Object are ignored in OpenAPI 3.0.
 
 ## 3.0.7- 2026-08-20
 

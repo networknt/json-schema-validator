@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +29,12 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.path.PathType;
+import com.networknt.schema.walk.KeywordWalkHandler;
+import com.networknt.schema.walk.WalkEvent;
+import com.networknt.schema.walk.WalkFlow;
+import com.networknt.schema.walk.WalkListener;
 
 /**
  * OneOfValidatorTest.
@@ -492,6 +498,58 @@ class OneOfValidatorTest {
         Result result = schema.walk(jsonContents, InputFormat.JSON, true);
         result.getErrors().forEach(m -> System.out.println(m));
         assertEquals(true, result.getErrors().isEmpty());
+    }
+
+
+    @Test
+    void nullableMultiBranchStillWalksBranches() {
+        // Three branches, so that stopping at the second match is detectable.
+        String schemaData = """
+                {
+                  "oneOf": [
+                    { "type": "object", "properties": { "a": { "type": "string" } } },
+                    { "type": "object", "properties": { "b": { "type": "string" } } },
+                    { "type": "object", "properties": { "c": { "type": "string" } } }
+                  ],
+                  "nullable": true
+                }
+                """;
+        List<WalkEvent> propertiesWalks = new ArrayList<>();
+        KeywordWalkHandler keywordWalkHandler = KeywordWalkHandler.builder()
+                .keywordWalkListener(KeywordType.PROPERTIES.getValue(), new WalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        propertiesWalks.add(walkEvent);
+                        return WalkFlow.CONTINUE;
+                    }
+
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
+                    }
+                })
+                .build();
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi30()).getSchema(schemaData);
+        Result result = schema.walk("null", InputFormat.JSON, true, executionContext -> executionContext
+                .walkConfig(walkConfig -> walkConfig.keywordWalkHandler(keywordWalkHandler)));
+        assertTrue(result.getErrors().isEmpty());
+        assertEquals(3, propertiesWalks.size());
+    }
+
+    @Test
+    void nullableOneOfStillReportsErrorsWhenNoBranchMatches() {
+        // The branch rejects null on its own terms, so nothing matches and the
+        // oneOf assertion must survive the nullable relaxation.
+        String schemaData = """
+                {
+                  "oneOf": [
+                    { "not": { "type": "null" } }
+                  ],
+                  "nullable": true
+                }
+                """;
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi30()).getSchema(schemaData);
+        List<Error> messages = schema.validate("null", InputFormat.JSON);
+        assertTrue(messages.stream().anyMatch(message -> "oneOf".equals(message.getKeyword())));
     }
 
 }

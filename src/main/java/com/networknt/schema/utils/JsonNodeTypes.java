@@ -1,6 +1,9 @@
 package com.networknt.schema.utils;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
@@ -8,18 +11,42 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.keyword.KeywordType;
 
 public class JsonNodeTypes {
     private static final long V6_VALUE = SpecificationVersion.DRAFT_6.getOrder();
+    private static final long DRAFT_2019_09_VALUE = SpecificationVersion.DRAFT_2019_09.getOrder();
 
     private static final String TYPE = "type";
     private static final String ENUM = "enum";
     private static final String REF = "$ref";
     private static final String NULLABLE = "nullable";
 
+    /**
+     * Keywords whose sub-schemas describe the same value as the schema that
+     * declares them, unlike {@code properties}/{@code items}/
+     * {@code additionalProperties}, which describe a value nested inside it.
+     * {@code not} is excluded since it negates rather than describes.
+     */
+    private static final Set<String> VALUE_PRESERVING_KEYWORDS = new HashSet<>(Arrays.asList(
+            KeywordType.ALL_OF.getValue(), KeywordType.ANY_OF.getValue(), KeywordType.ONE_OF.getValue(),
+            KeywordType.IF_THEN_ELSE.getValue()));
+
+    /**
+     * Keywords that reach another schema by reference. The referencing schema
+     * describes the same value, though in dialects that drop members declared
+     * alongside a reference its own {@code nullable} does not count.
+     */
+    private static final Set<String> REFERENCING_KEYWORDS = new HashSet<>(Arrays.asList(
+            KeywordType.REF.getValue(), KeywordType.DYNAMIC_REF.getValue(),
+            KeywordType.RECURSIVE_REF.getValue()));
+
     public static boolean isNodeNullable(JsonNode schema){
         JsonNode nullable = schema.get(NULLABLE);
-	    return nullable != null && nullable.asBoolean();
+        // asBoolean() without a default throws on a node it cannot coerce, and
+        // the ancestor walk reads this member on every composing ancestor, so a
+        // malformed nullable anywhere in the chain would abort the validation.
+	    return nullable != null && nullable.asBoolean(false);
     }
 
     public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, Schema parentSchema, SchemaContext schemaContext, ExecutionContext executionContext) {
@@ -39,7 +66,7 @@ public class JsonNodeTypes {
 
             if (nodeType == JsonType.NULL) {
                 if (parentSchema != null && schemaContext.isNullableKeywordEnabled()
-                        && isNullableAncestor(parentSchema, executionContext)) {
+                        && isNullableAncestor(executionContext)) {
                     return true;
                 }
             }
@@ -75,70 +102,66 @@ public class JsonNodeTypes {
     }
 
     /**
-     * Determines if the schema owning the failing {@code type} keyword is
-     * nullable, either directly, via its lexical parent, or via a schema that
-     * referenced it through {@code $ref}.
+     * Determines whether the value currently being validated is declared
+     * nullable, either by the schema owning the executing keyword or by an
+     * ancestor that describes the same value.
      * <p>
-     * A schema resolved through {@code $ref} is cached and shared across every
-     * site that references it, so its lexical parent (obtained through
-     * {@link Schema#getParentSchema()}) reflects where it is declared in the
-     * document rather than where it was referenced from. To find a
-     * {@code nullable: true} declared on the referencing schema (for example a
-     * property composed using {@code allOf} containing only a {@code $ref}),
-     * this walks up the dynamic evaluation stack instead, following through any
-     * chain of {@code $ref} schemas.
-     * <p>
-     * A schema found this way is itself a Reference Object (its node contains
-     * {@code $ref}), and per the OpenAPI 3.0 specification any sibling
-     * properties on a Reference Object, including {@code nullable}, must be
-     * ignored. So its own node is never consulted for {@code nullable} — only
-     * its lexical parent, which is the schema actually composing it (for
-     * example the {@code allOf}-owning schema).
+     * The walk descends the evaluation stacks, which record both the schemas
+     * entered and the keyword each one was entered by, and stops at the first
+     * keyword that moves to a different value such as {@code properties} or
+     * {@code items}. It must therefore be called while a validation is in
+     * flight; outside one the stacks are empty and the result is false.
      *
-     * @param schema the schema owning the {@code type} keyword
-     * @param executionContext the execution context
-     * @return true if a nullable schema is found
+     * @param executionContext the execution context of the in-flight validation
+     * @return true if the value being validated is declared nullable
      */
-    private static boolean isNullableAncestor(Schema schema, ExecutionContext executionContext) {
-        Schema current = schema;
-        boolean isRefSchema = false;
-        while (current != null) {
-            if (!isRefSchema && isNodeNullable(current.getSchemaNode())) {
+    public static boolean isNullableAncestor(ExecutionContext executionContext) {
+        Iterator<Schema> schemas = executionContext.getEvaluationSchema().descendingIterator();
+        Iterator<Object> keywords = executionContext.getEvaluationSchemaPath().descendingIterator();
+        // The top of the keyword stack is the keyword executing within the top
+        // schema. What the walk needs is the keyword each schema was entered
+        // by, which is the next one down.
+        if (keywords.hasNext()) {
+            keywords.next();
+        }
+        boolean viaReference = false;
+        while (schemas.hasNext()) {
+            Schema schema = schemas.next();
+            if (!schema.getSchemaContext().isNullableKeywordEnabled()) {
+                // Crossed into a resource whose dialect has no nullable
+                // keyword, where the member is only an annotation.
+                return false;
+            }
+            if (!(viaReference && ignoresReferenceSiblings(schema))
+                    && isNodeNullable(schema.getSchemaNode())) {
                 return true;
             }
-            Schema parentSchema = current.getParentSchema();
-            if (parentSchema != null && isNodeNullable(parentSchema.getSchemaNode())) {
-                return true;
+            if (!keywords.hasNext()) {
+                return false;
             }
-            current = findReferencingSchema(current, executionContext);
-            isRefSchema = true;
+            String enteredBy = String.valueOf(keywords.next());
+            if (REFERENCING_KEYWORDS.contains(enteredBy)) {
+                viaReference = true;
+            } else if (VALUE_PRESERVING_KEYWORDS.contains(enteredBy)) {
+                viaReference = false;
+            } else {
+                return false;
+            }
         }
         return false;
     }
 
     /**
-     * Finds the schema that referenced the given schema through {@code $ref}, if
-     * any, by looking at the schema evaluated immediately before it on the
-     * dynamic evaluation stack.
+     * Determines whether the schema's dialect drops members declared alongside
+     * a reference, as the drafts before 2019-09 do. Mirrors the sibling
+     * handling when a schema's validators are assembled.
      *
-     * @param schema the schema that may have been reached through {@code $ref}
-     * @param executionContext the execution context
-     * @return the referencing schema, or null if none is found
+     * @param schema the schema holding the reference
+     * @return true if members declared alongside a reference are dropped
      */
-    private static Schema findReferencingSchema(Schema schema, ExecutionContext executionContext) {
-        Iterator<Schema> ancestors = executionContext.getEvaluationSchema().descendingIterator();
-        while (ancestors.hasNext()) {
-            if (ancestors.next() == schema) {
-                if (ancestors.hasNext()) {
-                    Schema candidate = ancestors.next();
-                    if (candidate.getSchemaNode().get(REF) != null) {
-                        return candidate;
-                    }
-                }
-                return null;
-            }
-        }
-        return null;
+    private static boolean ignoresReferenceSiblings(Schema schema) {
+        return schema.getSchemaContext().getDialect().getSpecificationVersion()
+                .getOrder() < DRAFT_2019_09_VALUE;
     }
 
     private static long detectVersion(SchemaContext schemaContext) {
