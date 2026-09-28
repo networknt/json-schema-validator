@@ -87,7 +87,7 @@
     <version.maven-javadoc-plugin>3.12.0</version.maven-javadoc-plugin>
     <version.maven-source-plugin>3.4.0</version.maven-source-plugin> <!-- 3.3.0 and above is not Java 8 compatible -->
     <version.maven-surefire-junit5-tree-reporter>1.5.1</version.maven-surefire-junit5-tree-reporter>
-    <version.maven-surefire-plugin>3.5.4</version.maven-surefire-plugin>
+    <version.maven-surefire>3.6.0</version.maven-surefire>
     <version.moditect-maven-plugin>1.2.2.Final</version.moditect-maven-plugin>
     <version.nexus-staging-maven>1.7.0</version.nexus-staging-maven>
     <version.maven-gpg>3.2.7</version.maven-gpg>
@@ -318,7 +318,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${version.maven-surefire-plugin}</version>
+        <version>${version.maven-surefire}</version>
         <configuration>
           <reportFormat>plain</reportFormat>
           <consoleOutputReporter>
@@ -393,7 +393,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>${version.maven-surefire-plugin}</version>
+        <version>${version.maven-surefire}</version>
       </plugin>
     </plugins>
   </reporting>
