@@ -77,7 +77,7 @@
     <version.jackson>3.2.1</version.jackson>
     <version.joni>2.2.6</version.joni>
     <version.logback>1.6.3</version.logback>
-    <version.slf4j>2.0.17</version.slf4j>
+    <version.slf4j>2.0.19</version.slf4j>
     <version.graaljs>25.0.1</version.graaljs>
     <version.hamcrest>3.0</version.hamcrest>
     <version.junit>6.0.1</version.junit>
