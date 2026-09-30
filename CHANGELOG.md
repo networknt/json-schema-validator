@@ -4,18 +4,32 @@ All notable changes to this project will be documented in this file.
 This format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 This project does not adhere to [Semantic Versioning](https://semver.org/) and minor version changes can have incompatible API changes. These incompatible API changes will largely affect those who have custom validator or walker implementations. Those who just use the library to validate using the standard JSON Schema Draft specifications may not need changes.
-
 ## [Unreleased]
 
 ### Added
 
 ### Changed
-- Resolve the OpenAPI `nullable` keyword through `allOf`/`oneOf`/`anyOf`, `if`/`then`/`else` and `$ref`/`$dynamicRef`/`$recursiveRef` ancestors, to any depth and in any order. `nullable` on a schema composed through these keywords now applies to the value they describe, for both the `type` and `enum` keywords.
-- `nullable` on a container no longer applies to the values described by its `properties`, `items` and `additionalProperties` subschemas. Previously a `nullable` container made its children accept `null`. Schemas relying on that must declare `nullable` on the child itself.
-- `oneOf` no longer requires exactly one matching branch when the value is `null` and a `nullable` ancestor permits it. Every branch accepts `null` in that case, so `{"nullable": true, "oneOf": [ ... ]}` previously reported that more than one branch matched. Branch errors are still reported when no branch matches.
-- `nullable` no longer applies inside a `not` subschema, so `{"nullable": true, "not": {"type": "string"}}` now accepts `null` where it previously reported a `not` error.
-- With `typeLoose` enabled, the empty string no longer satisfies an `enum` on a `nullable` schema. `null` was previously held in the accepted set and compared as text, where it renders as the empty string, so `{"enum": ["a"], "nullable": true}` accepted `""`. Only an actual `null` is accepted now.
-- A `nullable` declared alongside `$ref` is now ignored at the root of an OpenAPI 3.0 schema as it already was elsewhere, so `{"$ref": "...", "nullable": true}` rejects `null`. Siblings of a Reference Object are ignored in OpenAPI 3.0.
+
+
+## 3.0.8- 2026-09-30
+
+### Added
+
+### Changed
+- Expose `Error.isCustomMessage()` to identify messages supplied by the schema through the configured error message keyword, while preserving the existing `Error` constructor's binary compatibility and JSON serialization format. (`680d7b3`, `f8c7659`)
+- Reject leading or interior empty labels and names consisting only of label separators in the `idn-hostname` format (#1274) Thanks @dngr2
+- Allow apostrophes in `uri-template` literals (#1275) Thanks @dngr2
+- Honor `PathType` when formatting schema locations in `DiscriminatorValidator` exceptions (#1281) Thanks @youdie006
+- Resolve the OpenAPI `nullable` keyword through `allOf`/`oneOf`/`anyOf`, `if`/`then`/`else` and `$ref`/`$dynamicRef`/`$recursiveRef` ancestors, to any depth and in any order. `nullable` on a schema composed through these keywords now applies to the value they describe, for both the `type` and `enum` keywords (#1278, #1279, #1283) Thanks @tomakehurst
+- `nullable` on a container no longer applies to the values described by its `properties`, `items` and `additionalProperties` subschemas. Previously a `nullable` container made its children accept `null`. Schemas relying on that must declare `nullable` on the child itself. (#1283) Thanks @tomakehurst
+- `oneOf` no longer requires exactly one matching branch when the value is `null` and a `nullable` ancestor permits it. Every branch accepts `null` in that case, so `{"nullable": true, "oneOf": [ ... ]}` previously reported that more than one branch matched. Branch errors are still reported when no branch matches. (#1283) Thanks @tomakehurst
+- `nullable` no longer applies inside a `not` subschema, so `{"nullable": true, "not": {"type": "string"}}` now accepts `null` where it previously reported a `not` error. (#1283) Thanks @tomakehurst
+- With `typeLoose` enabled, the empty string no longer satisfies an `enum` on a `nullable` schema. `null` was previously held in the accepted set and compared as text, where it renders as the empty string, so `{"enum": ["a"], "nullable": true}` accepted `""`. Only an actual `null` is accepted now. (#1283) Thanks @tomakehurst
+- A `nullable` declared alongside `$ref` is now ignored at the root of an OpenAPI 3.0 schema as it already was elsewhere, so `{"$ref": "...", "nullable": true}` rejects `null`. Siblings of a Reference Object are ignored in OpenAPI 3.0. (#1283) Thanks @tomakehurst
+- Add regression coverage for YAML `.nan`, `.inf` and `-.inf` values producing validation type errors instead of parser exceptions with Jackson 3.2.1 (#1228, #1282) Thanks @patpatpat123
+- Upgrade SLF4J from 2.0.17 to 2.0.19 and the test dependency Logback from 1.5.22 to 1.6.3. (`759445b`, `3d9971d`, `2575a02`)
+- Upgrade Maven Surefire and Surefire Report from 3.5.4 to 3.6.0, and the Central Publishing Maven plugin from 0.7.0 to 0.11.0. (`f26327c`, `4649209`)
+- Upgrade the benchmark workflow to `actions/checkout@v7` and `actions/setup-java@v6`. (`6f5d6c1`)
 
 ## 3.0.7- 2026-08-20
 
