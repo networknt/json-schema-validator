@@ -1,98 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790772695005,
+  "lastUpdate": 1790800590504,
   "repoUrl": "https://github.com/networknt/json-schema-validator",
   "entries": {
     "JSON Schema Validator Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "49700559+justin-tay@users.noreply.github.com",
-            "name": "Justin Tay",
-            "username": "justin-tay"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "cbc4caac69ac9488b1dfbdec1a24eff74e4531ba",
-          "message": "Allow for default dialect id not to be specified and throw an exception (#1212)",
-          "timestamp": "2025-11-08T10:28:51-05:00",
-          "tree_id": "ea720d9aa8b5a9f1cab15e4a8d107b186d3c1e69",
-          "url": "https://github.com/networknt/json-schema-validator/commit/cbc4caac69ac9488b1dfbdec1a24eff74e4531ba"
-        },
-        "date": 1762616107129,
-        "tool": "jmh",
-        "benches": [
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
-            "value": 4869.627614780132,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 1089.6405131177114,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 1137.807278546551,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 1216.5076378450333,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 2903.4306698176283,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 3652.8393540132943,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 902.0440908292821,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 975.6895290579233,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 2707.845136210583,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 2893.5471075365526,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 4046.222190853982,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -4498,6 +4408,96 @@ window.BENCHMARK_DATA = {
           {
             "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
             "value": 4569.212165646072,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stevehu@gmail.com",
+            "name": "Steve Hu",
+            "username": "stevehu"
+          },
+          "committer": {
+            "email": "stevehu@gmail.com",
+            "name": "Steve Hu",
+            "username": "stevehu"
+          },
+          "distinct": true,
+          "id": "231c34bf99b5f0c9c3f59a2bc6d9f43d1d0cac71",
+          "message": "fixes #1285 upgrade jackson to 3.2.3 from 3.2.1",
+          "timestamp": "2026-09-30T16:29:50-04:00",
+          "tree_id": "31ccad2376c90ee103b3efda07dc8f488b18c522",
+          "url": "https://github.com/networknt/json-schema-validator/commit/231c34bf99b5f0c9c3f59a2bc6d9f43d1d0cac71"
+        },
+        "date": 1790800588623,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
+            "value": 4719.298067359864,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1202.6985639615532,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1264.7387400590424,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 1319.137075263269,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3079.581422372243,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 3797.714119132159,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1042.3632502236608,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1126.0449645428046,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 2962.4298692798197,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3211.269651015167,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 4538.220911018525,
             "unit": "ops/s",
             "extra": "iterations: 3\nforks: 1\nthreads: 1"
           }
