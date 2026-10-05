@@ -603,7 +603,33 @@ The library assumes that the schemas being loaded are trusted. This security mod
 | Schema Loading      | The library by default will load schemas from the classpath and over the internet if needed.                                                                                                               | The `SchemaLoader` can be configured to block or allow certain IRIs for schema retrieval.                                                                                      |
 | Schema Caching      | The library by default preloads and caches references when loading schemas.                                                                                                                                | Set `cacheRefs` option in `SchemaRegistryConfig` to false.                                                                                                                     |
 | Regular Expressions | The library does not validate if a given regular expression is susceptable to denial of service ([ReDoS](https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS)).           | An `AllowRegularExpressionFactory` can be configured to perform validation on the regular expressions that are allowed.                                                        |
-| Validation Errors   | The library by default attempts to return all validation errors. The use of applicators such as `allOf` with a large number of schemas may result in a large number of validation errors taking up memory. | Set `failFast` option in `SchemaRegistryConfig` to immediately return when the first error is encountered. The `OutputFormat.BOOLEAN` or `OutputFormat.FLAG` also can be used. |
+| Validation Errors   | The library by default attempts to return all validation errors. The use of applicators such as `allOf` with a large number of schemas may result in a large number of validation errors taking up memory. | `failFast`, `OutputFormat.BOOLEAN`, and `OutputFormat.FLAG` can reduce work in some cases, but do not bound validation work or internal error allocation. See [Recursive applicators](#recursive-applicators). |
+
+### Recursive applicators
+
+Overlapping alternatives in recursive `anyOf` or `oneOf` schemas can evaluate the same instance location repeatedly through different evaluation paths. This can cause exponential validation work and error allocation, even for a small instance and a fixed, trusted schema. See [issue #1276](https://github.com/networknt/json-schema-validator/issues/1276).
+
+For example, both alternatives below recursively validate the same array items:
+
+```json
+{
+  "$ref": "#/$defs/n",
+  "$defs": {
+    "n": {
+      "anyOf": [
+        { "type": "array", "items": { "$ref": "#/$defs/n" }, "minItems": 0 },
+        { "type": "array", "items": { "$ref": "#/$defs/n" }, "maxItems": 99 }
+      ]
+    }
+  }
+}
+```
+
+An instance consisting of `"x"` wrapped in eight nested arrays is only 19 bytes, but currently produces 512 errors. Each additional array level doubles that count. The errors have different evaluation paths but only two distinct schema-location/instance-location pairs.
+
+`failFast` is suspended while alternatives are evaluated: a failing alternative does not by itself mean that `anyOf` or `oneOf` fails. `OutputFormat.BOOLEAN` and `OutputFormat.FLAG` still accumulate errors internally before formatting the result, so these options do not prevent this growth. `cacheRefs` caches referenced schemas, not validation results, and does not address it either.
+
+For applications processing untrusted instances, review recursive schemas for overlapping alternatives and simplify or factor out shared recursive constraints where validation semantics permit. Apply application-appropriate input nesting limits before validation, or run validation in an isolated worker with enforceable resource limits. Input byte limits alone may still admit costly instances; increasing the heap does not resolve the exponential growth. The library currently has no configurable evaluation-work budget.
 
 ## [Quick Start](doc/quickstart.md)
 
