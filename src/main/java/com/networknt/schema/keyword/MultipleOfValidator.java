@@ -62,11 +62,15 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      */
     protected BigDecimal getDivisor(JsonNode schemaNode) {
         if (schemaNode.isNumber()) {
+            if (schemaNode.isIntegralNumber() || schemaNode.isBigDecimal()) {
+                BigDecimal divisor = schemaNode.decimalValue().stripTrailingZeros();
+                return divisor.signum() != 0 ? divisor : null;
+            }
             double divisor = schemaNode.doubleValue();
             if (divisor != 0 && Double.isFinite(divisor)) {
                 // convert to BigDecimal since double type is not accurate enough to do the
                 // division and multiple
-                return schemaNode.isBigDecimal() ? schemaNode.decimalValue().stripTrailingZeros() : BigDecimal.valueOf(divisor).stripTrailingZeros();
+                return BigDecimal.valueOf(divisor).stripTrailingZeros();
             }
         }
         return null;
@@ -87,7 +91,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             }
             // convert to BigDecimal since double type is not accurate enough to do the
             // division and multiple
-            return node.isBigDecimal() ? node.decimalValue() : BigDecimal.valueOf(node.doubleValue());
+            return node.isIntegralNumber() || node.isBigDecimal() ? node.decimalValue() : BigDecimal.valueOf(node.doubleValue());
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
                 && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose
