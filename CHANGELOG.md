@@ -7,8 +7,11 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ## [Unreleased]
 
 ### Added
+- Opt-in `ExecutionConfig.maxEvaluationSteps` and `maxEvaluationDepth` limits for validation and schema walking, including walking without assertions. Exhaustion throws `ValidationLimitExceededException` instead of returning a partial validity result. Both limits default to unlimited; they bound admitted evaluation steps and schema frames, not work inside a keyword. (#1276)
 
 ### Changed
+- Unlimited validation/walking bypasses execution counters and keeps the original recursion frame structure. During an active limited execution, reentrant convenience calls share the budget and the caller's evaluation path; unlimited calls retain their legacy root-path initialization.
+- Exhausted contexts reject public errors/annotation access. Walk listeners can inspect `ExecutionContext.isEvaluationAborted()` and `getEvaluationAbort()` during cleanup; an empty error slice after abort is not a validity verdict. Subclass builders supporting limits must use the protected builder constructor or forward both limits explicitly, since the legacy seven-argument constructor remains unlimited.
 
 
 ## 3.0.8- 2026-09-30
