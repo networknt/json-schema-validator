@@ -78,11 +78,37 @@ public class ExecutionConfig {
     private final long maxEvaluationSteps;
     private final int maxEvaluationDepth;
 
+    /**
+     * Legacy constructor with unlimited evaluation. Subclass builders that support
+     * limits must use the builder constructor or the overload accepting both limits.
+     *
+     * @param locale the locale
+     * @param annotationCollectionEnabled whether to report annotations
+     * @param annotationCollectionFilter which annotations to report
+     * @param formatAssertionsEnabled whether to assert formats
+     * @param failFast whether to fail fast
+     * @param readOnly the read-only policy
+     * @param writeOnly the write-only policy
+     */
     protected ExecutionConfig(Locale locale, boolean annotationCollectionEnabled,
             Predicate<String> annotationCollectionFilter, Boolean formatAssertionsEnabled, boolean failFast,
             Boolean readOnly, Boolean writeOnly) {
         this(locale, annotationCollectionEnabled, annotationCollectionFilter, formatAssertionsEnabled, failFast,
                 readOnly, writeOnly, 0, 0);
+    }
+
+    /**
+     * Creates configuration from all inherited builder options, including limits.
+     * Subclass builders overriding {@code build()} can pass themselves to this
+     * constructor rather than manually forwarding individual properties.
+     *
+     * @param builder the builder to snapshot
+     */
+    protected ExecutionConfig(BuilderSupport<?> builder) {
+        this(builder.locale == null ? Locale.getDefault() : builder.locale, builder.annotationCollectionEnabled,
+                Objects.requireNonNull(builder.annotationCollectionFilter, "annotationCollectionFilter must not be null"),
+                builder.formatAssertionsEnabled, builder.failFast, builder.readOnly, builder.writeOnly,
+                builder.maxEvaluationSteps, builder.maxEvaluationDepth);
     }
 
     protected ExecutionConfig(Locale locale, boolean annotationCollectionEnabled,
@@ -351,13 +377,7 @@ public class ExecutionConfig {
          * @return the execution configuration
          */
         public ExecutionConfig build() {
-            Locale locale = this.locale;
-            if (locale == null) {
-                locale = Locale.getDefault();
-            }
-            Objects.requireNonNull(annotationCollectionFilter, "annotationCollectionFilter must not be null");
-            return new ExecutionConfig(locale, annotationCollectionEnabled, annotationCollectionFilter,
-                    formatAssertionsEnabled, failFast, readOnly, writeOnly, maxEvaluationSteps, maxEvaluationDepth);
+            return new ExecutionConfig(this);
         }
     }
 }

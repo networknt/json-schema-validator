@@ -143,6 +143,9 @@ public class Schema implements Validator {
          *     executionContext.evaluationPath.addLast(this.schemaLocation.getFragment().getElement(x)); 
          * }
          */
+        if (!executionContext.isEvaluationLimited() && !executionContext.isEvaluationAborted()) {
+            executionContext.evaluationPath = atRoot();
+        }
         validate(executionContext, node, node, atRoot());
     }
 
@@ -606,20 +609,19 @@ public class Schema implements Validator {
     @Override
     public void validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, NodePath instanceLocation) {
         executionContext.enterEvaluation(getSchemaLocation(), instanceLocation, atRoot());
-        try {
-            validateInternal(executionContext, jsonNode, rootNode, instanceLocation);
-        } catch (RuntimeException | java.lang.Error failure) {
-            executionContext.preserveEvaluationAbort(failure);
-            throw failure;
-        } finally {
-            executionContext.exitEvaluation();
-        }
-    }
-
-    private void validateInternal(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode,
-            NodePath instanceLocation) {
-        List<KeywordValidator> validators = getValidators(); // Load the validators before checking the flags
         executionContext.evaluationSchema.addLast(this);
+        List<KeywordValidator> validators;
+        try {
+            validators = getValidators(); // Load the validators before checking the flags
+        } catch (RuntimeException | java.lang.Error failure) {
+            executionContext.evaluationSchema.removeLast();
+            try {
+                executionContext.preserveEvaluationAbort(failure);
+                throw failure;
+            } finally {
+                executionContext.exitEvaluation();
+            }
+        }
         boolean unevaluatedPropertiesPresent = executionContext.unevaluatedPropertiesPresent;
         boolean unevaluatedItemsPresent =  executionContext.unevaluatedItemsPresent;
         if (this.unevaluatedPropertiesPresent) {
@@ -631,7 +633,9 @@ public class Schema implements Validator {
         try {
             int currentErrors = executionContext.getErrors().size();
             for (KeywordValidator v : validators) {
-                executionContext.admitKeyword(v.getSchemaLocation(), instanceLocation, v.getKeyword());
+                if (executionContext.isEvaluationLimited()) {
+                    executionContext.admitKeyword(v.getSchemaLocation(), instanceLocation, v.getKeyword());
+                }
                 executionContext.evaluationPathAddLast(v.getKeyword());
                 executionContext.evaluationSchemaPath.addLast(v.getKeyword());
                 try {
@@ -655,10 +659,14 @@ public class Schema implements Validator {
                 
                 //executionContext.getInstanceResults().setResult(instanceLocation, getSchemaLocation(), executionContext.getEvaluationPath(), false);
             }
+        } catch (RuntimeException | java.lang.Error failure) {
+            executionContext.preserveEvaluationAbort(failure);
+            throw failure;
         } finally {
             executionContext.evaluationSchema.removeLast();
             executionContext.unevaluatedPropertiesPresent = unevaluatedPropertiesPresent;
             executionContext.unevaluatedItemsPresent = unevaluatedItemsPresent;
+            executionContext.exitEvaluation();
         }
     }
 
@@ -1554,6 +1562,9 @@ public class Schema implements Validator {
             executionCustomizer.customize(executionContext, this.schemaContext);
         }
         // Walk through the schema.
+        if (!executionContext.isEvaluationLimited() && !executionContext.isEvaluationAborted()) {
+            executionContext.evaluationPath = atRoot();
+        }
         walk(executionContext, node, rootNode, instanceLocation, validate);
         executionContext.checkEvaluationAborted();
         return format.format(this, executionContext, this.schemaContext);
@@ -1563,21 +1574,20 @@ public class Schema implements Validator {
     public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean shouldValidateSchema) {
         executionContext.enterEvaluation(getSchemaLocation(), instanceLocation, atRoot());
-        try {
-            walkInternal(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
-        } catch (RuntimeException | java.lang.Error failure) {
-            executionContext.preserveEvaluationAbort(failure);
-            throw failure;
-        } finally {
-            executionContext.exitEvaluation();
-        }
-    }
-
-    private void walkInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            NodePath instanceLocation, boolean shouldValidateSchema) {
-        // Walk through all the JSONWalker's.
-        List<KeywordValidator> validators = getValidators(); // Load the validators before checking the flags
         executionContext.evaluationSchema.addLast(this);
+        // Walk through all the JSONWalker's.
+        List<KeywordValidator> validators;
+        try {
+            validators = getValidators(); // Load the validators before checking the flags
+        } catch (RuntimeException | java.lang.Error failure) {
+            executionContext.evaluationSchema.removeLast();
+            try {
+                executionContext.preserveEvaluationAbort(failure);
+                throw failure;
+            } finally {
+                executionContext.exitEvaluation();
+            }
+        }
         boolean unevaluatedPropertiesPresent = executionContext.unevaluatedPropertiesPresent;
         boolean unevaluatedItemsPresent =  executionContext.unevaluatedItemsPresent;
         if (this.unevaluatedPropertiesPresent) {
@@ -1587,9 +1597,12 @@ public class Schema implements Validator {
             executionContext.unevaluatedItemsPresent = this.unevaluatedItemsPresent;
         }
         try {
-            int currentErrors = executionContext.getErrors().size();
+            List<Error> keywordErrors = executionContext.getErrors();
+            int currentErrors = keywordErrors.size();
             for (KeywordValidator validator : validators) {
-                executionContext.admitKeyword(validator.getSchemaLocation(), instanceLocation, validator.getKeyword());
+                if (executionContext.isEvaluationLimited()) {
+                    executionContext.admitKeyword(validator.getSchemaLocation(), instanceLocation, validator.getKeyword());
+                }
                 try {
                     // Call all the pre-walk listeners. If at least one of the pre walk listeners
                     // returns SKIP, then skip the walk.
@@ -1608,20 +1621,27 @@ public class Schema implements Validator {
                 } finally {
                     // Call all the post-walk listeners.
                     try {
-                        List<Error> errors = executionContext.getErrors();
+                        if (!executionContext.isEvaluationAborted() && executionContext.getErrors() != keywordErrors) {
+                            throw new IllegalStateException("Keyword walk must restore its temporary error list");
+                        }
                         executionContext.getWalkConfig().getKeywordWalkHandler().postWalk(executionContext,
                                 validator.getKeyword(), node, rootNode, instanceLocation,
-                                this, validator, errors.subList(Math.min(currentErrors, errors.size()), errors.size()));
+                                this, validator, executionContext.isEvaluationAborted() ? Collections.emptyList()
+                                        : keywordErrors.subList(currentErrors, keywordErrors.size()));
                     } catch (RuntimeException | java.lang.Error failure) {
                         executionContext.preserveEvaluationAbort(failure);
                         throw failure;
                     }
                 }
             }
+        } catch (RuntimeException | java.lang.Error failure) {
+            executionContext.preserveEvaluationAbort(failure);
+            throw failure;
         } finally {
             executionContext.evaluationSchema.removeLast();
             executionContext.unevaluatedPropertiesPresent = unevaluatedPropertiesPresent;
             executionContext.unevaluatedItemsPresent = unevaluatedItemsPresent;
+            executionContext.exitEvaluation();
         }
     }
 

@@ -16,6 +16,7 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,6 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +44,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -72,11 +80,42 @@ class ExecutionLimitsTest {
                 .maxEvaluationDepth(depth).build());
     }
 
+    @Test
+    void unlimitedValidationKeepsDeepNestingWithinOneMegabyteStack() throws Exception {
+        Path output = Files.createTempFile("schema-limits-stack-", ".log");
+        try {
+            Process process = new ProcessBuilder(Path.of(System.getProperty("java.home"), "bin", "java").toString(),
+                    "-Xss1m", "-cp", System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")),
+                    ExecutionLimitsStackProbe.class.getName(), "490")
+                    .redirectErrorStream(true).redirectOutput(output.toFile()).start();
+            assertEquals(0, process.waitFor(), () -> {
+                try { return Files.readString(output); }
+                catch (java.io.IOException failure) { throw new java.io.UncheckedIOException(failure); }
+            });
+        } finally {
+            Files.deleteIfExists(output);
+        }
+    }
+
     private static void assertUnwound(ExecutionContext context, List<Error> parentErrors) {
         assertTrue(context.getEvaluationSchema().isEmpty());
         assertTrue(context.getEvaluationSchemaPath().isEmpty());
         assertEquals(ROOT, context.getEvaluationPath());
-        assertSame(parentErrors, context.getErrors());
+        if (context.isEvaluationAborted()) {
+            assertSame(context.getEvaluationAbort(), assertThrows(ValidationLimitExceededException.class, context::getErrors));
+            assertSame(context.getEvaluationAbort(), assertThrows(ValidationLimitExceededException.class, context::getAnnotations));
+            if (parentErrors != null) {
+                try {
+                    Field errors = ExecutionContext.class.getDeclaredField("errors");
+                    errors.setAccessible(true);
+                    assertSame(parentErrors, errors.get(context));
+                } catch (ReflectiveOperationException failure) {
+                    throw new AssertionError(failure);
+                }
+            }
+        } else {
+            assertSame(parentErrors, context.getErrors());
+        }
         assertFalse(context.isUnevaluatedItemsPresent());
         assertFalse(context.isUnevaluatedPropertiesPresent());
     }
@@ -97,6 +136,166 @@ class ExecutionLimitsTest {
         assertEquals(0, legacy.getMaxEvaluationDepth());
     }
 
+    private static class CustomConfig extends ExecutionConfig {
+        CustomConfig(CustomBuilder builder) {
+            super(builder);
+        }
+    }
+
+    private static class CustomBuilder extends ExecutionConfig.BuilderSupport<CustomBuilder> {
+        protected CustomBuilder self() { return this; }
+        public CustomConfig build() { return new CustomConfig(this); }
+    }
+
+    @Test
+    void subclassBuilderConstructorPreservesInheritedPolicy() {
+        CustomConfig config = new CustomBuilder().maxEvaluationSteps(7).maxEvaluationDepth(3)
+                .failFast(true).locale(null).build();
+        assertEquals(7, config.getMaxEvaluationSteps());
+        assertEquals(3, config.getMaxEvaluationDepth());
+        assertEquals(Locale.getDefault(), config.getLocale());
+        assertTrue(config.isFailFast());
+        assertEquals(7, ExecutionConfig.builder(config).build().getMaxEvaluationSteps());
+        assertThrows(IllegalArgumentException.class, () -> new CustomBuilder().maxEvaluationSteps(-1).build());
+        assertThrows(IllegalArgumentException.class, () -> new CustomBuilder().maxEvaluationDepth(-1).build());
+    }
+
+    @Test
+    void exhaustedContextCannotExposePartialErrorsOrAnnotations() {
+        ExecutionContext context = context(6, 0);
+        context.executionConfig(config -> config.annotationCollectionEnabled(true).annotationCollectionFilter(k -> true));
+        List<Error> partialErrors = context.getErrors();
+        Schema schema = schema("{\"description\":\"partial\",\"allOf\":[{\"type\":\"integer\"},{\"$ref\":\"#\"}]}");
+        ValidationLimitExceededException failure = assertThrows(ValidationLimitExceededException.class,
+                () -> schema.validate(context, node("\"x\"")));
+        assertFalse(partialErrors.isEmpty());
+        assertTrue(context.isEvaluationAborted());
+        assertSame(failure, context.getEvaluationAbort());
+        assertSame(failure, assertThrows(ValidationLimitExceededException.class, context::getErrors));
+        assertSame(failure, assertThrows(ValidationLimitExceededException.class, context::getAnnotations));
+        assertSame(failure, assertThrows(ValidationLimitExceededException.class, new Result(context)::getErrors));
+        assertUnwound(context, partialErrors);
+    }
+
+    @Test
+    void postListenersObserveAbortRatherThanSuccessfulEmptyDiagnostics() {
+        ExecutionContext context = context(2, 1);
+        AtomicReference<ValidationLimitExceededException> reported = new AtomicReference<>();
+        AtomicInteger completions = new AtomicInteger();
+        context.walkConfig(config -> config.keywordWalkHandler(KeywordWalkHandler.builder()
+                .keywordWalkListener(new WalkListener() {
+                    public WalkFlow onWalkStart(WalkEvent event) { return WalkFlow.CONTINUE; }
+                    public void onWalkEnd(WalkEvent event, List<Error> errors) {
+                        assertTrue(event.getExecutionContext().isEvaluationAborted());
+                        reported.set(event.getExecutionContext().getEvaluationAbort());
+                        assertTrue(errors.isEmpty());
+                        assertThrows(ValidationLimitExceededException.class, event.getExecutionContext()::getErrors);
+                        completions.incrementAndGet();
+                    }
+                }).build()));
+        ValidationLimitExceededException failure = assertThrows(ValidationLimitExceededException.class,
+                () -> schema("{\"allOf\":[{}]}").walk(context, node("1"), node("1"), ROOT, false));
+        assertSame(failure, reported.get());
+        assertEquals(1, completions.get());
+    }
+
+    @Test
+    void completedWalkKeepsItsDiagnosticListAndSliceSemantics() {
+        List<List<Error>> slices = new ArrayList<>();
+        ExecutionContext context = context(0, 0);
+        context.walkConfig(config -> config.keywordWalkHandler(KeywordWalkHandler.builder()
+                .keywordWalkListener(new WalkListener() {
+                    public WalkFlow onWalkStart(WalkEvent event) { return WalkFlow.CONTINUE; }
+                    public void onWalkEnd(WalkEvent event, List<Error> errors) {
+                        assertFalse(event.getExecutionContext().isEvaluationAborted());
+                        slices.add(new ArrayList<>(errors));
+                    }
+                }).build()));
+        schema("{\"type\":\"integer\",\"minLength\":5}").walk(context, node("\"x\""), node("\"x\""), ROOT, true);
+        assertEquals(1, slices.get(0).size());
+        assertEquals(2, slices.get(1).size());
+        assertEquals(context.getErrors(), slices.get(1));
+    }
+
+    @Test
+    void walkRejectsUnrestoredErrorListInsteadOfClampingItsOffset() {
+        AbstractKeyword keyword = new AbstractKeyword("replaceErrors") {
+            public KeywordValidator newValidator(SchemaLocation location, JsonNode value,
+                    Schema parent, SchemaContext schemaContext) {
+                return new AbstractKeywordValidator(this, value, location) {
+                    public void validate(ExecutionContext context, JsonNode node, JsonNode root, NodePath path) {
+                        context.setErrors(new ArrayList<>());
+                    }
+                };
+            }
+        };
+        Schema schema = SchemaRegistry.withDialect(Dialect.builder("urn:limits:replace", Dialects.getDraft202012())
+                .keyword(keyword).build()).getSchema("{\"replaceErrors\":true}");
+        ExecutionContext context = context(0, 0);
+        context.addError(Error.builder().keyword("existing").message("existing").build());
+        AtomicInteger completions = new AtomicInteger();
+        context.walkConfig(config -> config.keywordWalkHandler(KeywordWalkHandler.builder()
+                .keywordWalkListener(new WalkListener() {
+                    public WalkFlow onWalkStart(WalkEvent event) { return WalkFlow.CONTINUE; }
+                    public void onWalkEnd(WalkEvent event, List<Error> errors) { completions.incrementAndGet(); }
+                }).build()));
+        assertThrows(IllegalStateException.class, () -> schema.walk(context, node("1"), node("1"), ROOT, true));
+        assertEquals(0, completions.get());
+        assertFalse(context.isEvaluationLimited());
+    }
+
+    @Test
+    void unlimitedExecutionAllocatesNoAccountingAndCannotBeEnabledMidRun() {
+        AbstractKeyword keyword = new AbstractKeyword("configureLimits") {
+            public KeywordValidator newValidator(SchemaLocation location, JsonNode value,
+                    Schema parent, SchemaContext schemaContext) {
+                return new AbstractKeywordValidator(this, value, location) {
+                    public void validate(ExecutionContext context, JsonNode node, JsonNode root, NodePath path) {
+                        assertFalse(context.isEvaluationLimited());
+                        context.executionConfig(config -> config.maxEvaluationSteps(1).maxEvaluationDepth(1));
+                    }
+                };
+            }
+        };
+        Schema schema = SchemaRegistry.withDialect(Dialect.builder("urn:limits:configure", Dialects.getDraft202012())
+                .keyword(keyword).build()).getSchema("{\"configureLimits\":true,\"allOf\":[true,true]}");
+        ExecutionContext context = context(0, 0);
+        assertDoesNotThrow(() -> schema.validate(context, node("1")));
+        assertFalse(context.isEvaluationLimited());
+        ValidationLimitExceededException failure = assertThrows(ValidationLimitExceededException.class,
+                () -> schema.validate(context, node("1")));
+        assertEquals(1, failure.getAdmittedSteps());
+    }
+
+    @ParameterizedTest
+    @EnumSource(PathType.class)
+    void limitExceptionSerializationPreservesDiagnostics(PathType type) throws Exception {
+        NodePath path = new NodePath(type).append("quote'/~\n").append(3);
+        ValidationLimitExceededException original = new ValidationLimitExceededException(LimitKind.EVALUATION_DEPTH,
+                8, 17, 8, SchemaLocation.of("https://example.test/schema#/$defs/n").append(2), path, path.append("$ref"));
+        original.initCause(new IllegalArgumentException("cause"));
+        original.addSuppressed(new IllegalStateException("callback"));
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (ObjectOutputStream stream = new ObjectOutputStream(bytes)) { stream.writeObject(original); }
+        ValidationLimitExceededException restored;
+        try (ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+            restored = (ValidationLimitExceededException) stream.readObject();
+        }
+        assertEquals(original.getMessage(), restored.getMessage());
+        assertEquals(original.getLimitKind(), restored.getLimitKind());
+        assertEquals(original.getLimit(), restored.getLimit());
+        assertEquals(original.getAdmittedSteps(), restored.getAdmittedSteps());
+        assertEquals(original.getActiveDepth(), restored.getActiveDepth());
+        assertEquals(original.getSchemaLocation(), restored.getSchemaLocation());
+        assertEquals(original.getInstanceLocation(), restored.getInstanceLocation());
+        assertEquals(original.getEvaluationPath(), restored.getEvaluationPath());
+        assertEquals(type, restored.getInstanceLocation().getPathType());
+        assertEquals(3, restored.getInstanceLocation().getElement(-1));
+        assertArrayEquals(original.getStackTrace(), restored.getStackTrace());
+        assertEquals("cause", restored.getCause().getMessage());
+        assertEquals("callback", restored.getSuppressed()[0].getMessage());
+    }
+
     @Test
     void emptySchemaChargesOnlyEntryAndCompletedCallsResetAccounting() {
         Schema schema = schema("{}");
@@ -106,7 +305,7 @@ class ExecutionLimitsTest {
             schema.walk(context, node("1"), node("1"), ROOT, false);
         }
         assertTrue(context.getErrors().isEmpty());
-        assertUnwound(context, context.getErrors());
+        assertUnwound(context, context.isEvaluationAborted() ? null : context.getErrors());
     }
 
     @ParameterizedTest
@@ -276,7 +475,7 @@ class ExecutionLimitsTest {
         assertThrows(FailFastAssertionException.class, () -> schema.validate(context, node("\"x\"")));
         context.getErrors().clear();
         assertDoesNotThrow(() -> schema.validate(context, node("1")));
-        assertUnwound(context, context.getErrors());
+        assertUnwound(context, context.isEvaluationAborted() ? null : context.getErrors());
     }
 
     private static Stream<Arguments> annotationCases() {
@@ -405,7 +604,7 @@ class ExecutionLimitsTest {
         assertEquals(3, failure.getActiveDepth());
         assertEquals("/allOf/0/allOf", failure.getEvaluationPath().toString());
         assertEquals(1, visits.get());
-        assertUnwound(context, context.getErrors());
+        assertUnwound(context, null);
     }
 
     @Test
@@ -425,7 +624,7 @@ class ExecutionLimitsTest {
         assertEquals(LimitKind.EVALUATION_DEPTH, failure.getLimitKind());
         assertEquals(1, failure.getLimit());
         assertEquals(2, failure.getAdmittedSteps());
-        assertUnwound(context, context.getErrors());
+        assertUnwound(context, null);
     }
 
     @Test
@@ -487,7 +686,7 @@ class ExecutionLimitsTest {
         ValidationLimitExceededException lowFailure = assertThrows(ValidationLimitExceededException.class,
                 () -> schema.validate(lowLevel, node("1"), node("1"), ROOT));
         assertSame(swallowed.get(), lowFailure);
-        assertUnwound(lowLevel, lowLevel.getErrors());
+        assertUnwound(lowLevel, null);
         ValidationLimitExceededException walkFailure = assertThrows(ValidationLimitExceededException.class,
                 () -> schema.walk(context(2, 1), node("1"), format, true, (ExecutionContextCustomizer) null));
         assertSame(swallowed.get(), walkFailure);
@@ -497,7 +696,7 @@ class ExecutionLimitsTest {
     @Test
     void counterSaturatesAndLongMaxCapacityIsCheckedWithoutOverflow() throws Exception {
         for (long capacity : new long[] {0, Long.MAX_VALUE}) {
-            ExecutionContext context = context(capacity, 0);
+            ExecutionContext context = context(capacity, 1);
             Schema schema = schema("{}");
             context.enterEvaluation(schema.getSchemaLocation(), ROOT, ROOT);
             Field stateField = ExecutionContext.class.getDeclaredField("evaluationState");

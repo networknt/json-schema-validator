@@ -15,7 +15,15 @@
  */
 package com.networknt.schema;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
 
 /**
  * Validation or walking did not complete because an execution limit was exceeded.
@@ -98,5 +106,89 @@ public class ValidationLimitExceededException extends RuntimeException {
     /** @return the evaluation path of the denied attempt */
     public NodePath getEvaluationPath() {
         return evaluationPath;
+    }
+
+    // Serialize only location metadata, without making the shared path/location
+    // model Serializable or rendering paths eagerly when the exception is thrown.
+    private Object writeReplace() {
+        return new SerializationProxy(this);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Serialization proxy required");
+    }
+
+    private static final class PathData implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private final PathType type;
+        private final List<Object> segments = new ArrayList<>();
+
+        private PathData(NodePath path) {
+            type = path.getPathType();
+            for (NodePath current = path; current.getParent() != null; current = current.getParent()) {
+                segments.add(current.getElement(-1));
+            }
+            Collections.reverse(segments);
+        }
+
+        private NodePath toPath() {
+            NodePath path = new NodePath(type);
+            for (Object segment : segments) {
+                path = segment instanceof Integer ? path.append((Integer) segment) : path.append((String) segment);
+            }
+            return path;
+        }
+
+        private static PathData from(NodePath path) {
+            return path == null ? null : new PathData(path);
+        }
+
+        private static NodePath toPath(PathData data) {
+            return data == null ? null : data.toPath();
+        }
+    }
+
+    private static final class SerializationProxy implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private final LimitKind kind;
+        private final long limit;
+        private final long steps;
+        private final long depth;
+        private final String absoluteIri;
+        private final PathData schemaFragment;
+        private final PathData instance;
+        private final PathData evaluation;
+        private final StackTraceElement[] stackTrace;
+        private final Throwable cause;
+        private final Throwable[] suppressed;
+
+        private SerializationProxy(ValidationLimitExceededException exception) {
+            kind = exception.limitKind;
+            limit = exception.limit;
+            steps = exception.admittedSteps;
+            depth = exception.activeDepth;
+            SchemaLocation location = exception.schemaLocation;
+            absoluteIri = location == null || location.getAbsoluteIri() == null ? null
+                    : location.getAbsoluteIri().toString();
+            schemaFragment = location == null ? null : PathData.from(location.getFragment());
+            instance = PathData.from(exception.instanceLocation);
+            evaluation = PathData.from(exception.evaluationPath);
+            stackTrace = exception.getStackTrace();
+            cause = exception.getCause();
+            suppressed = exception.getSuppressed();
+        }
+
+        private Object readResolve() {
+            SchemaLocation location = schemaFragment == null ? null : new SchemaLocation(
+                    absoluteIri == null ? null : AbsoluteIri.of(absoluteIri), schemaFragment.toPath());
+            ValidationLimitExceededException exception = new ValidationLimitExceededException(kind, limit, steps,
+                    depth, location, PathData.toPath(instance), PathData.toPath(evaluation));
+            exception.setStackTrace(stackTrace);
+            exception.initCause(cause);
+            for (Throwable failure : suppressed) {
+                exception.addSuppressed(failure);
+            }
+            return exception;
+        }
     }
 }

@@ -52,6 +52,16 @@ public class ExecutionContext {
     void enterEvaluation(SchemaLocation schemaLocation, NodePath instanceLocation, NodePath rootPath) {
         checkEvaluationAborted();
         if (evaluationState == null) {
+            if (!evaluationSchema.isEmpty()) {
+                // An execution that started unlimited stays unlimited, even if a
+                // callback changes configuration. No per-execution state is allocated.
+                return;
+            }
+            if (getExecutionConfig().getMaxEvaluationSteps() == 0
+                    && getExecutionConfig().getMaxEvaluationDepth() == 0) {
+                evaluationPath = rootPath;
+                return;
+            }
             evaluationState = new EvaluationState(getExecutionConfig());
         }
         EvaluationState state = evaluationState;
@@ -70,6 +80,10 @@ public class ExecutionContext {
     void admitKeyword(SchemaLocation schemaLocation, NodePath instanceLocation, String keyword) {
         checkEvaluationAborted();
         admitStep(schemaLocation, instanceLocation, evaluationPath, keyword);
+    }
+
+    boolean isEvaluationLimited() {
+        return evaluationState != null;
     }
 
     private void admitStep(SchemaLocation schemaLocation, NodePath instanceLocation, NodePath path, String keyword) {
@@ -91,6 +105,9 @@ public class ExecutionContext {
     }
 
     void exitEvaluation() {
+        if (evaluationState == null) {
+            return;
+        }
         if (--evaluationState.activeDepth == 0) {
             evaluationState = null;
         }
@@ -102,6 +119,26 @@ public class ExecutionContext {
         if (evaluationAbort != null) {
             throw evaluationAbort;
         }
+    }
+
+    /**
+     * Indicates that evaluation stopped without a validity verdict. In particular,
+     * post-walk listeners must check this before interpreting their error slice.
+     *
+     * @return true once this context has exhausted a limit
+     */
+    public boolean isEvaluationAborted() {
+        return evaluationAbort != null;
+    }
+
+    /**
+     * Gets the incomplete-execution outcome, including the denied attempt's locations.
+     * This remains available during unwinding and after the context becomes terminal.
+     *
+     * @return the limit exception, or null if no limit was exhausted
+     */
+    public ValidationLimitExceededException getEvaluationAbort() {
+        return evaluationAbort;
     }
 
     void preserveEvaluationAbort(Throwable failure) {
@@ -260,6 +297,7 @@ public class ExecutionContext {
     }
 
     public Annotations getAnnotations() {
+        checkEvaluationAborted();
         if (this.annotations == null) {
             this.annotations = new Annotations();
         }
@@ -298,7 +336,15 @@ public class ExecutionContext {
         this.failFast = failFast;
     }
 
+    /**
+     * Gets the current assertion diagnostics. Exhausted contexts have no result.
+     * Previously obtained references must be discarded if evaluation aborts.
+     *
+     * @return the assertion diagnostics
+     * @throws ValidationLimitExceededException if evaluation was aborted
+     */
     public List<Error> getErrors() {
+        checkEvaluationAborted();
         return this.errors;
     }
 

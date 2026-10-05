@@ -111,7 +111,9 @@ class Issue1276Test {
         assertEquals(ValidationLimitExceededException.LimitKind.EVALUATION_STEPS, failure.getLimitKind());
         assertEquals(40, failure.getAdmittedSteps());
         assertTrue(limited.typeErrors < 32);
-        assertSame(parentErrors, limited.getErrors());
+        assertSame(failure, assertThrows(ValidationLimitExceededException.class, limited::getErrors));
+        assertSame(failure, assertThrows(ValidationLimitExceededException.class, limited::getAnnotations));
+        assertTrue(parentErrors.isEmpty());
         assertTrue(limited.getEvaluationSchema().isEmpty());
         assertTrue(limited.getEvaluationSchemaPath().isEmpty());
 
