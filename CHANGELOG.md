@@ -7,6 +7,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ## [Unreleased]
 
 ### Added
+- Opt-in `ExecutionConfig.maxEvaluationSteps` and `maxEvaluationDepth` limits for validation and schema walking, including walking without assertions. Exhaustion throws `ValidationLimitExceededException` instead of returning a partial validity result. Both limits default to unlimited; they bound admitted evaluation steps and schema frames, not work inside a keyword. (#1276)
 
 ### Changed
 

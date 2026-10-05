@@ -33,6 +33,86 @@ import com.networknt.schema.walk.WalkConfig;
  * Stores the execution context for the validation run.
  */
 public class ExecutionContext {
+    // Contexts are confined to one execution at a time. Cached schemas own no accounting.
+    private EvaluationState evaluationState;
+    private ValidationLimitExceededException evaluationAbort;
+
+    private static final class EvaluationState {
+        private final long maxSteps;
+        private final int maxDepth;
+        private long admittedSteps;
+        private long activeDepth;
+
+        private EvaluationState(ExecutionConfig config) {
+            this.maxSteps = config.getMaxEvaluationSteps();
+            this.maxDepth = config.getMaxEvaluationDepth();
+        }
+    }
+
+    void enterEvaluation(SchemaLocation schemaLocation, NodePath instanceLocation, NodePath rootPath) {
+        checkEvaluationAborted();
+        if (evaluationState == null) {
+            evaluationState = new EvaluationState(getExecutionConfig());
+        }
+        EvaluationState state = evaluationState;
+        NodePath path = state.activeDepth == 0 || evaluationPath == null ? rootPath : evaluationPath;
+        if (state.maxDepth != 0 && state.activeDepth >= state.maxDepth) {
+            abortEvaluation(ValidationLimitExceededException.LimitKind.EVALUATION_DEPTH, state.maxDepth,
+                    schemaLocation, instanceLocation, path);
+        }
+        admitStep(schemaLocation, instanceLocation, path, null);
+        state.activeDepth++;
+        // Only the outermost admitted entry initializes the path. Reentrant convenience
+        // calls must retain the active path and budget.
+        evaluationPath = path;
+    }
+
+    void admitKeyword(SchemaLocation schemaLocation, NodePath instanceLocation, String keyword) {
+        checkEvaluationAborted();
+        admitStep(schemaLocation, instanceLocation, evaluationPath, keyword);
+    }
+
+    private void admitStep(SchemaLocation schemaLocation, NodePath instanceLocation, NodePath path, String keyword) {
+        EvaluationState state = evaluationState;
+        if (state.maxSteps != 0 && state.admittedSteps >= state.maxSteps) {
+            abortEvaluation(ValidationLimitExceededException.LimitKind.EVALUATION_STEPS, state.maxSteps,
+                    schemaLocation, instanceLocation, keyword == null ? path : path.append(keyword));
+        }
+        if (state.admittedSteps != Long.MAX_VALUE) {
+            state.admittedSteps++;
+        }
+    }
+
+    private void abortEvaluation(ValidationLimitExceededException.LimitKind kind, long limit,
+            SchemaLocation schemaLocation, NodePath instanceLocation, NodePath path) {
+        evaluationAbort = new ValidationLimitExceededException(kind, limit, evaluationState.admittedSteps,
+                evaluationState.activeDepth, schemaLocation, instanceLocation, path);
+        throw evaluationAbort;
+    }
+
+    void exitEvaluation() {
+        if (--evaluationState.activeDepth == 0) {
+            evaluationState = null;
+        }
+        // Also catches extensions that swallowed exhaustion on the last dispatch.
+        checkEvaluationAborted();
+    }
+
+    void checkEvaluationAborted() {
+        if (evaluationAbort != null) {
+            throw evaluationAbort;
+        }
+    }
+
+    void preserveEvaluationAbort(Throwable failure) {
+        if (evaluationAbort != null) {
+            if (failure != evaluationAbort) {
+                evaluationAbort.addSuppressed(failure);
+            }
+            throw evaluationAbort;
+        }
+    }
+
     private ExecutionConfig executionConfig;
     private WalkConfig walkConfig = null;
     private CollectorContext collectorContext = null;

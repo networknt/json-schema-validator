@@ -584,6 +584,8 @@ The following is sample output from the Hierarchical format.
 | `formatAssertionsEnabled`     | The default is to generate format assertions from Draft 4 to Draft 7 and to only generate annotations from Draft 2019-09. Setting to `true` or `false` will override the default behavior.                                      | `null`                |
 | `readOnly`                    | Used to indicate that the property should not be sent as part of the request payload, but only in the response payload. This affects the `readOnly` keyword used for the OpenAPI dialect.                                       | `null`                |
 | `writeOnly`                   | Used to indicate that the property should not be sent as part of the response payload, but only in the request payload. This affects the `writeOnly` keyword used for the OpenAPI dialect.                                      | `null`                |
+| `maxEvaluationSteps`          | Maximum admitted schema-entry and keyword-dispatch steps per validation or walk execution. Zero means unlimited; negative values are rejected. See [Validation execution limits](doc/validation-execution-limits.md). | `0` |
+| `maxEvaluationDepth`          | Maximum simultaneously active schema evaluation frames, including the root, references, and schema wrappers. Zero means unlimited; negative values are rejected. | `0` |
 
 ### Schema Registry Configuration
 
@@ -660,7 +662,9 @@ An instance consisting of `"x"` wrapped in eight nested arrays is only 19 bytes,
 
 `failFast` is suspended while alternatives are evaluated: a failing alternative does not by itself mean that `anyOf` or `oneOf` fails. `OutputFormat.BOOLEAN` and `OutputFormat.FLAG` still accumulate errors internally before formatting the result, so these options do not prevent this growth. `cacheRefs` caches referenced schemas, not validation results, and does not address it either.
 
-For applications processing untrusted instances, review recursive schemas for overlapping alternatives and simplify or factor out shared recursive constraints where validation semantics permit. Apply application-appropriate input nesting limits before validation, or run validation in an isolated worker with enforceable resource limits. Input byte limits alone may still admit costly instances; increasing the heap does not resolve the exponential growth. The library currently has no configurable evaluation-work budget.
+For applications processing untrusted instances, configure `maxEvaluationSteps` and `maxEvaluationDepth` using the registry's `executionContextCustomizer` or a per-call customizer. Both default to unlimited. Exhaustion throws `ValidationLimitExceededException` in every output format and when walking, including without validation; it does not mean the instance is invalid. Retry requires a fresh execution context. See [Validation execution limits](doc/validation-execution-limits.md) for configuration and handling.
+
+These limits contain repeated expansion but do not eliminate exponential evaluation or interrupt work inside a keyword, such as a large collection scan, regular expression, remote retrieval, or application callback. Review recursive schemas for overlapping alternatives and simplify shared constraints where semantics permit. Apply input nesting limits before validation and use isolated workers where hard resource guarantees are required. Input byte limits alone may still admit costly instances; increasing the heap does not resolve the exponential growth.
 
 ## [Quick Start](doc/quickstart.md)
 

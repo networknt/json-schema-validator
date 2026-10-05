@@ -143,7 +143,6 @@ public class Schema implements Validator {
          *     executionContext.evaluationPath.addLast(this.schemaLocation.getFragment().getElement(x)); 
          * }
          */
-        executionContext.evaluationPath = atRoot();
         validate(executionContext, node, node, atRoot());
     }
 
@@ -606,6 +605,19 @@ public class Schema implements Validator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, NodePath instanceLocation) {
+        executionContext.enterEvaluation(getSchemaLocation(), instanceLocation, atRoot());
+        try {
+            validateInternal(executionContext, jsonNode, rootNode, instanceLocation);
+        } catch (RuntimeException | java.lang.Error failure) {
+            executionContext.preserveEvaluationAbort(failure);
+            throw failure;
+        } finally {
+            executionContext.exitEvaluation();
+        }
+    }
+
+    private void validateInternal(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode,
+            NodePath instanceLocation) {
         List<KeywordValidator> validators = getValidators(); // Load the validators before checking the flags
         executionContext.evaluationSchema.addLast(this);
         boolean unevaluatedPropertiesPresent = executionContext.unevaluatedPropertiesPresent;
@@ -619,6 +631,7 @@ public class Schema implements Validator {
         try {
             int currentErrors = executionContext.getErrors().size();
             for (KeywordValidator v : validators) {
+                executionContext.admitKeyword(v.getSchemaLocation(), instanceLocation, v.getKeyword());
                 executionContext.evaluationPathAddLast(v.getKeyword());
                 executionContext.evaluationSchemaPath.addLast(v.getKeyword());
                 try {
@@ -1177,6 +1190,7 @@ public class Schema implements Validator {
         } catch (FailFastAssertionException e) {
             executionContext.setErrors(e.getErrors());
         }
+        executionContext.checkEvaluationAborted();
         return format.format(this, executionContext, this.schemaContext);
     }
 
@@ -1540,13 +1554,26 @@ public class Schema implements Validator {
             executionCustomizer.customize(executionContext, this.schemaContext);
         }
         // Walk through the schema.
-        executionContext.evaluationPath = atRoot();
         walk(executionContext, node, rootNode, instanceLocation, validate);
+        executionContext.checkEvaluationAborted();
         return format.format(this, executionContext, this.schemaContext);
     }
 
     @Override
     public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            NodePath instanceLocation, boolean shouldValidateSchema) {
+        executionContext.enterEvaluation(getSchemaLocation(), instanceLocation, atRoot());
+        try {
+            walkInternal(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+        } catch (RuntimeException | java.lang.Error failure) {
+            executionContext.preserveEvaluationAbort(failure);
+            throw failure;
+        } finally {
+            executionContext.exitEvaluation();
+        }
+    }
+
+    private void walkInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean shouldValidateSchema) {
         // Walk through all the JSONWalker's.
         List<KeywordValidator> validators = getValidators(); // Load the validators before checking the flags
@@ -1562,6 +1589,7 @@ public class Schema implements Validator {
         try {
             int currentErrors = executionContext.getErrors().size();
             for (KeywordValidator validator : validators) {
+                executionContext.admitKeyword(validator.getSchemaLocation(), instanceLocation, validator.getKeyword());
                 try {
                     // Call all the pre-walk listeners. If at least one of the pre walk listeners
                     // returns SKIP, then skip the walk.
@@ -1579,10 +1607,15 @@ public class Schema implements Validator {
                     }
                 } finally {
                     // Call all the post-walk listeners.
-                    executionContext.getWalkConfig().getKeywordWalkHandler().postWalk(executionContext,
-                            validator.getKeyword(), node, rootNode, instanceLocation,
-                            this, validator,
-                            executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
+                    try {
+                        List<Error> errors = executionContext.getErrors();
+                        executionContext.getWalkConfig().getKeywordWalkHandler().postWalk(executionContext,
+                                validator.getKeyword(), node, rootNode, instanceLocation,
+                                this, validator, errors.subList(Math.min(currentErrors, errors.size()), errors.size()));
+                    } catch (RuntimeException | java.lang.Error failure) {
+                        executionContext.preserveEvaluationAbort(failure);
+                        throw failure;
+                    }
                 }
             }
         } finally {

@@ -75,10 +75,23 @@ public class ExecutionConfig {
      */
     private final Boolean writeOnly;
 
+    private final long maxEvaluationSteps;
+    private final int maxEvaluationDepth;
+
     protected ExecutionConfig(Locale locale, boolean annotationCollectionEnabled,
             Predicate<String> annotationCollectionFilter, Boolean formatAssertionsEnabled, boolean failFast,
             Boolean readOnly, Boolean writeOnly) {
+        this(locale, annotationCollectionEnabled, annotationCollectionFilter, formatAssertionsEnabled, failFast,
+                readOnly, writeOnly, 0, 0);
+    }
+
+    protected ExecutionConfig(Locale locale, boolean annotationCollectionEnabled,
+            Predicate<String> annotationCollectionFilter, Boolean formatAssertionsEnabled, boolean failFast,
+            Boolean readOnly, Boolean writeOnly, long maxEvaluationSteps, int maxEvaluationDepth) {
         super();
+        if (maxEvaluationSteps < 0 || maxEvaluationDepth < 0) {
+            throw new IllegalArgumentException("Evaluation limits must not be negative");
+        }
         this.locale = locale;
         this.annotationCollectionEnabled = annotationCollectionEnabled;
         this.annotationCollectionFilter = annotationCollectionFilter;
@@ -86,6 +99,18 @@ public class ExecutionConfig {
         this.failFast = failFast;
         this.readOnly = readOnly;
         this.writeOnly = writeOnly;
+        this.maxEvaluationSteps = maxEvaluationSteps;
+        this.maxEvaluationDepth = maxEvaluationDepth;
+    }
+
+    /** @return maximum admitted schema-entry and keyword-dispatch steps; zero means unlimited */
+    public long getMaxEvaluationSteps() {
+        return maxEvaluationSteps;
+    }
+
+    /** @return maximum active schema evaluation frames, including the root; zero means unlimited */
+    public int getMaxEvaluationDepth() {
+        return maxEvaluationDepth;
     }
 
     /**
@@ -185,6 +210,8 @@ public class ExecutionConfig {
         copy.failFast = config.failFast;
         copy.readOnly = config.readOnly;
         copy.writeOnly = config.writeOnly;
+        copy.maxEvaluationSteps = config.maxEvaluationSteps;
+        copy.maxEvaluationDepth = config.maxEvaluationDepth;
         return copy;
     }
 
@@ -210,6 +237,8 @@ public class ExecutionConfig {
         protected boolean failFast = false;
         protected Boolean readOnly = null;
         protected Boolean writeOnly = null;
+        protected long maxEvaluationSteps = 0;
+        protected int maxEvaluationDepth = 0;
 
         protected abstract T self();
 
@@ -292,6 +321,31 @@ public class ExecutionConfig {
         }
 
         /**
+         * Sets the maximum admitted schema-entry and keyword-dispatch steps per execution.
+         * This does not interrupt work within a keyword. Zero (the default) means unlimited.
+         *
+         * @param maxEvaluationSteps nonnegative step capacity
+         * @return the builder
+         */
+        public T maxEvaluationSteps(long maxEvaluationSteps) {
+            this.maxEvaluationSteps = maxEvaluationSteps;
+            return self();
+        }
+
+        /**
+         * Sets the maximum simultaneously active schema frames, including the root.
+         * This includes references and schema wrappers, rather than just JSON nesting.
+         * Zero (the default) means unlimited.
+         *
+         * @param maxEvaluationDepth nonnegative depth capacity
+         * @return the builder
+         */
+        public T maxEvaluationDepth(int maxEvaluationDepth) {
+            this.maxEvaluationDepth = maxEvaluationDepth;
+            return self();
+        }
+
+        /**
          * Builds the {@link ExecutionConfig}.
          * 
          * @return the execution configuration
@@ -303,7 +357,7 @@ public class ExecutionConfig {
             }
             Objects.requireNonNull(annotationCollectionFilter, "annotationCollectionFilter must not be null");
             return new ExecutionConfig(locale, annotationCollectionEnabled, annotationCollectionFilter,
-                    formatAssertionsEnabled, failFast, readOnly, writeOnly);
+                    formatAssertionsEnabled, failFast, readOnly, writeOnly, maxEvaluationSteps, maxEvaluationDepth);
         }
     }
 }

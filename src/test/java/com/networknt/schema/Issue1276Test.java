@@ -18,6 +18,9 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -81,6 +84,48 @@ class Issue1276Test {
         long expectedErrors = "anyOf".equals(keyword) ? leafErrors
                 : failFast || !"DEFAULT".equals(format) ? 1 : 2 * leafErrors - 1;
         assertEquals(expectedErrors, context.getErrors().size());
+    }
+
+    private static Stream<Arguments> boundedRecursiveAlternatives() {
+        return Stream.of("anyOf", "oneOf").flatMap(keyword ->
+                Stream.of(OutputFormat.DEFAULT, OutputFormat.BOOLEAN, OutputFormat.FLAG,
+                        OutputFormat.LIST, OutputFormat.HIERARCHICAL).flatMap(format ->
+                        Stream.of(false, true).map(failFast -> Arguments.of(keyword, format, failFast))));
+    }
+
+    @ParameterizedTest(name = "bounded {0}, {1}, failFast={2}")
+    @MethodSource("boundedRecursiveAlternatives")
+    void limitsContainExpansionAcrossOutputsWithoutChangingCompletedResults(String keyword,
+            OutputFormat<?> format, boolean failFast) {
+        String text = "{\"$ref\":\"#/$defs/n\",\"$defs\":{\"n\":{\"" + keyword + "\":["
+                + "{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/n\"},\"minItems\":0},"
+                + "{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/n\"},\"maxItems\":99}]}}}";
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(text);
+        String input = "[[[[\"x\"]]]]";
+        CountingExecutionContext limited = new CountingExecutionContext(ExecutionConfig.builder()
+                .maxEvaluationSteps(40).maxEvaluationDepth(64).build());
+        java.util.List<Error> parentErrors = limited.getErrors();
+        ValidationLimitExceededException failure = assertThrows(ValidationLimitExceededException.class,
+                () -> schema.validate(limited, input, InputFormat.JSON, format,
+                        context -> context.executionConfig(config -> config.failFast(failFast))));
+        assertEquals(ValidationLimitExceededException.LimitKind.EVALUATION_STEPS, failure.getLimitKind());
+        assertEquals(40, failure.getAdmittedSteps());
+        assertTrue(limited.typeErrors < 32);
+        assertSame(parentErrors, limited.getErrors());
+        assertTrue(limited.getEvaluationSchema().isEmpty());
+        assertTrue(limited.getEvaluationSchemaPath().isEmpty());
+
+        CountingExecutionContext unlimited = new CountingExecutionContext(ExecutionConfig.getInstance());
+        CountingExecutionContext generous = new CountingExecutionContext(ExecutionConfig.builder()
+                .maxEvaluationSteps(10_000).maxEvaluationDepth(64).build());
+        Object baseline = schema.validate(unlimited, input, InputFormat.JSON, format,
+                context -> context.executionConfig(config -> config.failFast(failFast)));
+        Object bounded = schema.validate(generous, input, InputFormat.JSON, format,
+                context -> context.executionConfig(config -> config.failFast(failFast)));
+        assertEquals(String.valueOf(baseline), String.valueOf(bounded));
+        assertEquals(unlimited.getErrors(), generous.getErrors());
+        assertEquals(32, generous.typeErrors);
+        assertEquals(unlimited.typeErrorLocations, generous.typeErrorLocations);
     }
 
     private static class CountingExecutionContext extends ExecutionContext {
