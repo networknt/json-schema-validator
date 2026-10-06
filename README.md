@@ -575,10 +575,9 @@ The following is sample output from the Hierarchical format.
 
 ### Numeric Precision
 
-`multipleOf` preserves the values of integral and `BigDecimal` nodes. To retain exact values for JSON numbers containing a decimal point or exponent, configure the `NodeReader` with a `JsonMapper` that enables `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS`. Use that reader for both the schema and instance.
+The default JSON and YAML readers retain floating-point literals as `BigDecimal` values, so numbers such as `9007199254740993.0` are not rounded to doubles before validation. `multipleOf` preserves integral and decimal values and requires a strictly positive divisor; zero and negative divisors raise `SchemaException`.
 
-The default mapper reads floating-point literals as doubles, which can round values such as `9007199254740993.0` before validation. When passing a `JsonNode` directly, make sure it already contains the precision you need; the validator cannot recover digits lost during parsing.
-
+Custom mappers remain caller-configurable. Enable `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS` on a custom `JsonMapper` or `YAMLMapper` when exact decimal values are required, and use it for both schema and instance parsing. When passing a `JsonNode` directly, it must already contain the required precision; the validator cannot recover digits lost during parsing.
 
 ### Execution Configuration
 

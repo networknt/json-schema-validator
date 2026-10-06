@@ -16,6 +16,7 @@
 package com.networknt.schema.serialization;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -27,7 +28,8 @@ public class JsonMapperFactory {
      * The holder defers the classloading until it is used.
      */
     private static class Holder {
-        private static final ObjectMapper INSTANCE = JsonMapper.shared();
+        private static final ObjectMapper INSTANCE = JsonMapper.builder()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
     }
 
     /**
