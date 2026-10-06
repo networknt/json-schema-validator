@@ -25,6 +25,7 @@ import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeTypes;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * {@link KeywordValidator} for multipleOf.
@@ -44,7 +45,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         if (this.divisor != null) {
             BigDecimal dividend = getDividend(node);
             if (dividend != null) {
-                if (dividend.divideAndRemainder(this.divisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
+                if (!isMultipleOf(dividend)) {
                     executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                             .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                             .arguments(this.divisor.toString()) // String is used as the MessageFormat NumberFormat considers 3 fractional digits by default
@@ -52,6 +53,32 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                 }
             }
         }
+    }
+
+    /**
+     * Checks divisibility without expanding powers of ten or computing the quotient.
+     */
+    private boolean isMultipleOf(BigDecimal dividend) {
+        if (dividend.signum() == 0) {
+            return true;
+        }
+        BigDecimal normalized = dividend.stripTrailingZeros();
+        long scaleDifference = (long) this.divisor.scale() - normalized.scale();
+        if (scaleDifference < 0) {
+            // The normalized dividend has no trailing zero, so it cannot be divisible
+            // by a denominator containing another factor of ten.
+            return false;
+        }
+        BigInteger denominator = this.divisor.unscaledValue().abs();
+        BigInteger remainder = normalized.unscaledValue().remainder(denominator);
+        if (remainder.signum() == 0) {
+            return true;
+        }
+        if (scaleDifference == 0) {
+            return false;
+        }
+        BigInteger powerOfTen = BigInteger.TEN.modPow(BigInteger.valueOf(scaleDifference), denominator);
+        return remainder.multiply(powerOfTen).remainder(denominator).signum() == 0;
     }
 
     /**
@@ -86,7 +113,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         if (node.isNumber()) {
             // convert to BigDecimal since double type is not accurate enough to do the
             // division and multiple
-            return node.isIntegralNumber() || node.isBigDecimal() ? node.decimalValue() : BigDecimal.valueOf(node.doubleValue());
+            return node.decimalValue();
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
                 && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose

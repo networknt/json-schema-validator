@@ -16,15 +16,22 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Duration;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import com.networknt.schema.serialization.NodeReader;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -166,5 +173,94 @@ class MultipleOfValidatorTest {
         assertEquals(1, even.validate(BigIntegerNode.valueOf(divisor)).size());
         assertEquals(1, even.validate(BigIntegerNode.valueOf(divisor.negate())).size());
         assertEquals(0, even.validate(BigIntegerNode.valueOf(divisor.add(BigInteger.ONE))).size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "2, 9007199254740993.0, 1",
+            "3, 9007199254740993.0, 0",
+            "9007199254740993.0, 9007199254740992.0, 1",
+            "9007199254740993.0, 18014398509481986.0, 0",
+            "1e-400, 1.5e-400, 1",
+            "1e-400, 2e-400, 0",
+            "1e400, 1, 1",
+            "1e400, 2e400, 0"
+    })
+    void exactDecimalsFromReader(String divisor, String dividend, int expectedErrors) {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build())
+                        .build()))
+                .getSchema("{\"multipleOf\":" + divisor + "}");
+        assertEquals(expectedErrors, schema.validate(dividend, InputFormat.JSON).size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "100, 3, must be multiple of 1E+2",
+            "9007199254740993, 2, must be multiple of 9007199254740993",
+            "-2, 3, must be multiple of -2"
+    })
+    void exactDivisorMessage(String divisor, String dividend, String expectedMessage) {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":" + divisor + "}");
+        assertEquals(expectedMessage, schema.validate(dividend, InputFormat.JSON).get(0).getMessage());
+    }
+
+    @Test
+    void largeScaleDifferences() {
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+            ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+            schemaNode.set("multipleOf", DecimalNode.valueOf(new BigDecimal(BigInteger.valueOf(3), Integer.MAX_VALUE)));
+            Schema tinyDivisor = registry.getSchema(schemaNode);
+            assertEquals(0, tinyDivisor.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.valueOf(3), Integer.MIN_VALUE))).size());
+            assertEquals(1, tinyDivisor.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.ONE, Integer.MIN_VALUE))).size());
+            assertEquals(0, tinyDivisor.validate(DecimalNode.valueOf(BigDecimal.ZERO)).size());
+
+            schemaNode = JsonNodeFactory.instance.objectNode();
+            schemaNode.set("multipleOf", DecimalNode.valueOf(new BigDecimal(BigInteger.ONE, Integer.MIN_VALUE)));
+            Schema hugeDivisor = registry.getSchema(schemaNode);
+            assertEquals(1, hugeDivisor.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.ONE, Integer.MAX_VALUE))).size());
+        });
+    }
+
+    @Test
+    void largeExponentsFromReaderAndLooseType() {
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                    builder -> builder.nodeReader(NodeReader.builder()
+                            .jsonMapper(JsonMapper.builder().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build())
+                            .build()).schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()));
+            Schema tinyDivisor = registry.getSchema("{\"multipleOf\":1e-20000000}");
+            assertEquals(0, tinyDivisor.validate("1", InputFormat.JSON).size());
+            Schema thirds = registry.getSchema("{\"multipleOf\":3}");
+            assertEquals(1, thirds.validate("1e5000000", InputFormat.JSON).size());
+            assertEquals(1, thirds.validate("\"1e5000000\"", InputFormat.JSON).size());
+            assertEquals(0, thirds.validate("\"3e5000000\"", InputFormat.JSON).size());
+        });
+    }
+
+    @Test
+    void matchesDecimalRemainder() {
+        Random random = new Random(1286);
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        for (int i = 0; i < 100; i++) {
+            BigDecimal divisor = BigDecimal.valueOf(1 + random.nextInt(1000), random.nextInt(25) - 12);
+            if (i % 2 == 0) {
+                divisor = divisor.negate();
+            }
+            ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+            schemaNode.set("multipleOf", DecimalNode.valueOf(divisor));
+            Schema schema = registry.getSchema(schemaNode);
+            for (int j = 0; j < 20; j++) {
+                BigDecimal dividend = BigDecimal.valueOf(random.nextInt(2001) - 1000, random.nextInt(25) - 12);
+                int expectedErrors = dividend.remainder(divisor).signum() == 0 ? 0 : 1;
+                assertEquals(expectedErrors, schema.validate(DecimalNode.valueOf(dividend)).size(),
+                        dividend + " multipleOf " + divisor);
+            }
+            BigDecimal multiple = divisor.multiply(BigDecimal.valueOf(i - 50));
+            assertEquals(0, schema.validate(DecimalNode.valueOf(multiple)).size());
+        }
     }
 }
