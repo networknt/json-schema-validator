@@ -16,7 +16,6 @@
 package com.networknt.schema.serialization;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
@@ -28,8 +27,7 @@ public class JsonMapperFactory {
      * The holder defers the classloading until it is used.
      */
     private static class Holder {
-        private static final ObjectMapper INSTANCE = JsonMapper.builder()
-                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
+        private static final ObjectMapper INSTANCE = JsonMapper.builder().build();
     }
 
     /**
