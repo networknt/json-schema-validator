@@ -54,9 +54,13 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
 
                     } else if (node.isString()) {
                         BigDecimal max = new BigDecimal(maximumText);
-                        BigDecimal value = new BigDecimal(node.asString());
+                        BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asString());
                         int compare = value.compareTo(max);
                         return compare > 0 || compare == 0;
+                    }
+                    if (node.isFloatingPointNumber()) {
+                        int compare = node.decimalValue().compareTo(BigDecimal.valueOf(lm));
+                        return compare >= 0;
                     }
                     long val = node.asLong();
                     return lm < val || lm == val;
@@ -83,8 +87,8 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
                     if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
                         return true;
                     }
-                    final BigDecimal max = new BigDecimal(maximumText);
-                    BigDecimal value = new BigDecimal(node.asString());
+                    final BigDecimal max = schemaNode.decimalValue();
+                    BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asString());
                     int compare = value.compareTo(max);
                     return compare > 0 || compare == 0;
                 }

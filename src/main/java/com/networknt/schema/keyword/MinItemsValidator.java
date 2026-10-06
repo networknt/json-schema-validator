@@ -27,12 +27,16 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for minItems.
  */
 public class MinItemsValidator extends BaseKeywordValidator implements KeywordValidator {
+    private final boolean exceedsIntegerRange;
     private int min = 0;
 
     public MinItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MIN_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
+        this.exceedsIntegerRange = schemaNode.canConvertToExactIntegral() && !schemaNode.canConvertToInt()
+                && schemaNode.decimalValue().signum() > 0;
         if (schemaNode.canConvertToExactIntegral()) {
-            min = schemaNode.intValue();
+            min = (schemaNode.canConvertToInt() ? schemaNode.intValue()
+                    : schemaNode.decimalValue().signum() > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE);
         }
     }
 
@@ -40,17 +44,17 @@ public class MinItemsValidator extends BaseKeywordValidator implements KeywordVa
         
 
         if (node.isArray()) {
-            if (node.size() < min) {
+            if (this.exceedsIntegerRange || node.size() < min) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(min, node.size())
+                        .arguments(this.exceedsIntegerRange ? schemaNode.asString() : min, node.size())
                         .build());
             }
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
             if (1 < min) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(min, 1).build());
+                        .arguments(this.exceedsIntegerRange ? schemaNode.asString() : min, 1).build());
             }
         }
     }

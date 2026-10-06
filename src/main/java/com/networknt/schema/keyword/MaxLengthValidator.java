@@ -34,7 +34,8 @@ public class MaxLengthValidator extends BaseKeywordValidator implements KeywordV
     public MaxLengthValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
-            this.maxLength = schemaNode.intValue();
+            this.maxLength = (schemaNode.canConvertToInt() ? schemaNode.intValue()
+                    : schemaNode.decimalValue().signum() > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE);
         } else {
             this.maxLength = Integer.MAX_VALUE;
         }

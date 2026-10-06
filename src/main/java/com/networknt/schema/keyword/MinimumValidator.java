@@ -71,10 +71,14 @@ public class MinimumValidator extends BaseKeywordValidator {
 
                     } else if (node.isString()) {
                         BigDecimal min = new BigDecimal(minimumText);
-                        BigDecimal value = new BigDecimal(node.asString());
+                        BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asString());
                         int compare = value.compareTo(min);
                         return compare < 0 || (excludeEqual && compare == 0);
 
+                    }
+                    if (node.isFloatingPointNumber()) {
+                        int compare = node.decimalValue().compareTo(BigDecimal.valueOf(lmin));
+                        return compare < 0 || (excludeEqual && compare == 0);
                     }
                     long val = node.asLong();
                     return lmin > val || (excludeEqual && lmin == val);
@@ -103,8 +107,8 @@ public class MinimumValidator extends BaseKeywordValidator {
                     if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
                         return false;
                     }
-                    final BigDecimal min = new BigDecimal(minimumText);
-                    BigDecimal value = new BigDecimal(node.asString());
+                    final BigDecimal min = schemaNode.decimalValue();
+                    BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asString());
                     int compare = value.compareTo(min);
                     return compare < 0 || (excludeEqual && compare == 0);
                 }

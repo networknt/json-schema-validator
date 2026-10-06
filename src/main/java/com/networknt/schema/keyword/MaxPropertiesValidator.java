@@ -33,7 +33,8 @@ public class MaxPropertiesValidator extends BaseKeywordValidator implements Keyw
                                   SchemaContext schemaContext) {
         super(KeywordType.MAX_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode.canConvertToExactIntegral()) {
-            max = schemaNode.intValue();
+            max = (schemaNode.canConvertToInt() ? schemaNode.intValue()
+                    : schemaNode.decimalValue().signum() > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE);
         } else {
             max = Integer.MAX_VALUE;
         }

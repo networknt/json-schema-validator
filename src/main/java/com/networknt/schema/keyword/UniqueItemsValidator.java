@@ -18,6 +18,7 @@ package com.networknt.schema.keyword;
 
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.utils.DecimalUtils;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
@@ -80,7 +81,7 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
      */
     private static Object comparisonKey(JsonNode node) {
         if (node.isNumber() && !JsonNodeTypes.isNonFiniteNumber(node)) {
-            return node.decimalValue().stripTrailingZeros();
+            return DecimalUtils.normalize(node.decimalValue());
         }
         if (node.isArray()) {
             List<Object> items = new ArrayList<>(node.size());

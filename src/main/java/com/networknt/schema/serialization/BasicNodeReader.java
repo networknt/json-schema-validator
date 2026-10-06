@@ -55,9 +55,9 @@ public class BasicNodeReader implements NodeReader {
      */
     protected ObjectMapper getObjectMapper(InputFormat inputFormat) {
         if (InputFormat.JSON.equals(inputFormat)) {
-            return JsonMapperFactory.getInstance();
+            return ExactMapperFactory.json();
         } else if (InputFormat.YAML.equals(inputFormat)) {
-            return YamlMapperFactory.getInstance();
+            return ExactMapperFactory.yaml();
         }
         throw new IllegalArgumentException("Unsupported input format "+inputFormat); 
     }

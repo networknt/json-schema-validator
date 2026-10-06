@@ -55,7 +55,7 @@ public class DefaultNodeReader implements NodeReader {
      * @return the yaml mapper
      */
     protected ObjectMapper getYamlMapper() {
-        return this.yamlMapper != null ? this.yamlMapper : YamlMapperFactory.getInstance();
+        return this.yamlMapper != null ? this.yamlMapper : ExactMapperFactory.yaml();
     }
 
     /**
@@ -64,7 +64,7 @@ public class DefaultNodeReader implements NodeReader {
      * @return the json mapper
      */
     protected ObjectMapper getJsonMapper() {
-        return this.jsonMapper != null ? this.jsonMapper : JsonMapperFactory.getInstance();
+        return this.jsonMapper != null ? this.jsonMapper : ExactMapperFactory.json();
     }
 
     /**

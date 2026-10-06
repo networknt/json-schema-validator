@@ -24,6 +24,7 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeTypes;
+import com.networknt.schema.utils.DecimalUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -34,16 +35,33 @@ import java.math.BigInteger;
 public class MultipleOfValidator extends BaseKeywordValidator implements KeywordValidator {
     private final BigDecimal divisor;
     private final long longDivisor;
+    private final BigInteger denominator;
     private final String divisorText;
 
     public MultipleOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
         this.divisor = getDivisor(schemaNode);
-        this.longDivisor = this.divisor != null && (schemaNode.isInt() || schemaNode.isLong())
-                ? schemaNode.longValue() : 0;
-        this.divisorText = this.divisor == null ? null : schemaNode.isIntegralNumber()
-                ? schemaNode.bigIntegerValue().toString() : this.divisor.toString();
+        this.denominator = this.divisor == null ? null : this.divisor.unscaledValue().abs();
+        // Subclasses may override either conversion hook. Do not bypass them.
+        this.longDivisor = getClass() == MultipleOfValidator.class ? integralDivisor(this.divisor) : 0;
+        this.divisorText = this.divisor == null ? null
+                : schemaNode.isIntegralNumber() && this.divisor.compareTo(schemaNode.decimalValue()) == 0
+                        ? schemaNode.bigIntegerValue().toString()
+                        : this.divisor.scale() <= 0 && (long) this.divisor.precision() - this.divisor.scale() <= 19
+                                ? this.divisor.toPlainString() : this.divisor.toString();
+    }
+
+    private static long integralDivisor(BigDecimal value) {
+        if (value == null || value.signum() <= 0 || value.scale() > 0
+                || (long) value.precision() - value.scale() > 19) {
+            return 0;
+        }
+        try {
+            return value.longValueExact();
+        } catch (ArithmeticException exception) {
+            return 0;
+        }
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
@@ -54,8 +72,12 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             if (this.longDivisor != 0 && (node.isInt() || node.isLong())) {
                 invalid = node.longValue() % this.longDivisor != 0;
             } else {
-                BigDecimal dividend = getDividend(node);
-                invalid = dividend != null && !isMultipleOf(dividend);
+                try {
+                    BigDecimal dividend = getDividend(node);
+                    invalid = dividend != null && !isMultipleOf(dividend);
+                } catch (InvalidNumericInstanceException exception) {
+                    invalid = true;
+                }
             }
             if (invalid) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
@@ -67,21 +89,28 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     }
 
     /**
-     * Checks divisibility without expanding powers of ten or computing the quotient.
+     * Checks divisibility without expanding exponent-sized powers or quotients.
      */
     private boolean isMultipleOf(BigDecimal dividend) {
         if (dividend.signum() == 0) {
             return true;
         }
-        BigDecimal normalized = dividend.stripTrailingZeros();
-        long scaleDifference = (long) this.divisor.scale() - normalized.scale();
+        long scaleDifference = (long) this.divisor.scale() - dividend.scale();
+        BigInteger denominator = this.denominator;
+        BigInteger numerator = dividend.unscaledValue();
         if (scaleDifference < 0) {
-            // The normalized dividend has no trailing zero, so it cannot be divisible
-            // by a denominator containing another factor of ten.
-            return false;
+            long zeros = -scaleDifference;
+            // Bound all constructed powers by the input coefficient size, never the exponent alone.
+            // 30103/100000 is an upper bound for log10(2).
+            long digitUpperBound = (numerator.abs().bitLength() * 30103L) / 100000 + 1;
+            if (zeros >= digitUpperBound || numerator.abs().getLowestSetBit() < zeros) {
+                return false;
+            }
+            BigInteger[] division = numerator.divideAndRemainder(BigInteger.TEN.pow((int) zeros));
+            return division[1].signum() == 0 && division[0].remainder(denominator).signum() == 0;
         }
-        BigInteger denominator = this.divisor.unscaledValue().abs();
-        BigInteger remainder = normalized.unscaledValue().remainder(denominator);
+
+        BigInteger remainder = numerator.remainder(denominator);
         if (remainder.signum() == 0) {
             return true;
         }
@@ -100,22 +129,22 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      */
     protected BigDecimal getDivisor(JsonNode schemaNode) {
         if (schemaNode.isNumber()) {
-            if (schemaNode.isIntegralNumber() || schemaNode.isBigDecimal()) {
-                BigDecimal divisor = schemaNode.decimalValue();
-                if (divisor.signum() <= 0) {
-                    throw new SchemaException("multipleOf must be greater than zero");
+            if (!schemaNode.isIntegralNumber() && !schemaNode.isBigDecimal()) {
+                double number = schemaNode.doubleValue();
+                // A double mapper cannot distinguish zero from a positive value
+                // that underflowed to zero. Preserve its legacy ignored divisor.
+                if (number == 0) {
+                    return null;
                 }
-                return divisor.stripTrailingZeros();
+                if (!Double.isFinite(number)) {
+                    return null;
+                }
             }
-            double divisor = schemaNode.doubleValue();
-            if (Double.isFinite(divisor) && divisor <= 0) {
+            BigDecimal value = schemaNode.decimalValue();
+            if (value.signum() <= 0) {
                 throw new SchemaException("multipleOf must be greater than zero");
             }
-            if (divisor != 0 && Double.isFinite(divisor)) {
-                // convert to BigDecimal since double type is not accurate enough to do the
-                // division and multiple
-                return BigDecimal.valueOf(divisor).stripTrailingZeros();
-            }
+            return DecimalUtils.normalize(value);
         }
         return null;
     }
@@ -139,9 +168,21 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
                 && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose
-            return new BigDecimal(node.asString());
+            try {
+                return new BigDecimal(node.asString());
+            } catch (NumberFormatException exception) {
+                throw new InvalidNumericInstanceException(exception);
+            }
         }
         return null;
     }
 
+    /** Distinguishes an unrepresentable loose number from an unrelated hook exception. */
+    private static final class InvalidNumericInstanceException extends IllegalArgumentException {
+        private static final long serialVersionUID = 1L;
+
+        private InvalidNumericInstanceException(NumberFormatException cause) {
+            super(cause);
+        }
+    }
 }

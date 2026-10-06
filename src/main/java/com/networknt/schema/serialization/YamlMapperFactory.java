@@ -16,7 +16,6 @@
 package com.networknt.schema.serialization;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
@@ -28,8 +27,7 @@ public class YamlMapperFactory {
      * The holder defers the classloading until it is used.
      */
     private static class Holder {
-        private static final ObjectMapper INSTANCE = YAMLMapper.builder()
-                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
+        private static final ObjectMapper INSTANCE = YAMLMapper.shared();
     }
 
     /**
