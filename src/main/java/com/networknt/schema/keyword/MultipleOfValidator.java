@@ -19,6 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
@@ -32,25 +33,35 @@ import java.math.BigInteger;
  */
 public class MultipleOfValidator extends BaseKeywordValidator implements KeywordValidator {
     private final BigDecimal divisor;
+    private final long longDivisor;
+    private final String divisorText;
 
     public MultipleOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
         this.divisor = getDivisor(schemaNode);
+        this.longDivisor = this.divisor != null && (schemaNode.isInt() || schemaNode.isLong())
+                ? schemaNode.longValue() : 0;
+        this.divisorText = this.divisor == null ? null : schemaNode.isIntegralNumber()
+                ? schemaNode.bigIntegerValue().toString() : this.divisor.toString();
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation) {
         
         if (this.divisor != null) {
-            BigDecimal dividend = getDividend(node);
-            if (dividend != null) {
-                if (!isMultipleOf(dividend)) {
-                    executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                            .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                            .arguments(this.divisor.toString()) // String is used as the MessageFormat NumberFormat considers 3 fractional digits by default
-                            .build());
-                }
+            boolean invalid;
+            if (this.longDivisor != 0 && (node.isInt() || node.isLong())) {
+                invalid = node.longValue() % this.longDivisor != 0;
+            } else {
+                BigDecimal dividend = getDividend(node);
+                invalid = dividend != null && !isMultipleOf(dividend);
+            }
+            if (invalid) {
+                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(this.divisorText) // Preserve precision without MessageFormat NumberFormat rounding
+                        .build());
             }
         }
     }
@@ -90,10 +101,16 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     protected BigDecimal getDivisor(JsonNode schemaNode) {
         if (schemaNode.isNumber()) {
             if (schemaNode.isIntegralNumber() || schemaNode.isBigDecimal()) {
-                BigDecimal divisor = schemaNode.decimalValue().stripTrailingZeros();
-                return divisor.signum() != 0 ? divisor : null;
+                BigDecimal divisor = schemaNode.decimalValue();
+                if (divisor.signum() <= 0) {
+                    throw new SchemaException("multipleOf must be greater than zero");
+                }
+                return divisor.stripTrailingZeros();
             }
             double divisor = schemaNode.doubleValue();
+            if (Double.isFinite(divisor) && divisor <= 0) {
+                throw new SchemaException("multipleOf must be greater than zero");
+            }
             if (divisor != 0) {
                 // convert to BigDecimal since double type is not accurate enough to do the
                 // division and multiple

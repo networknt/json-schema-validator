@@ -16,10 +16,13 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
@@ -146,8 +149,7 @@ class MultipleOfValidatorTest {
             "1e-400, 2e-400, 0",
             "1e400, 1, 1",
             "1e400, 2e400, 0",
-            "2, 1e400, 0",
-            "0, 1, 0"
+            "2, 1e400, 0"
     })
     void exactDecimals(String divisor, String dividend, int expectedErrors) {
         ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
@@ -197,9 +199,8 @@ class MultipleOfValidatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "100, 3, must be multiple of 1E+2",
-            "9007199254740993, 2, must be multiple of 9007199254740993",
-            "-2, 3, must be multiple of -2"
+            "100, 3, must be multiple of 100",
+            "9007199254740993, 2, must be multiple of 9007199254740993"
     })
     void exactDivisorMessage(String divisor, String dividend, String expectedMessage) {
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
@@ -247,9 +248,6 @@ class MultipleOfValidatorTest {
         SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         for (int i = 0; i < 100; i++) {
             BigDecimal divisor = BigDecimal.valueOf(1 + random.nextInt(1000), random.nextInt(25) - 12);
-            if (i % 2 == 0) {
-                divisor = divisor.negate();
-            }
             ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
             schemaNode.set("multipleOf", DecimalNode.valueOf(divisor));
             Schema schema = registry.getSchema(schemaNode);
@@ -262,5 +260,51 @@ class MultipleOfValidatorTest {
             BigDecimal multiple = divisor.multiply(BigDecimal.valueOf(i - 50));
             assertEquals(0, schema.validate(DecimalNode.valueOf(multiple)).size());
         }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "2, 9007199254740993.0, 1",
+            "3, 9007199254740993.0, 0",
+            "9007199254740993.0, 9007199254740992.0, 1",
+            "9007199254740993.0, 18014398509481986.0, 0",
+            "2, 9.007199254740993e15, 1",
+            "0.1, 0.3, 0"
+    })
+    void exactDecimalsWithDefaultReaders(String divisor, String dividend, int expectedErrors) throws Exception {
+        for (InputFormat format : new InputFormat[] {InputFormat.JSON, InputFormat.YAML}) {
+            SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+            String schemaData = "{\"multipleOf\":" + divisor + "}";
+            Schema schema = registry.getSchema(schemaData, format);
+            assertEquals(expectedErrors, schema.validate(dividend, format).size());
+            Schema streamSchema = registry.getSchema(new ByteArrayInputStream(schemaData.getBytes(StandardCharsets.UTF_8)), format);
+            assertEquals(expectedErrors, streamSchema.validate(registry.readTree(new ByteArrayInputStream(dividend.getBytes(StandardCharsets.UTF_8)), format)).size());
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({"0", "0.0", "-0.0", "-2", "-0.01", "-1e400", "-9223372036854775809"})
+    void rejectsNonPositiveDivisors(String divisor) {
+        SchemaException exception = assertThrows(SchemaException.class, () ->
+                SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                        .getSchema("{\"multipleOf\":" + divisor + "}").validate("1", InputFormat.JSON));
+        assertEquals("multipleOf must be greater than zero", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "2, 0, 0",
+            "2, -9223372036854775808, 0",
+            "3, -9223372036854775808, 1",
+            "9223372036854775807, 9223372036854775807, 0",
+            "9223372036854775807, -9223372036854775807, 0",
+            "9223372036854775807, -9223372036854775808, 1",
+            "1, -9223372036854775808, 0",
+            "2, 2147483647, 1"
+    })
+    void integralFastPath(String divisor, String dividend, int expectedErrors) {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":" + divisor + "}");
+        assertEquals(expectedErrors, schema.validate(dividend, InputFormat.JSON).size());
     }
 }
