@@ -29,16 +29,11 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for maxLength.
  */
 public class MaxLengthValidator extends BaseKeywordValidator implements KeywordValidator {
-    private final int maxLength;
+    private final CountLimit maxLength;
 
     public MaxLengthValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext);
-        if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
-            this.maxLength = (schemaNode.canConvertToInt() ? schemaNode.intValue()
-                    : schemaNode.decimalValue().signum() > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE);
-        } else {
-            this.maxLength = Integer.MAX_VALUE;
-        }
+        this.maxLength = new CountLimit(schemaNode, Integer.MAX_VALUE);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
@@ -49,10 +44,10 @@ public class MaxLengthValidator extends BaseKeywordValidator implements KeywordV
             // ignore no-string typs
             return;
         }
-        if (node.asString().codePointCount(0, node.asString().length()) > this.maxLength) {
+        if (node.asString().codePointCount(0, node.asString().length()) > this.maxLength.value) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                    .arguments(this.maxLength).build());
+                    .arguments(this.maxLength.argument).build());
         }
     }
 

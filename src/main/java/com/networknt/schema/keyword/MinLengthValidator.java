@@ -29,18 +29,11 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for minLength.
  */
 public class MinLengthValidator extends BaseKeywordValidator implements KeywordValidator {
-    private final boolean exceedsIntegerRange;
-    private int minLength;
+    private final CountLimit minLength;
 
     public MinLengthValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MIN_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.exceedsIntegerRange = schemaNode.canConvertToExactIntegral() && !schemaNode.canConvertToInt()
-                && schemaNode.decimalValue().signum() > 0;
-        minLength = Integer.MIN_VALUE;
-        if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
-            minLength = (schemaNode.canConvertToInt() ? schemaNode.intValue()
-                    : schemaNode.decimalValue().signum() > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE);
-        }
+        this.minLength = new CountLimit(schemaNode, 0);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
@@ -52,10 +45,10 @@ public class MinLengthValidator extends BaseKeywordValidator implements KeywordV
             return;
         }
 
-        if (this.exceedsIntegerRange || node.asString().codePointCount(0, node.asString().length()) < minLength) {
+        if (this.minLength.isBelowMinimum(node.asString().codePointCount(0, node.asString().length()))) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                    .arguments(this.exceedsIntegerRange ? schemaNode.asString() : minLength).build());
+                    .arguments(this.minLength.argument).build());
         }
     }
 

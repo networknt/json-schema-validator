@@ -17,7 +17,13 @@
 package com.networknt.schema.serialization;
 
 import java.math.BigDecimal;
+
+import com.networknt.schema.utils.DecimalUtils;
+
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.TokenStreamContext;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.util.JsonParserDelegate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.DeserializationContext;
@@ -29,9 +35,6 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.yaml.YAMLMapper;
-import tools.jackson.databind.node.JsonNodeFactory;
-import tools.jackson.databind.node.ValueNode;
-import tools.jackson.databind.node.DecimalNode;
 import tools.jackson.databind.ObjectMapper;
 
 /** Exact default tree readers, separate from the public mapper factories. */
@@ -52,16 +55,14 @@ final class ExactMapperFactory {
         private static final ObjectMapper INSTANCE = JsonMapper.builder()
                 .disable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .addModule(new SimpleModule().addDeserializer(JsonNode.class, new ExactNodeDeserializer()))
-                .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
-                .nodeFactory(new ExactNumberNodeFactory()).build();
+                .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES).build();
     }
 
     private static class DefaultYamlMapper {
         private static final ObjectMapper INSTANCE = YAMLMapper.builder()
                 .disable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .addModule(new SimpleModule().addDeserializer(JsonNode.class, new ExactNodeDeserializer()))
-                .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
-                .nodeFactory(new ExactNumberNodeFactory()).build();
+                .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES).build();
     }
 
     /** Keep Jackson's tree construction, choosing precision before allocating a decimal. */
@@ -87,9 +88,10 @@ final class ExactMapperFactory {
     /**
      * Coefficients of at most 15 digits with scales from 0 through 15 round-trip
      * through binary64. Negative scales qualify only when the expanded integer
-     * also has at most 15 digits. Parse these without an intermediate BigDecimal.
-     * All other
-     * finite literals retain the exact decimal path, including exact zero.
+     * also has at most 15 digits. Read these without an intermediate BigDecimal.
+     * Other literals use double only when its decimal representation is exact.
+     * Representation is chosen here so custom node factories, including the
+     * location-aware factory, receive the same numeric type.
      */
     private static final class ExactNumberParser extends JsonParserDelegate {
         private static final double[] POWERS_OF_TEN = {
@@ -97,8 +99,10 @@ final class ExactMapperFactory {
                 100000000d, 1000000000d, 10000000000d, 100000000000d,
                 1000000000000d, 10000000000000d, 100000000000000d, 1000000000000000d
         };
+
+        private long compactOffset = -1;
         private double compactValue;
-        private boolean compact;
+        private TokenStreamContext compactContext;
 
         ExactNumberParser(JsonParser parser) {
             super(parser);
@@ -106,9 +110,19 @@ final class ExactMapperFactory {
 
         @Override
         public NumberTypeFP getNumberTypeFP() {
-            compact = false;
+            compactValue = compactDoubleValue();
+            if (compactValue != 0d) {
+                compactContext = delegate.streamReadContext();
+                compactOffset = compactContext == null ? -1 : tokenOffset();
+                return NumberTypeFP.DOUBLE64;
+            }
+            compactOffset = -1;
+            return exactNumberType();
+        }
+
+        /** Zero means this token needs the exact path; exact zero is never compact. */
+        private double compactDoubleValue() {
             int length = delegate.getStringLength();
-            // This conservative length bound also keeps the coefficient within long range.
             if (length <= 17) {
                 char[] text = delegate.getStringCharacters();
                 int start = delegate.getStringOffset();
@@ -141,7 +155,7 @@ final class ExactMapperFactory {
                             int digit = text[offset] - '0';
                             // Larger exponents cannot qualify; stop before the int can overflow.
                             if (digit < 0 || digit > 9 || exponent > 30) {
-                                return NumberTypeFP.BIG_DECIMAL;
+                                return 0d;
                             }
                             exponent = exponent * 10 + digit;
                         }
@@ -150,16 +164,52 @@ final class ExactMapperFactory {
                         }
                         break;
                     } else {
-                        return delegate.isNaN() ? NumberTypeFP.DOUBLE64 : NumberTypeFP.BIG_DECIMAL;
+                        return delegate.isNaN() ? delegate.getDoubleValue() : 0d;
                     }
                 }
                 int digits = coefficientEnd - start - (negative ? 1 : 0) - (point < 0 ? 0 : 1);
                 int scale = (point < 0 ? 0 : coefficientEnd - point - 1) - exponent;
                 if (coefficient != 0 && digits <= 15 && scale <= 15 && scale >= digits - 15) {
                     long signedCoefficient = negative ? -coefficient : coefficient;
-                    compactValue = scale >= 0 ? signedCoefficient / POWERS_OF_TEN[scale]
+                    return scale >= 0 ? signedCoefficient / POWERS_OF_TEN[scale]
                             : signedCoefficient * POWERS_OF_TEN[-scale];
-                    compact = true;
+                }
+            }
+            return 0d;
+        }
+
+        @Override
+        public double getDoubleValue() {
+            // Context and a known offset identify the token even across parser sequences.
+            // Parsers without offsets use the stateless compact calculation.
+            if (delegate.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
+                if (compactOffset >= 0 && compactContext == delegate.streamReadContext()
+                        && compactOffset == tokenOffset()) {
+                    return compactValue;
+                }
+                double compact = compactDoubleValue();
+                if (compact != 0d) {
+                    return compact;
+                }
+            }
+            return delegate.getDoubleValue();
+        }
+
+        private long tokenOffset() {
+            TokenStreamLocation location = delegate.currentTokenLocation();
+            long offset = location.getCharOffset();
+            return offset >= 0 ? offset : location.getByteOffset();
+        }
+
+        private NumberTypeFP exactNumberType() {
+            double number = delegate.getDoubleValue();
+            // Keep exact zero distinct from underflow in a caller's double mapper.
+            if (number != 0d && Double.isFinite(number)) {
+                String roundTrip = Double.toString(number);
+                // Canonical Double.toString output matches directly, avoiding both
+                // BigDecimal parses and BigDecimal.doubleValue's JDK 17 round trip.
+                if (roundTrip.equals(delegate.getString())
+                        || new BigDecimal(roundTrip).compareTo(delegate.getDecimalValue()) == 0) {
                     return NumberTypeFP.DOUBLE64;
                 }
             }
@@ -167,38 +217,10 @@ final class ExactMapperFactory {
         }
 
         @Override
-        public double getDoubleValue() {
-            return compact ? compactValue : delegate.getDoubleValue();
-        }
-    }
-
-    /**
-     * Retains a decimal only when the legacy double representation would lose
-     * its decimal value. Ordinary floats retain their compact DoubleNode form.
-     */
-    private static class ExactNumberNodeFactory extends JsonNodeFactory {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public ValueNode numberNode(BigDecimal value) {
-            if (value == null) {
-                return nullNode();
-            }
-            if (value.signum() == 0) {
-                // Preserve the distinction between an exact zero divisor and
-                // an unknown value rounded to zero by a caller's double mapper.
-                return DecimalNode.ZERO;
-            }
-            double number = value.doubleValue();
-            // Normal-sized values with at most 15 decimal digits round-trip
-            // through binary64. Avoid allocating a second decimal for them.
-            if (value.precision() <= 15 && value.scale() >= 0 && value.scale() <= 15) {
-                return numberNode(number);
-            }
-            if (Double.isFinite(number) && BigDecimal.valueOf(number).compareTo(value) == 0) {
-                return numberNode(number);
-            }
-            return super.numberNode(value);
+        public BigDecimal getDecimalValue() {
+            // Jackson 3 DecimalNode equality includes scale. Normalize safely here
+            // rather than enabling Jackson's potentially overflowing zero stripping.
+            return DecimalUtils.normalize(delegate.getDecimalValue());
         }
     }
 

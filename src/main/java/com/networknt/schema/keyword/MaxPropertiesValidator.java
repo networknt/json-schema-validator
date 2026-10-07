@@ -27,27 +27,22 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator}for maxProperties.
  */
 public class MaxPropertiesValidator extends BaseKeywordValidator implements KeywordValidator {
-    private final int max;
+    private final CountLimit max;
 
     public MaxPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
         super(KeywordType.MAX_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        if (schemaNode.canConvertToExactIntegral()) {
-            max = (schemaNode.canConvertToInt() ? schemaNode.intValue()
-                    : schemaNode.decimalValue().signum() > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE);
-        } else {
-            max = Integer.MAX_VALUE;
-        }
+        this.max = new CountLimit(schemaNode, Integer.MAX_VALUE);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (node.isObject()) {
-            if (node.size() > max) {
+            if (node.size() > this.max.value) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(max).build());
+                        .arguments(this.max.argument).build());
             }
         }
     }

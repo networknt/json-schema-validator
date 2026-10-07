@@ -116,7 +116,8 @@ class NumericReviewRegressionTest {
         for (InputFormat format : new InputFormat[]{InputFormat.JSON, InputFormat.YAML}) {
             assertTrue(registry().readTree("1.25", format).isDouble());
             assertTrue(registry().readTree("9007199254740993.0", format).isBigDecimal());
-            assertEquals(new BigDecimal("9007199254740993.0"), registry().readTree("9007199254740993.0", format).decimalValue());
+            assertEquals(0, new BigDecimal("9007199254740993.0").compareTo(
+                    registry().readTree("9007199254740993.0", format).decimalValue()));
         }
     }
 
@@ -199,7 +200,7 @@ class NumericReviewRegressionTest {
                 b -> b.nodeReader(NodeReader.builder().locationAware().build()));
         for (InputFormat format : new InputFormat[]{InputFormat.JSON, InputFormat.YAML}) {
             JsonNode value = located.readTree(new ByteArrayInputStream("9007199254740993.0".getBytes(StandardCharsets.UTF_8)), format);
-            assertEquals(new BigDecimal("9007199254740993.0"), value.decimalValue());
+            assertEquals(0, new BigDecimal("9007199254740993.0").compareTo(value.decimalValue()));
             assertNotNull(JsonNodes.tokenStreamLocationOf(value));
             assertEquals(1, located.getSchema("{\"multipleOf\":2}").validate(value).size());
         }
