@@ -27,32 +27,27 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for maxItems.
  */
 public class MaxItemsValidator extends BaseKeywordValidator implements KeywordValidator {
-    private final int max;
+    private final CountLimit max;
 
     public MaxItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MAX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
-        if (schemaNode.canConvertToExactIntegral()) {
-            this.max = (schemaNode.canConvertToInt() ? schemaNode.intValue()
-                    : schemaNode.decimalValue().signum() > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE);
-        } else {
-            this.max = 0;
-        }
+        this.max = new CountLimit(schemaNode, Integer.MAX_VALUE);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (node.isArray()) {
-            if (node.size() > this.max) {
+            if (node.size() > this.max.value) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(this.max, node.size()).build());
+                        .arguments(this.max.argument, node.size()).build());
             }
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
-            if (1 > this.max) {
+            if (1 > this.max.value) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(this.max, 1).build());
+                        .arguments(this.max.argument, 1).build());
             }
         }
     }

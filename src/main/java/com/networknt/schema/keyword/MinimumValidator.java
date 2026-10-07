@@ -61,23 +61,18 @@ public class MinimumValidator extends BaseKeywordValidator {
         if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range
             final long lmin = schemaNode.asLong();
+            final BigDecimal min = BigDecimal.valueOf(lmin);
+            final BigInteger integerMin = BigInteger.valueOf(lmin);
             this.typedMinimum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
                     if (node.isBigInteger()) {
                         //node.isBigInteger is not trustable, the type BigInteger doesn't mean it is a big number.
-                        int compare = node.bigIntegerValue().compareTo(new BigInteger(minimumText));
+                        int compare = node.bigIntegerValue().compareTo(integerMin);
                         return compare < 0 || (excludeEqual && compare == 0);
 
-                    } else if (node.isTextual()) {
-                        BigDecimal min = new BigDecimal(minimumText);
-                        BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asText());
-                        int compare = value.compareTo(min);
-                        return compare < 0 || (excludeEqual && compare == 0);
-
-                    }
-                    if (node.isFloatingPointNumber()) {
-                        int compare = node.decimalValue().compareTo(BigDecimal.valueOf(lmin));
+                    } else if (node.isTextual() || node.isFloatingPointNumber()) {
+                        int compare = DecimalNumber.compare(node, min);
                         return compare < 0 || (excludeEqual && compare == 0);
                     }
                     long val = node.asLong();
@@ -91,6 +86,8 @@ public class MinimumValidator extends BaseKeywordValidator {
             };
 
         } else {
+            final BigDecimal min = (schemaNode.isFloatingPointNumber() && !schemaNode.isBigDecimal() && !Double.isFinite(schemaNode.doubleValue()))
+                    ? null : DecimalNumber.decimalValue(schemaNode);
             this.typedMinimum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
@@ -107,9 +104,7 @@ public class MinimumValidator extends BaseKeywordValidator {
                     if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
                         return false;
                     }
-                    final BigDecimal min = schemaNode.decimalValue();
-                    BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asText());
-                    int compare = value.compareTo(min);
+                    int compare = DecimalNumber.compare(node, min == null ? schemaNode.decimalValue() : min);
                     return compare < 0 || (excludeEqual && compare == 0);
                 }
 

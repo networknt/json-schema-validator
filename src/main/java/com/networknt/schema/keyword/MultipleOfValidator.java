@@ -75,8 +75,11 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                 try {
                     BigDecimal dividend = getDividend(node);
                     invalid = dividend != null && !isMultipleOf(dividend);
-                } catch (InvalidNumericInstanceException exception) {
-                    invalid = true;
+                } catch (DecimalScaleException exception) {
+                    DecimalNumber dividend = exception.number;
+                    BigInteger scaleDifference = dividend.exponent.add(BigInteger.valueOf(
+                            (long) this.divisor.scale() - dividend.significand.scale()));
+                    invalid = !isMultipleOf(dividend.significand.unscaledValue(), scaleDifference);
                 }
             }
             if (invalid) {
@@ -92,21 +95,25 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      * Checks divisibility without expanding exponent-sized powers or quotients.
      */
     private boolean isMultipleOf(BigDecimal dividend) {
-        if (dividend.signum() == 0) {
+        return isMultipleOf(dividend.unscaledValue(),
+                BigInteger.valueOf((long) this.divisor.scale() - dividend.scale()));
+    }
+
+    private boolean isMultipleOf(BigInteger numerator, BigInteger scaleDifference) {
+        if (numerator.signum() == 0) {
             return true;
         }
-        long scaleDifference = (long) this.divisor.scale() - dividend.scale();
         BigInteger denominator = this.denominator;
-        BigInteger numerator = dividend.unscaledValue();
-        if (scaleDifference < 0) {
-            long zeros = -scaleDifference;
+        if (scaleDifference.signum() < 0) {
+            BigInteger zeros = scaleDifference.negate();
             // Bound all constructed powers by the input coefficient size, never the exponent alone.
             // 30103/100000 is an upper bound for log10(2).
             long digitUpperBound = (numerator.abs().bitLength() * 30103L) / 100000 + 1;
-            if (zeros >= digitUpperBound || numerator.abs().getLowestSetBit() < zeros) {
+            if (zeros.compareTo(BigInteger.valueOf(digitUpperBound)) >= 0
+                    || numerator.abs().getLowestSetBit() < zeros.intValue()) {
                 return false;
             }
-            BigInteger[] division = numerator.divideAndRemainder(BigInteger.TEN.pow((int) zeros));
+            BigInteger[] division = numerator.divideAndRemainder(BigInteger.TEN.pow(zeros.intValue()));
             return division[1].signum() == 0 && division[0].remainder(denominator).signum() == 0;
         }
 
@@ -114,10 +121,10 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         if (remainder.signum() == 0) {
             return true;
         }
-        if (scaleDifference == 0) {
+        if (scaleDifference.signum() == 0) {
             return false;
         }
-        BigInteger powerOfTen = BigInteger.TEN.modPow(BigInteger.valueOf(scaleDifference), denominator);
+        BigInteger powerOfTen = BigInteger.TEN.modPow(scaleDifference, denominator);
         return remainder.multiply(powerOfTen).remainder(denominator).signum() == 0;
     }
 
@@ -136,7 +143,9 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                 if (number == 0) {
                     return null;
                 }
-
+                if (!Double.isFinite(number)) {
+                    return null;
+                }
             }
             BigDecimal value = schemaNode.decimalValue();
             if (value.signum() <= 0) {
@@ -155,6 +164,11 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      */
     protected BigDecimal getDividend(JsonNode node) {
         if (node.isNumber()) {
+            // Handle NaN, Infinity and -Infinity
+            if ((node.isFloatingPointNumber() && !node.isBigDecimal() && !Double.isFinite(node.doubleValue()))) {
+                // Incorrect type as NaN, Infinity and -Infinity are not valid JSON numbers so return null
+                return null;
+            }
             // convert to BigDecimal since double type is not accurate enough to do the
             // division and multiple
             return node.decimalValue();
@@ -162,20 +176,22 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                 && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose
             try {
-                return new BigDecimal(node.textValue());
+                return new BigDecimal(node.asText());
             } catch (NumberFormatException exception) {
-                throw new InvalidNumericInstanceException(exception);
+                throw new DecimalScaleException(DecimalNumber.parse(node.asText()), exception);
             }
         }
         return null;
     }
 
-    /** Distinguishes an unrepresentable loose number from an unrelated hook exception. */
-    private static final class InvalidNumericInstanceException extends IllegalArgumentException {
+    /** Carries the original loose number without swallowing unrelated conversion-hook exceptions. */
+    private static final class DecimalScaleException extends IllegalArgumentException {
         private static final long serialVersionUID = 1L;
+        private final DecimalNumber number;
 
-        private InvalidNumericInstanceException(NumberFormatException cause) {
+        private DecimalScaleException(DecimalNumber number, NumberFormatException cause) {
             super(cause);
+            this.number = number;
         }
     }
 }

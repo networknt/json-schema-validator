@@ -41,25 +41,21 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
             throw new SchemaException("exclusiveMaximum value is not a number");
         }
         final String maximumText = schemaNode.asText();
-        if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
+        if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range
             final long lm = schemaNode.asLong();
+            final BigDecimal max = BigDecimal.valueOf(lm);
+            final BigInteger integerMax = BigInteger.valueOf(lm);
             typedMaximum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
                     if (node.isBigInteger()) {
                         //node.isBigInteger is not trustable, the type BigInteger doesn't mean it is a big number.
-                        int compare = node.bigIntegerValue().compareTo(new BigInteger(schemaNode.asText()));
+                        int compare = node.bigIntegerValue().compareTo(integerMax);
                         return compare > 0 || compare == 0;
 
-                    } else if (node.isTextual()) {
-                        BigDecimal max = new BigDecimal(maximumText);
-                        BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asText());
-                        int compare = value.compareTo(max);
-                        return compare > 0 || compare == 0;
-                    }
-                    if (node.isFloatingPointNumber()) {
-                        int compare = node.decimalValue().compareTo(BigDecimal.valueOf(lm));
+                    } else if (node.isTextual() || node.isFloatingPointNumber()) {
+                        int compare = DecimalNumber.compare(node, max);
                         return compare >= 0;
                     }
                     long val = node.asLong();
@@ -72,6 +68,8 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
                 }
             };
         } else {
+            final BigDecimal max = (schemaNode.isFloatingPointNumber() && !schemaNode.isBigDecimal() && !Double.isFinite(schemaNode.doubleValue()))
+                    ? null : DecimalNumber.decimalValue(schemaNode);
             typedMaximum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
@@ -87,9 +85,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
                     if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
                         return true;
                     }
-                    final BigDecimal max = schemaNode.decimalValue();
-                    BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asText());
-                    int compare = value.compareTo(max);
+                    int compare = DecimalNumber.compare(node, max == null ? schemaNode.decimalValue() : max);
                     return compare > 0 || compare == 0;
                 }
 

@@ -27,30 +27,24 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for minProperties.
  */
 public class MinPropertiesValidator extends BaseKeywordValidator implements KeywordValidator {
-    private final boolean exceedsIntegerRange;
+    private final CountLimit limit;
     protected final int min;
 
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
         super(KeywordType.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.exceedsIntegerRange = schemaNode.canConvertToExactIntegral() && !schemaNode.canConvertToInt()
-                && schemaNode.decimalValue().signum() > 0;
-        if (schemaNode.canConvertToExactIntegral()) {
-            min = (schemaNode.canConvertToInt() ? schemaNode.intValue()
-                    : schemaNode.decimalValue().signum() > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE);
-        } else {
-            min = 0;
-        }
+        this.limit = new CountLimit(schemaNode, 0);
+        this.min = this.limit.value;
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (node.isObject()) {
-            if (this.exceedsIntegerRange || node.size() < min) {
+            if (this.limit.isBelowMinimum(node.size())) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(this.exceedsIntegerRange ? schemaNode.asText() : min).build());
+                        .arguments(this.limit.argument).build());
             }
         }
     }
