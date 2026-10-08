@@ -24,6 +24,7 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeTypes;
+import com.networknt.schema.utils.DecimalUtils;
 import com.networknt.schema.utils.JsonType;
 
 import java.math.BigDecimal;
@@ -44,6 +45,12 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
         if (!schemaNode.isNumber()) {
             throw new SchemaException("exclusiveMinimum value is not a number");
         }
+        // Keep the existing DoubleNode infinity bounds; reject unsupported non-finite bounds early.
+        if (schemaNode.isFloatingPointNumber() && !schemaNode.isBigDecimal()
+                && !Double.isFinite(schemaNode.doubleValue())
+                && (!schemaNode.isDouble() || Double.isNaN(schemaNode.doubleValue()))) {
+            throw new SchemaException("exclusiveMinimum value must be finite");
+        }
         final String minimumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range
@@ -59,7 +66,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
                         return compare < 0 || compare == 0;
 
                     } else if (node.isTextual() || node.isFloatingPointNumber()) {
-                        int compare = DecimalNumber.compare(node, min);
+                        int compare = DecimalUtils.compare(node, min);
                         return compare <= 0;
                     }
                     long val = node.asLong();
@@ -74,7 +81,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
 
         } else {
             final BigDecimal min = (schemaNode.isFloatingPointNumber() && !schemaNode.isBigDecimal() && !Double.isFinite(schemaNode.doubleValue()))
-                    ? null : DecimalNumber.decimalValue(schemaNode);
+                    ? null : DecimalUtils.decimalValue(schemaNode);
             typedMinimum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
@@ -91,7 +98,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
                     if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
                         return false;
                     }
-                    int compare = DecimalNumber.compare(node, min == null ? schemaNode.decimalValue() : min);
+                    int compare = DecimalUtils.compare(node, min);
                     return compare < 0 || compare == 0;
                 }
 

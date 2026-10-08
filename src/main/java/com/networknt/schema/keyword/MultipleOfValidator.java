@@ -25,6 +25,7 @@ import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeTypes;
 import com.networknt.schema.utils.DecimalUtils;
+import com.networknt.schema.utils.DecimalUtils.DecimalNumber;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -77,9 +78,9 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                     invalid = dividend != null && !isMultipleOf(dividend);
                 } catch (DecimalScaleException exception) {
                     DecimalNumber dividend = exception.number;
-                    BigInteger scaleDifference = dividend.exponent.add(BigInteger.valueOf(
-                            (long) this.divisor.scale() - dividend.significand.scale()));
-                    invalid = !isMultipleOf(dividend.significand.unscaledValue(), scaleDifference);
+                    BigInteger scaleDifference = dividend.getExponent().add(BigInteger.valueOf(
+                            (long) this.divisor.scale() - dividend.getSignificand().scale()));
+                    invalid = !isMultipleOf(dividend.getSignificand().unscaledValue(), scaleDifference);
                 }
             }
             if (invalid) {
@@ -147,7 +148,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                     return null;
                 }
             }
-            BigDecimal value = schemaNode.decimalValue();
+            BigDecimal value = DecimalUtils.decimalValue(schemaNode);
             if (value.signum() <= 0) {
                 throw new SchemaException("multipleOf must be greater than zero");
             }
@@ -171,7 +172,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             }
             // convert to BigDecimal since double type is not accurate enough to do the
             // division and multiple
-            return node.decimalValue();
+            return DecimalUtils.decimalValue(node);
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
                 && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose

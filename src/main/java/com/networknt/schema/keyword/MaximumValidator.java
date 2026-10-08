@@ -24,6 +24,7 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeTypes;
+import com.networknt.schema.utils.DecimalUtils;
 import com.networknt.schema.utils.JsonType;
 
 import java.math.BigDecimal;
@@ -53,6 +54,12 @@ public class MaximumValidator extends BaseKeywordValidator {
             this.excludeEqual = false;
         }
 
+        // Keep the existing DoubleNode infinity bounds; reject unsupported non-finite bounds early.
+        if (schemaNode.isFloatingPointNumber() && !schemaNode.isBigDecimal()
+                && !Double.isFinite(schemaNode.doubleValue())
+                && (!schemaNode.isDouble() || Double.isNaN(schemaNode.doubleValue()))) {
+            throw new SchemaException("maximum value must be finite");
+        }
         final String maximumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range
@@ -68,7 +75,7 @@ public class MaximumValidator extends BaseKeywordValidator {
                         return compare > 0 || (excludeEqual && compare == 0);
 
                     } else if (node.isTextual() || node.isFloatingPointNumber()) {
-                        int compare = DecimalNumber.compare(node, max);
+                        int compare = DecimalUtils.compare(node, max);
                         return compare > 0 || (excludeEqual && compare == 0);
                     }
                     long val = node.asLong();
@@ -82,7 +89,7 @@ public class MaximumValidator extends BaseKeywordValidator {
             };
         } else {
             final BigDecimal max = (schemaNode.isFloatingPointNumber() && !schemaNode.isBigDecimal() && !Double.isFinite(schemaNode.doubleValue()))
-                    ? null : DecimalNumber.decimalValue(schemaNode);
+                    ? null : DecimalUtils.decimalValue(schemaNode);
             this.typedMaximum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
@@ -98,7 +105,7 @@ public class MaximumValidator extends BaseKeywordValidator {
                     if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
                         return true;
                     }
-                    int compare = DecimalNumber.compare(node, max == null ? schemaNode.decimalValue() : max);
+                    int compare = DecimalUtils.compare(node, max);
                     return compare > 0 || (excludeEqual && compare == 0);
                 }
 

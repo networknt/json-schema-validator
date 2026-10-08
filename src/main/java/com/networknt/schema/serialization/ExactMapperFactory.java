@@ -22,8 +22,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.JsonStreamContext;
-import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -100,29 +99,54 @@ final class ExactMapperFactory {
                 1000000000000d, 10000000000000d, 100000000000000d, 1000000000000000d
         };
 
-        private long compactOffset = -1;
         private double compactValue;
-        private JsonStreamContext compactContext;
 
         ExactNumberParser(JsonParser parser) {
             super(parser);
         }
 
+        // JsonParserDelegate forwards these operations directly, bypassing nextToken().
+        @Override
+        public JsonToken nextToken() throws IOException {
+            compactValue = 0d;
+            return delegate.nextToken();
+        }
+
+        @Override
+        public JsonToken nextValue() throws IOException {
+            compactValue = 0d;
+            return delegate.nextValue();
+        }
+
         @Override
         public String nextFieldName() throws IOException {
+            compactValue = 0d;
             return delegate.nextFieldName();
+        }
+
+        @Override
+        public boolean nextFieldName(SerializableString name) throws IOException {
+            compactValue = 0d;
+            return delegate.nextFieldName(name);
+        }
+
+        @Override
+        public JsonParser skipChildren() throws IOException {
+            compactValue = 0d;
+            delegate.skipChildren();
+            return this;
+        }
+
+        @Override
+        public void clearCurrentToken() {
+            compactValue = 0d;
+            delegate.clearCurrentToken();
         }
 
         @Override
         public NumberTypeFP getNumberTypeFP() throws IOException {
             compactValue = compactDoubleValue();
-            if (compactValue != 0d) {
-                compactContext = delegate.getParsingContext();
-                compactOffset = compactContext == null ? -1 : tokenOffset();
-                return NumberTypeFP.DOUBLE64;
-            }
-            compactOffset = -1;
-            return exactNumberType();
+            return compactValue != 0d ? NumberTypeFP.DOUBLE64 : exactNumberType();
         }
 
         /** Zero means this token needs the exact path; exact zero is never compact. */
@@ -185,25 +209,7 @@ final class ExactMapperFactory {
 
         @Override
         public double getDoubleValue() throws IOException {
-            // Context and a known offset identify the token even across parser sequences.
-            // Parsers without offsets use the stateless compact calculation.
-            if (delegate.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
-                if (compactOffset >= 0 && compactContext == delegate.getParsingContext()
-                        && compactOffset == tokenOffset()) {
-                    return compactValue;
-                }
-                double compact = compactDoubleValue();
-                if (compact != 0d) {
-                    return compact;
-                }
-            }
-            return delegate.getDoubleValue();
-        }
-
-        private long tokenOffset() {
-            JsonLocation location = delegate.currentTokenLocation();
-            long offset = location.getCharOffset();
-            return offset >= 0 ? offset : location.getByteOffset();
+            return compactValue != 0d ? compactValue : delegate.getDoubleValue();
         }
 
         private NumberTypeFP exactNumberType() throws IOException {
