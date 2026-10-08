@@ -22,8 +22,8 @@ import com.networknt.schema.utils.DecimalUtils;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import tools.jackson.core.TokenStreamContext;
-import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.core.SerializableString;
+import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.JsonParserDelegate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.DeserializationContext;
@@ -100,24 +100,60 @@ final class ExactMapperFactory {
                 1000000000000d, 10000000000000d, 100000000000000d, 1000000000000000d
         };
 
-        private long compactOffset = -1;
         private double compactValue;
-        private TokenStreamContext compactContext;
 
         ExactNumberParser(JsonParser parser) {
             super(parser);
         }
 
+        // JsonParserDelegate forwards these operations directly, bypassing nextToken().
+        @Override
+        public JsonToken nextToken() {
+            compactValue = 0d;
+            return delegate.nextToken();
+        }
+
+        @Override
+        public JsonToken nextValue() {
+            compactValue = 0d;
+            return delegate.nextValue();
+        }
+
+        @Override
+        public String nextName() {
+            compactValue = 0d;
+            return delegate.nextName();
+        }
+
+        @Override
+        public boolean nextName(SerializableString name) {
+            compactValue = 0d;
+            return delegate.nextName(name);
+        }
+
+        @Override
+        public int nextNameMatch(PropertyNameMatcher matcher) {
+            compactValue = 0d;
+            return delegate.nextNameMatch(matcher);
+        }
+
+        @Override
+        public JsonParser skipChildren() {
+            compactValue = 0d;
+            delegate.skipChildren();
+            return this;
+        }
+
+        @Override
+        public void clearCurrentToken() {
+            compactValue = 0d;
+            delegate.clearCurrentToken();
+        }
+
         @Override
         public NumberTypeFP getNumberTypeFP() {
             compactValue = compactDoubleValue();
-            if (compactValue != 0d) {
-                compactContext = delegate.streamReadContext();
-                compactOffset = compactContext == null ? -1 : tokenOffset();
-                return NumberTypeFP.DOUBLE64;
-            }
-            compactOffset = -1;
-            return exactNumberType();
+            return compactValue != 0d ? NumberTypeFP.DOUBLE64 : exactNumberType();
         }
 
         /** Zero means this token needs the exact path; exact zero is never compact. */
@@ -180,25 +216,7 @@ final class ExactMapperFactory {
 
         @Override
         public double getDoubleValue() {
-            // Context and a known offset identify the token even across parser sequences.
-            // Parsers without offsets use the stateless compact calculation.
-            if (delegate.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
-                if (compactOffset >= 0 && compactContext == delegate.streamReadContext()
-                        && compactOffset == tokenOffset()) {
-                    return compactValue;
-                }
-                double compact = compactDoubleValue();
-                if (compact != 0d) {
-                    return compact;
-                }
-            }
-            return delegate.getDoubleValue();
-        }
-
-        private long tokenOffset() {
-            TokenStreamLocation location = delegate.currentTokenLocation();
-            long offset = location.getCharOffset();
-            return offset >= 0 ? offset : location.getByteOffset();
+            return compactValue != 0d ? compactValue : delegate.getDoubleValue();
         }
 
         private NumberTypeFP exactNumberType() {

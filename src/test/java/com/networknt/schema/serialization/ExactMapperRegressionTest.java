@@ -273,6 +273,66 @@ class ExactMapperRegressionTest {
         }
     }
 
+    @Test
+    void cachedNumberReadsDoNotInspectTokenLocationsOrRescanText() throws Exception {
+        AtomicInteger scans = new AtomicInteger();
+        AtomicInteger locations = new AtomicInteger();
+        try (JsonParser parser = exactParser(new JsonParserDelegate(
+                JsonMapperFactory.getInstance().createParser("[1.25,2.5]")) {
+            @Override
+            public int getStringLength() {
+                scans.incrementAndGet();
+                return super.getStringLength();
+            }
+
+            @Override
+            public TokenStreamLocation currentTokenLocation() {
+                locations.incrementAndGet();
+                return super.currentTokenLocation();
+            }
+        })) {
+            parser.nextToken();
+            parser.nextToken();
+            assertEquals(JsonParser.NumberTypeFP.DOUBLE64, parser.getNumberTypeFP());
+            for (int i = 0; i < 3; i++) {
+                assertEquals(1.25d, parser.getDoubleValue());
+            }
+            parser.nextValue();
+            assertEquals(2.5d, parser.getDoubleValue());
+            assertEquals(1, scans.get());
+            assertEquals(0, locations.get());
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = InputFormat.class, names = {"JSON", "YAML"})
+    void convenienceAdvancementCannotReuseThePreviousNumber(InputFormat format) throws Exception {
+        ObjectMapper mapper = format == InputFormat.JSON ? JsonMapperFactory.getInstance() : YamlMapperFactory.getInstance();
+        for (int method = 0; method < 9; method++) {
+            try (JsonParser parser = exactParser(mapper.createParser("[1.25,2.5]"))) {
+                parser.nextToken();
+                parser.nextToken();
+                parser.getNumberTypeFP();
+                switch (method) {
+                case 0: parser.nextToken(); break;
+                case 1: parser.nextValue(); break;
+                case 2: parser.nextName(); break;
+                case 3: parser.nextName(new tools.jackson.core.io.SerializedString("unused")); break;
+                case 4: parser.nextStringValue(); break;
+                case 5: parser.nextIntValue(-1); break;
+                case 6: parser.nextLongValue(-1); break;
+                case 7: parser.nextBooleanValue(); break;
+                default:
+                    parser.nextNameMatch(mapper.tokenStreamFactory().constructNameMatcher(
+                            java.util.Collections.singletonList(tools.jackson.core.util.Named.fromString("unused")),
+                            false));
+                    break;
+                }
+                assertEquals(2.5d, parser.getDoubleValue(), "advancement method " + method);
+            }
+        }
+    }
+
     private static JsonNode read(NodeReader reader, String text, InputFormat format, boolean stream) {
         return stream ? reader.readTree(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)), format)
                 : reader.readTree(text, format);

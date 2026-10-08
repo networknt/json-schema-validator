@@ -24,6 +24,7 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeTypes;
+import com.networknt.schema.utils.DecimalUtils;
 import com.networknt.schema.utils.JsonType;
 
 import java.math.BigDecimal;
@@ -57,6 +58,11 @@ public class MinimumValidator extends BaseKeywordValidator {
             this.excludeEqual = false;
         }
 
+        // Keep the existing DoubleNode infinity bounds; reject unsupported non-finite bounds early.
+        if (JsonNodeTypes.isNonFiniteNumber(schemaNode)
+                && (!schemaNode.isDouble() || Double.isNaN(schemaNode.doubleValue()))) {
+            throw new SchemaException("minimum value must be finite");
+        }
         final String minimumText = schemaNode.asString();
         if ((schemaNode.isLong() || schemaNode.isInt()) && hasType(JsonType.INTEGER.toString())) {
             // "integer", and within long range
@@ -72,7 +78,7 @@ public class MinimumValidator extends BaseKeywordValidator {
                         return compare < 0 || (excludeEqual && compare == 0);
 
                     } else if (node.isString() || node.isFloatingPointNumber()) {
-                        int compare = DecimalNumber.compare(node, min);
+                        int compare = DecimalUtils.compare(node, min);
                         return compare < 0 || (excludeEqual && compare == 0);
                     }
                     long val = node.asLong();
@@ -87,7 +93,7 @@ public class MinimumValidator extends BaseKeywordValidator {
 
         } else {
             final BigDecimal min = JsonNodeTypes.isNonFiniteNumber(schemaNode)
-                    ? null : DecimalNumber.decimalValue(schemaNode);
+                    ? null : DecimalUtils.decimalValue(schemaNode);
             this.typedMinimum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
@@ -104,7 +110,7 @@ public class MinimumValidator extends BaseKeywordValidator {
                     if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
                         return false;
                     }
-                    int compare = DecimalNumber.compare(node, min == null ? schemaNode.decimalValue() : min);
+                    int compare = DecimalUtils.compare(node, min);
                     return compare < 0 || (excludeEqual && compare == 0);
                 }
 
