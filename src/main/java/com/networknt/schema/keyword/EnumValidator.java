@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.utils.DecimalUtils;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
@@ -29,6 +28,7 @@ import com.networknt.schema.utils.JsonType;
 import com.networknt.schema.utils.TypeFactory;
 import com.networknt.schema.SchemaContext;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -133,7 +133,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
      * @return the node
      */
     protected JsonNode processNumberNode(JsonNode n) {
-        return DecimalNode.valueOf(DecimalUtils.normalize(n.decimalValue()));
+        return DecimalNode.valueOf(new BigDecimal(n.decimalValue().toPlainString()));
     }
 
     /**

@@ -18,11 +18,10 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
@@ -31,12 +30,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import com.networknt.schema.keyword.MultipleOfValidator;
+import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
 import com.networknt.schema.serialization.NodeReader;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
+import com.fasterxml.jackson.databind.node.FloatNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -264,35 +269,6 @@ class MultipleOfValidatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "2, 9007199254740993.0, 1",
-            "3, 9007199254740993.0, 0",
-            "9007199254740993.0, 9007199254740992.0, 1",
-            "9007199254740993.0, 18014398509481986.0, 0",
-            "2, 9.007199254740993e15, 1",
-            "0.1, 0.3, 0"
-    })
-    void exactDecimalsWithDefaultReaders(String divisor, String dividend, int expectedErrors) throws Exception {
-        for (InputFormat format : new InputFormat[] {InputFormat.JSON, InputFormat.YAML}) {
-            SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
-            String schemaData = "{\"multipleOf\":" + divisor + "}";
-            Schema schema = registry.getSchema(schemaData, format);
-            assertEquals(expectedErrors, schema.validate(dividend, format).size());
-            Schema streamSchema = registry.getSchema(new ByteArrayInputStream(schemaData.getBytes(StandardCharsets.UTF_8)), format);
-            assertEquals(expectedErrors, streamSchema.validate(registry.readTree(new ByteArrayInputStream(dividend.getBytes(StandardCharsets.UTF_8)), format)).size());
-        }
-    }
-
-    @ParameterizedTest
-    @CsvSource({"0", "0.0", "-0.0", "-2", "-0.01", "-1e400", "-9223372036854775809"})
-    void rejectsNonPositiveDivisors(String divisor) {
-        SchemaException exception = assertThrows(SchemaException.class, () ->
-                SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
-                        .getSchema("{\"multipleOf\":" + divisor + "}").validate("1", InputFormat.JSON));
-        assertEquals("multipleOf must be greater than zero", exception.getMessage());
-    }
-
-    @ParameterizedTest
-    @CsvSource({
             "2, 0, 0",
             "2, -9223372036854775808, 0",
             "3, -9223372036854775808, 1",
@@ -306,5 +282,72 @@ class MultipleOfValidatorTest {
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":" + divisor + "}");
         assertEquals(expectedErrors, schema.validate(dividend, InputFormat.JSON).size());
+    }
+
+    @Test
+    void conversionOverridesAreNotBypassed() {
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema("{\"multipleOf\":2}");
+        MultipleOfValidator divisorOverride = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                IntNode.valueOf(2), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDivisor(JsonNode node) {
+                return BigDecimal.valueOf(3);
+            }
+        };
+        ExecutionContext context = new ExecutionContext();
+        context.evaluationPath = new NodePath(PathType.JSON_POINTER);
+        divisorOverride.validate(context, IntNode.valueOf(3), IntNode.valueOf(3), context.evaluationPath);
+        assertTrue(context.getErrors().isEmpty());
+        divisorOverride.validate(context, IntNode.valueOf(2), IntNode.valueOf(2), context.evaluationPath);
+        assertEquals("must be multiple of 3", context.getErrors().get(0).getMessage());
+
+        final boolean[] called = {false};
+        MultipleOfValidator dividendOverride = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                IntNode.valueOf(2), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDividend(JsonNode node) {
+                called[0] = true;
+                return BigDecimal.valueOf(6);
+            }
+        };
+        context = new ExecutionContext();
+        context.evaluationPath = new NodePath(PathType.JSON_POINTER);
+        dividendOverride.validate(context, IntNode.valueOf(3), IntNode.valueOf(3), context.evaluationPath);
+        assertTrue(called[0]);
+        assertTrue(context.getErrors().isEmpty());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"0, 1, 0", "0.0, 1, 0", "-0.0, 1, 0", "-2, 4, 0", "-2, 3, 1", "-0.1, 0.3, 0", "-0.1, 0.31, 1"})
+    void preservesNonPositiveDivisorBehavior(String divisor, String dividend, int expectedErrors) {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":" + divisor + "}");
+        assertEquals(expectedErrors, schema.validate(dividend, InputFormat.JSON).size());
+    }
+
+    @Test
+    void preservesLooseExponentOverflow() {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()))
+                .getSchema("{\"multipleOf\":2}");
+        assertThrows(NumberFormatException.class,
+                () -> schema.validate("\"1e99999999999\"", InputFormat.JSON));
+    }
+
+    @Test
+    void preservesFloatConversion() {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":0.1}");
+        // FloatNode is still widened to double, as on the base branch.
+        assertEquals(1, schema.validate(FloatNode.valueOf(0.3f)).size());
+    }
+
+    @Test
+    void exactDecimalDivisorsNeedNoScaleNormalization() {
+        ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+        schemaNode.set("multipleOf", DecimalNode.valueOf(new BigDecimal(BigInteger.TEN, Integer.MIN_VALUE)));
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaNode);
+        assertEquals(0, schema.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.valueOf(20), Integer.MIN_VALUE))).size());
+        assertEquals(1, schema.validate(DecimalNode.valueOf(BigDecimal.ONE)).size());
     }
 }
