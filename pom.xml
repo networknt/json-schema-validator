@@ -80,7 +80,7 @@
     <version.slf4j>2.0.20</version.slf4j>
     <version.graaljs>25.0.1</version.graaljs>
     <version.hamcrest>3.0</version.hamcrest>
-    <version.junit>6.0.1</version.junit>
+    <version.junit>6.1.3</version.junit>
     <version.jacoco-maven-plugin>0.8.14</version.jacoco-maven-plugin>
     <version.maven-compiler-plugin>3.14.1</version.maven-compiler-plugin>
     <version.maven-bundle-plugin>6.0.0</version.maven-bundle-plugin>
@@ -95,6 +95,18 @@
     <version.jmh>1.37</version.jmh>
     <argLine>-Duser.language=en -Duser.region=GB</argLine> <!-- For surefire -->
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${version.junit}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
 
@@ -170,14 +182,12 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>${version.junit}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
-      <version>${version.junit}</version>
       <scope>test</scope>
     </dependency>
 
