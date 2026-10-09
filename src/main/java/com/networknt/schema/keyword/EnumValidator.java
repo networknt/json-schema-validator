@@ -21,7 +21,6 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.DecimalNode;
 import tools.jackson.databind.node.DoubleNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.utils.DecimalUtils;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
@@ -140,7 +139,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
             }
             return DoubleNode.valueOf(n.doubleValue());
         }
-        return DecimalNode.valueOf(DecimalUtils.normalize(n.decimalValue()));
+        return DecimalNode.valueOf(n.decimalValue().stripTrailingZeros());
     }
 
     /**

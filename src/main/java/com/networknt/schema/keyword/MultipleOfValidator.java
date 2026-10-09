@@ -19,13 +19,10 @@ package com.networknt.schema.keyword;
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
-import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeTypes;
-import com.networknt.schema.utils.DecimalUtils;
-import com.networknt.schema.utils.DecimalUtils.DecimalNumber;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,22 +32,36 @@ import java.math.BigInteger;
  */
 public class MultipleOfValidator extends BaseKeywordValidator implements KeywordValidator {
     private final BigDecimal divisor;
-    private final long longDivisor;
     private final BigInteger denominator;
-    private final String divisorText;
+    private final long longDivisor;
 
     public MultipleOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
         this.divisor = getDivisor(schemaNode);
         this.denominator = this.divisor == null ? null : this.divisor.unscaledValue().abs();
-        // Subclasses may override either conversion hook. Do not bypass them.
+        // Subclasses may override the conversion hooks, so do not bypass them.
         this.longDivisor = getClass() == MultipleOfValidator.class ? integralDivisor(this.divisor) : 0;
-        this.divisorText = this.divisor == null ? null
-                : schemaNode.isIntegralNumber() && this.divisor.compareTo(schemaNode.decimalValue()) == 0
-                        ? schemaNode.bigIntegerValue().toString()
-                        : this.divisor.scale() <= 0 && (long) this.divisor.precision() - this.divisor.scale() <= 19
-                                ? this.divisor.toPlainString() : this.divisor.toString();
+    }
+
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            NodePath instanceLocation) {
+        
+        if (this.divisor != null) {
+            boolean invalid;
+            if (this.longDivisor != 0 && (node.isInt() || node.isLong())) {
+                invalid = node.longValue() % this.longDivisor != 0;
+            } else {
+                BigDecimal dividend = getDividend(node);
+                invalid = dividend != null && !isMultipleOf(dividend);
+            }
+            if (invalid) {
+                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(this.divisor.toString()) // Avoid MessageFormat NumberFormat rounding
+                        .build());
+            }
+        }
     }
 
     private static long integralDivisor(BigDecimal value) {
@@ -65,68 +76,35 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            NodePath instanceLocation) {
-        
-        if (this.divisor != null) {
-            boolean invalid;
-            if (this.longDivisor != 0 && (node.isInt() || node.isLong())) {
-                invalid = node.longValue() % this.longDivisor != 0;
-            } else {
-                try {
-                    BigDecimal dividend = getDividend(node);
-                    invalid = dividend != null && !isMultipleOf(dividend);
-                } catch (DecimalScaleException exception) {
-                    DecimalNumber dividend = exception.number;
-                    BigInteger scaleDifference = dividend.getExponent().add(BigInteger.valueOf(
-                            (long) this.divisor.scale() - dividend.getSignificand().scale()));
-                    invalid = !isMultipleOf(dividend.getSignificand().unscaledValue(), scaleDifference);
-                }
-            }
-            if (invalid) {
-                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(this.divisorText) // Preserve precision without MessageFormat NumberFormat rounding
-                        .build());
-            }
-        }
-    }
-
     /**
-     * Checks divisibility without expanding exponent-sized powers or quotients.
+     * Checks divisibility without constructing exponent-sized powers or quotients.
      */
     private boolean isMultipleOf(BigDecimal dividend) {
-        return isMultipleOf(dividend.unscaledValue(),
-                BigInteger.valueOf((long) this.divisor.scale() - dividend.scale()));
-    }
-
-    private boolean isMultipleOf(BigInteger numerator, BigInteger scaleDifference) {
+        BigInteger numerator = dividend.unscaledValue();
         if (numerator.signum() == 0) {
             return true;
         }
-        BigInteger denominator = this.denominator;
-        if (scaleDifference.signum() < 0) {
-            BigInteger zeros = scaleDifference.negate();
-            // Bound all constructed powers by the input coefficient size, never the exponent alone.
+        long scaleDifference = (long) this.divisor.scale() - dividend.scale();
+        if (scaleDifference < 0) {
+            long zeros = -scaleDifference;
+            // Bound constructed powers by the input coefficient size.
             // 30103/100000 is an upper bound for log10(2).
             long digitUpperBound = (numerator.abs().bitLength() * 30103L) / 100000 + 1;
-            if (zeros.compareTo(BigInteger.valueOf(digitUpperBound)) >= 0
-                    || numerator.abs().getLowestSetBit() < zeros.intValue()) {
+            if (zeros >= digitUpperBound || numerator.abs().getLowestSetBit() < zeros) {
                 return false;
             }
-            BigInteger[] division = numerator.divideAndRemainder(BigInteger.TEN.pow(zeros.intValue()));
-            return division[1].signum() == 0 && division[0].remainder(denominator).signum() == 0;
+            BigInteger[] division = numerator.divideAndRemainder(BigInteger.TEN.pow((int) zeros));
+            return division[1].signum() == 0 && division[0].remainder(this.denominator).signum() == 0;
         }
-
-        BigInteger remainder = numerator.remainder(denominator);
+        BigInteger remainder = numerator.remainder(this.denominator);
         if (remainder.signum() == 0) {
             return true;
         }
-        if (scaleDifference.signum() == 0) {
+        if (scaleDifference == 0) {
             return false;
         }
-        BigInteger powerOfTen = BigInteger.TEN.modPow(scaleDifference, denominator);
-        return remainder.multiply(powerOfTen).remainder(denominator).signum() == 0;
+        BigInteger powerOfTen = BigInteger.TEN.modPow(BigInteger.valueOf(scaleDifference), this.denominator);
+        return remainder.multiply(powerOfTen).remainder(this.denominator).signum() == 0;
     }
 
     /**
@@ -137,22 +115,17 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      */
     protected BigDecimal getDivisor(JsonNode schemaNode) {
         if (schemaNode.isNumber()) {
-            if (!schemaNode.isIntegralNumber() && !schemaNode.isBigDecimal()) {
-                double number = schemaNode.doubleValue();
-                // A double mapper cannot distinguish zero from a positive value
-                // that underflowed to zero. Preserve its legacy ignored divisor.
-                if (number == 0) {
-                    return null;
-                }
-                if (!Double.isFinite(number)) {
-                    return null;
-                }
+            if (schemaNode.isIntegralNumber() || schemaNode.isBigDecimal()) {
+                BigDecimal value = schemaNode.decimalValue();
+                // Keep the exact coefficient and scale; normalization can overflow at scale limits.
+                return value.signum() == 0 ? null : value;
             }
-            BigDecimal value = DecimalUtils.decimalValue(schemaNode);
-            if (value.signum() <= 0) {
-                throw new SchemaException("multipleOf must be greater than zero");
+            double divisor = schemaNode.doubleValue();
+            if (divisor != 0 && Double.isFinite(divisor)) {
+                // convert to BigDecimal since double type is not accurate enough to do the
+                // division and multiple
+                return BigDecimal.valueOf(divisor).stripTrailingZeros();
             }
-            return DecimalUtils.normalize(value);
         }
         return null;
     }
@@ -172,27 +145,14 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             }
             // convert to BigDecimal since double type is not accurate enough to do the
             // division and multiple
-            return DecimalUtils.decimalValue(node);
+            return node.isIntegralNumber() || node.isBigDecimal()
+                    ? node.decimalValue() : BigDecimal.valueOf(node.doubleValue());
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
                 && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose
-            try {
-                return new BigDecimal(node.asString());
-            } catch (NumberFormatException exception) {
-                throw new DecimalScaleException(DecimalNumber.parse(node.asString()), exception);
-            }
+            return new BigDecimal(node.asString());
         }
         return null;
     }
 
-    /** Carries the original loose number without swallowing unrelated conversion-hook exceptions. */
-    private static final class DecimalScaleException extends IllegalArgumentException {
-        private static final long serialVersionUID = 1L;
-        private final DecimalNumber number;
-
-        private DecimalScaleException(DecimalNumber number, NumberFormatException cause) {
-            super(cause);
-            this.number = number;
-        }
-    }
 }

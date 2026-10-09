@@ -573,12 +573,6 @@ The following is sample output from the Hierarchical format.
 
 ## Configuration
 
-### Numeric Precision
-
-The default JSON and YAML validation readers preserve decimal values such as `9007199254740993.0`. They retain the compact double representation for nonzero decimals when it preserves their value, and use normalized `BigDecimal` values otherwise, including exact zero; insignificant trailing zeros are not preserved. The public `JsonMapperFactory` and `YamlMapperFactory` keep their general-purpose Jackson defaults. `multipleOf` preserves integral and decimal values and requires a strictly positive divisor. Zero-valued integral and `BigDecimal` divisors, and all finite negative divisors, raise `SchemaException` regardless of the reader.
-
-Custom mappers remain caller-configurable. For compatibility, zero-valued floating-point divisors (including signed zero from a custom double mapper) remain ignored: their original value may have been positive and underflowed to zero. Non-finite floating-point divisors remain ignored as well. In type-loose mode, `multipleOf` and numeric bounds compare numeric strings even when their exponents exceed `BigDecimal`'s scale range, without expanding exponent-sized powers. Enable `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS` on a custom `JsonMapper` or `YAMLMapper` when exact decimal values are required, and use it for both schema and instance parsing. When passing a `JsonNode` directly, it must already contain the required precision; the validator cannot recover digits lost during parsing.
-
 ### Execution Configuration
 
 | Name                          | Description                                                                                                                                                                                                                     | Default Value         |

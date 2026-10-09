@@ -27,28 +27,30 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for minItems.
  */
 public class MinItemsValidator extends BaseKeywordValidator implements KeywordValidator {
-    private final CountLimit min;
+    private int min = 0;
 
     public MinItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MIN_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.min = new CountLimit(schemaNode, 0);
+        if (schemaNode.canConvertToExactIntegral()) {
+            min = schemaNode.intValue();
+        }
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (node.isArray()) {
-            if (this.min.isBelowMinimum(node.size())) {
+            if (node.size() < min) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(this.min.argument, node.size())
+                        .arguments(min, node.size())
                         .build());
             }
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
-            if (this.min.isBelowMinimum(1)) {
+            if (1 < min) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(this.min.argument, 1).build());
+                        .arguments(min, 1).build());
             }
         }
     }
