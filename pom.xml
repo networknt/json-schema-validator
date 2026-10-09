@@ -90,7 +90,7 @@
     <version.maven-surefire>3.6.0</version.maven-surefire>
     <version.moditect-maven-plugin>1.2.2.Final</version.moditect-maven-plugin>
     <version.nexus-staging-maven>1.7.0</version.nexus-staging-maven>
-    <version.maven-gpg>3.2.7</version.maven-gpg>
+    <version.maven-gpg>3.2.8</version.maven-gpg>
 
     <version.jmh>1.37</version.jmh>
     <argLine>-Duser.language=en -Duser.region=GB</argLine> <!-- For surefire -->
