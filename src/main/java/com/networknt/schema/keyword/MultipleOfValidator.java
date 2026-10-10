@@ -17,6 +17,8 @@
 package com.networknt.schema.keyword;
 
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.IntNode;
+import tools.jackson.databind.node.LongNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -36,6 +38,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     private final long longDivisor;
     private final String divisorMessage;
     private final boolean floatingPointSchema;
+    private final boolean directIntegerValidation;
     private final BigDecimal floatingPointDivisor;
     private final BigInteger floatingPointDenominator;
     private final String floatingPointDivisorMessage;
@@ -68,6 +71,8 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                 : floatingDivisor.unscaledValue().abs();
         this.floatingPointDivisorMessage = floatingDivisor == this.divisor ? this.divisorMessage
                 : formatDivisor(floatingDivisor);
+        this.directIntegerValidation = getClass() == MultipleOfValidator.class && !this.floatingPointSchema
+                && this.longDivisor != 0;
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
@@ -75,24 +80,29 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         if (this.divisor == null) {
             return;
         }
-        BigDecimal dividend = getDividend(node);
-        if (dividend == null) {
-            return;
-        }
         boolean invalid;
         String message = this.divisorMessage;
-        if ((node.isDouble() || node.isFloat()) && !JsonNodeTypes.isNonFiniteNumber(node)) {
-            invalid = !isMultipleOf(dividend, this.floatingPointDivisor, this.floatingPointDenominator);
-            message = this.floatingPointDivisorMessage;
+        if (this.directIntegerValidation && (node.getClass() == IntNode.class || node.getClass() == LongNode.class)) {
+            // These concrete types use the unmodified integer value. Subclasses still call the conversion hook.
+            invalid = node.longValue() % this.longDivisor != 0;
         } else {
-            if (this.longDivisor != 0 && (node.isInt() || node.isLong())) {
-                long value = node.longValue();
-                // A hook may change the dividend. Use the primitive path only when
-                // its result still equals the integer input, without converting the node again.
-                invalid = dividend.compareTo(BigDecimal.valueOf(value)) == 0 ? value % this.longDivisor != 0
-                        : !isMultipleOf(dividend, this.divisor, this.denominator);
+            BigDecimal dividend = getDividend(node);
+            if (dividend == null) {
+                return;
+            }
+            if ((node.isDouble() || node.isFloat()) && !JsonNodeTypes.isNonFiniteNumber(node)) {
+                invalid = !isMultipleOf(dividend, this.floatingPointDivisor, this.floatingPointDenominator);
+                message = this.floatingPointDivisorMessage;
             } else {
-                invalid = !isMultipleOf(dividend, this.divisor, this.denominator);
+                if (this.longDivisor != 0 && (node.isInt() || node.isLong())) {
+                    long value = node.longValue();
+                    // A hook may change the dividend. Use the primitive path only when
+                    // its result still equals the integer input, without converting the node again.
+                    invalid = dividend.compareTo(BigDecimal.valueOf(value)) == 0 ? value % this.longDivisor != 0
+                            : !isMultipleOf(dividend, this.divisor, this.denominator);
+                } else {
+                    invalid = !isMultipleOf(dividend, this.divisor, this.denominator);
+                }
             }
         }
         if (invalid) {

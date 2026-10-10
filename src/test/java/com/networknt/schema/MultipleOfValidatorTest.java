@@ -521,7 +521,9 @@ class MultipleOfValidatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"1.5", "9007199254740993", "1e400", "9223372036854775808",
-            "18446744073709551616", "-9223372036854775809"})
+            "18446744073709551616", "-9223372036854775809", "6", "4", "9223372036854775807",
+            "-9223372036854775808", "9999999999999999999", "-9999999999999999999",
+            "3.0", "3.0000000000000000001", "3E+1", "3E-1"})
     void convertedDividendIsUsedBeforeIntegralFastPath(String convertedValue) {
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":3}");
@@ -537,6 +539,26 @@ class MultipleOfValidatorTest {
         validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
         int expectedErrors = new BigDecimal(convertedValue).remainder(BigDecimal.valueOf(3)).signum() == 0 ? 0 : 1;
         assertEquals(expectedErrors, context.getErrors().size());
+    }
+
+    @Test
+    void integerNodeSubclassesKeepTheirDecimalConversion() {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":3}");
+        JsonNode intNode = new IntNode(6) {
+            @Override
+            public BigDecimal decimalValue() {
+                return BigDecimal.valueOf(7);
+            }
+        };
+        JsonNode longNode = new LongNode(6) {
+            @Override
+            public BigDecimal decimalValue() {
+                return BigDecimal.valueOf(7);
+            }
+        };
+        assertEquals(1, schema.validate(intNode).size());
+        assertEquals(1, schema.validate(longNode).size());
     }
 
     @Test
