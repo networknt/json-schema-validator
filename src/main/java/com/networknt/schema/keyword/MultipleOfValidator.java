@@ -34,39 +34,72 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     private final BigDecimal divisor;
     private final BigInteger denominator;
     private final long longDivisor;
+    private final String divisorMessage;
+    private final boolean floatingPointSchema;
+    private final BigDecimal floatingPointDivisor;
+    private final BigInteger floatingPointDenominator;
 
     public MultipleOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
         this.divisor = getDivisor(schemaNode);
         this.denominator = this.divisor == null ? null : this.divisor.unscaledValue().abs();
-        // Subclasses may override the conversion hooks, so do not bypass them.
-        this.longDivisor = getClass() == MultipleOfValidator.class ? integralDivisor(this.divisor) : 0;
+        this.longDivisor = integralDivisor(this.divisor);
+        this.divisorMessage = formatDivisor(this.divisor);
+        this.floatingPointSchema = isFloatingPoint(schemaNode) && !JsonNodeTypes.isNonFiniteNumber(schemaNode)
+                && this.divisor != null && this.divisor.compareTo(BigDecimal.valueOf(schemaNode.doubleValue())) == 0;
+        if (schemaNode.isIntegralNumber() && this.divisor != null
+                && this.divisor.equals(schemaNode.decimalValue())) {
+            // Floating-point inputs retain the base conversion on both sides. Do not
+            // combine a newly exact integer divisor with an already rounded dividend.
+            double value = this.divisor.doubleValue();
+            this.floatingPointDivisor = Double.isFinite(value) ? BigDecimal.valueOf(value) : this.divisor;
+        } else {
+            // Preserve a divisor supplied by an overridden conversion hook.
+            this.floatingPointDivisor = this.divisor;
+        }
+        this.floatingPointDenominator = this.floatingPointDivisor == null ? null
+                : this.floatingPointDivisor.unscaledValue().abs();
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation) {
         
         if (this.divisor != null) {
+            // Call the conversion hook before selecting the fast path, including for subclasses.
+            BigDecimal dividend = getDividend(node);
+            if (dividend == null) {
+                return;
+            }
+            BigDecimal effectiveDivisor = this.divisor;
+            BigInteger effectiveDenominator = this.denominator;
+            if (isFloatingPoint(node) && !JsonNodeTypes.isNonFiniteNumber(node)
+                    && dividend.compareTo(BigDecimal.valueOf(node.doubleValue())) == 0) {
+                effectiveDivisor = this.floatingPointDivisor;
+                effectiveDenominator = this.floatingPointDenominator;
+            }
             boolean invalid;
-            if (this.longDivisor != 0 && (node.isInt() || node.isLong())) {
+            if (effectiveDivisor == this.divisor && this.longDivisor != 0
+                    && (node.isInt() || node.isLong()) && dividend.compareTo(node.decimalValue()) == 0) {
                 invalid = node.longValue() % this.longDivisor != 0;
             } else {
-                BigDecimal dividend = getDividend(node);
-                invalid = dividend != null && !isMultipleOf(dividend);
+                invalid = !isMultipleOf(dividend, effectiveDivisor, effectiveDenominator);
             }
             if (invalid) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(this.divisor.toString()) // Avoid MessageFormat NumberFormat rounding
+                        .arguments(this.divisorMessage) // Avoid MessageFormat NumberFormat rounding
                         .build());
             }
         }
     }
 
+    private static boolean isFloatingPoint(JsonNode node) {
+        return node.isFloatingPointNumber() && !node.isBigDecimal();
+    }
+
     private static long integralDivisor(BigDecimal value) {
-        if (value == null || value.signum() <= 0 || value.scale() > 0
-                || (long) value.precision() - value.scale() > 19) {
+        if (value == null) {
             return 0;
         }
         try {
@@ -76,35 +109,50 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         }
     }
 
+    private static String formatDivisor(BigDecimal value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            return value.stripTrailingZeros().toString();
+        } catch (ArithmeticException exception) {
+            // Removing zeros at the minimum scale can overflow the scale range.
+            return value.toString();
+        }
+    }
+
     /**
      * Checks divisibility without constructing exponent-sized powers or quotients.
      */
-    private boolean isMultipleOf(BigDecimal dividend) {
+    private static boolean isMultipleOf(BigDecimal dividend, BigDecimal divisor, BigInteger denominator) {
         BigInteger numerator = dividend.unscaledValue();
         if (numerator.signum() == 0) {
             return true;
         }
-        long scaleDifference = (long) this.divisor.scale() - dividend.scale();
+        long scaleDifference = (long) divisor.scale() - dividend.scale();
         if (scaleDifference < 0) {
             long zeros = -scaleDifference;
             // Bound constructed powers by the input coefficient size.
             // 30103/100000 is an upper bound for log10(2).
-            long digitUpperBound = (numerator.abs().bitLength() * 30103L) / 100000 + 1;
-            if (zeros >= digitUpperBound || numerator.abs().getLowestSetBit() < zeros) {
+            BigInteger absoluteNumerator = numerator.abs();
+            long digitUpperBound = (absoluteNumerator.bitLength() * 30103L) / 100000 + 1;
+            if (zeros >= digitUpperBound || absoluteNumerator.getLowestSetBit() < zeros) {
                 return false;
             }
             BigInteger[] division = numerator.divideAndRemainder(BigInteger.TEN.pow((int) zeros));
-            return division[1].signum() == 0 && division[0].remainder(this.denominator).signum() == 0;
+            return division[1].signum() == 0 && division[0].remainder(denominator).signum() == 0;
         }
-        BigInteger remainder = numerator.remainder(this.denominator);
+        BigInteger remainder = numerator.remainder(denominator);
         if (remainder.signum() == 0) {
             return true;
         }
         if (scaleDifference == 0) {
             return false;
         }
-        BigInteger powerOfTen = BigInteger.TEN.modPow(BigInteger.valueOf(scaleDifference), this.denominator);
-        return remainder.multiply(powerOfTen).remainder(this.denominator).signum() == 0;
+        // Small powers fit in a long; reserve modular exponentiation for larger scales.
+        BigInteger powerOfTen = scaleDifference <= 18 ? BigInteger.TEN.pow((int) scaleDifference)
+                : BigInteger.TEN.modPow(BigInteger.valueOf(scaleDifference), denominator);
+        return remainder.multiply(powerOfTen).remainder(denominator).signum() == 0;
     }
 
     /**
@@ -145,8 +193,20 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             }
             // convert to BigDecimal since double type is not accurate enough to do the
             // division and multiple
-            return node.isIntegralNumber() || node.isBigDecimal()
-                    ? node.decimalValue() : BigDecimal.valueOf(node.doubleValue());
+            if (node.isBigDecimal()) {
+                return node.decimalValue();
+            }
+            if (node.isIntegralNumber()) {
+                BigDecimal value = node.decimalValue();
+                if (this.floatingPointSchema) {
+                    double floatingPointValue = value.doubleValue();
+                    if (Double.isFinite(floatingPointValue)) {
+                        return BigDecimal.valueOf(floatingPointValue);
+                    }
+                }
+                return value;
+            }
+            return BigDecimal.valueOf(node.doubleValue());
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
                 && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose

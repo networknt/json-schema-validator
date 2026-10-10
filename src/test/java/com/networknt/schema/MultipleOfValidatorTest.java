@@ -17,18 +17,21 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.Duration;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.networknt.schema.keyword.MultipleOfValidator;
 import com.networknt.schema.path.NodePath;
@@ -41,9 +44,11 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.BigIntegerNode;
 import tools.jackson.databind.node.DecimalNode;
+import tools.jackson.databind.node.DoubleNode;
 import tools.jackson.databind.node.FloatNode;
 import tools.jackson.databind.node.IntNode;
 import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.LongNode;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
@@ -191,6 +196,54 @@ class MultipleOfValidatorTest {
 
     @ParameterizedTest
     @CsvSource({
+            "9007199254740993, 9007199254740993.0, 0",
+            "9007199254740993.0, 9007199254740993, 0",
+            "9007199254740993, 18014398509481986.0, 0",
+            "9007199254740993.0, 18014398509481986, 0",
+            "9007199254740993, -9007199254740993.0, 0",
+            "9007199254740993.0, -9007199254740993, 0",
+            "-9007199254740993, 9007199254740993.0, 0",
+            "-9007199254740993.0, 9007199254740993, 0",
+            "9007199254740993, 9007199254740996.0, 1",
+            "9007199254740993.0, 9007199254740996, 1",
+            "9007199254740993, 0.0, 0",
+            "9007199254740993.0, 0, 0",
+            "3, 3.0, 0",
+            "3.0, 3, 0",
+            "3, 4.0, 1",
+            "3.0, 4, 1",
+            "3, 3.0000000000000004, 1",
+            "3.0000000000000004, 3, 1"
+    })
+    void mixedFloatingPointOperandsKeepBaseBehavior(String divisor, String dividend, int expectedErrors) {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":" + divisor + "}");
+        assertEquals(expectedErrors, schema.validate(dividend, InputFormat.JSON).size());
+    }
+
+    @Test
+    void mixedFloatingPointOperandsRetainExistingRounding() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        // Preserve the base branch's rounded results for mixed floating-point inputs.
+        assertEquals(0, registry.getSchema("{\"multipleOf\":2.0}")
+                .validate("9007199254740993", InputFormat.JSON).size());
+        assertEquals(0, registry.getSchema("{\"multipleOf\":9007199254740993}")
+                .validate("9007199254740992.0", InputFormat.JSON).size());
+    }
+
+    @Test
+    void mixedFloatNodesKeepBaseBehavior() {
+        long value = 9007199254740993L;
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        assertEquals(0, registry.getSchema("{\"multipleOf\":" + value + "}")
+                .validate(FloatNode.valueOf((float) value)).size());
+        ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+        schemaNode.set("multipleOf", FloatNode.valueOf((float) value));
+        assertEquals(0, registry.getSchema(schemaNode).validate(LongNode.valueOf(value)).size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
             "0.1, 0.3, 0",
             "0.1, 0.31, 1",
             "1e-400, 1.5e-400, 1",
@@ -247,7 +300,10 @@ class MultipleOfValidatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "100, 3, must be multiple of 100",
+            "100, 3, must be multiple of 1E+2",
+            "100.0, 3, must be multiple of 1E+2",
+            "100.00, 3, must be multiple of 1E+2",
+            "2.0, 3, must be multiple of 2",
             "9007199254740993, 2, must be multiple of 9007199254740993"
     })
     void exactDivisorMessage(String divisor, String dividend, String expectedMessage) {
@@ -256,38 +312,128 @@ class MultipleOfValidatorTest {
         assertEquals(expectedMessage, schema.validate(dividend, InputFormat.JSON).get(0).getMessage());
     }
 
-    @Test
-    void largeScaleDifferences() {
-        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
-            SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
-            ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
-            schemaNode.set("multipleOf", DecimalNode.valueOf(new BigDecimal(BigInteger.valueOf(3), Integer.MAX_VALUE)));
-            Schema tinyDivisor = registry.getSchema(schemaNode);
-            assertEquals(0, tinyDivisor.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.valueOf(3), Integer.MIN_VALUE))).size());
-            assertEquals(1, tinyDivisor.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.ONE, Integer.MIN_VALUE))).size());
-            assertEquals(0, tinyDivisor.validate(DecimalNode.valueOf(BigDecimal.ZERO)).size());
-
-            schemaNode = JsonNodeFactory.instance.objectNode();
-            schemaNode.set("multipleOf", DecimalNode.valueOf(new BigDecimal(BigInteger.ONE, Integer.MIN_VALUE)));
-            Schema hugeDivisor = registry.getSchema(schemaNode);
-            assertEquals(1, hugeDivisor.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.ONE, Integer.MAX_VALUE))).size());
-        });
+    @ParameterizedTest
+    @CsvSource({"2.0, 2", "100.00, 1E+2", "0.0000100, 0.00001",
+            "9007199254740993.0, 9007199254740993", "1e400, 1E+400"})
+    void exactDecimalDivisorMessage(String divisor, String expectedDivisor) {
+        ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+        schemaNode.set("multipleOf", DecimalNode.valueOf(new BigDecimal(divisor)));
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema(schemaNode);
+        assertEquals("must be multiple of " + expectedDivisor,
+                schema.validate(DecimalNode.valueOf(new BigDecimal("0.0000001"))).get(0).getMessage());
     }
 
     @Test
-    void largeExponentsFromReaderAndLooseType() {
-        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
-            SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                    builder -> builder.nodeReader(NodeReader.builder()
-                            .jsonMapper(JsonMapper.builder().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build())
-                            .build()).schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()));
-            Schema tinyDivisor = registry.getSchema("{\"multipleOf\":1e-20000000}");
-            assertEquals(0, tinyDivisor.validate("1", InputFormat.JSON).size());
-            Schema thirds = registry.getSchema("{\"multipleOf\":3}");
-            assertEquals(1, thirds.validate("1e5000000", InputFormat.JSON).size());
-            assertEquals(1, thirds.validate("\"1e5000000\"", InputFormat.JSON).size());
-            assertEquals(0, thirds.validate("\"3e5000000\"", InputFormat.JSON).size());
-        });
+    void divisorMessageAtMinimumScale() {
+        BigDecimal divisor = new BigDecimal(BigInteger.TEN, Integer.MIN_VALUE);
+        ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+        schemaNode.set("multipleOf", DecimalNode.valueOf(divisor));
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema(schemaNode);
+        assertEquals("must be multiple of " + divisor, schema.validate(IntNode.valueOf(1)).get(0).getMessage());
+    }
+
+    @Test
+    void mixedFloatingPointOperandsBeyondDoubleRange() {
+        BigInteger value = BigInteger.TEN.pow(400).add(BigInteger.ONE);
+        ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+        schemaNode.set("multipleOf", BigIntegerNode.valueOf(value));
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = registry.getSchema(schemaNode);
+        assertEquals(1, schema.validate(DoubleNode.valueOf(1.0)).size());
+        assertEquals(0, schema.validate(DoubleNode.valueOf(0.0)).size());
+        Schema even = registry.getSchema("{\"multipleOf\":2.0}");
+        assertEquals(1, even.validate(BigIntegerNode.valueOf(value)).size());
+        assertEquals(0, even.validate(BigIntegerNode.valueOf(value.add(BigInteger.ONE))).size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2.0, 2, 0", "2.0, 3, 1", "100.00, 200, 0", "100.00, 201, 1",
+            "2.0, -9223372036854775808, 0", "3.0, -9223372036854775808, 1"})
+    void inheritedConversionsWithIntegralDecimalDivisor(String divisor, long dividend, int expectedErrors) {
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":2}");
+        MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                DecimalNode.valueOf(new BigDecimal(divisor)), parent, parent.getSchemaContext()) { };
+        ExecutionContext context = parent.createExecutionContext();
+        JsonNode node = LongNode.valueOf(dividend);
+        validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
+        assertEquals(expectedErrors, context.getErrors().size());
+    }
+
+    @Test
+    void largeScaleDifferences() throws IOException, InterruptedException {
+        runInFork("largeScaleDifferences", 30);
+    }
+
+    @Test
+    void largeExponentsFromReaderAndLooseType() throws IOException, InterruptedException {
+        runInFork("largeExponentsFromReaderAndLooseType", 30);
+    }
+
+    private static void runInFork(String testName, long timeoutSeconds) throws IOException, InterruptedException {
+        // BigInteger arithmetic does not respond to interrupts. Isolate these extreme
+        // inputs so a regression can be stopped without leaving work in the test JVM.
+        Path output = Files.createTempFile("multiple-of-", ".log");
+        try {
+            String executable = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
+            String java = Path.of(System.getProperty("java.home"), "bin", executable).toString();
+            String classPath = System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
+            Process process = new ProcessBuilder(java, "-Xmx128m", "-cp", classPath,
+                    MultipleOfValidatorTest.class.getName(), testName)
+                    .redirectErrorStream(true).redirectOutput(output.toFile()).start();
+            try {
+                assertTrue(process.waitFor(timeoutSeconds, TimeUnit.SECONDS), "Timed out: " + testName);
+                assertEquals(0, process.exitValue(), Files.readString(output));
+            } finally {
+                process.destroyForcibly();
+                assertTrue(process.waitFor(5, TimeUnit.SECONDS), "Could not terminate: " + testName);
+            }
+        } finally {
+            Files.deleteIfExists(output);
+        }
+    }
+
+    public static void main(String[] args) {
+        switch (args[0]) {
+            case "largeScaleDifferences":
+                checkLargeScaleDifferences();
+                break;
+            case "largeExponentsFromReaderAndLooseType":
+                checkLargeExponentsFromReaderAndLooseType();
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown test: " + args[0]);
+        }
+    }
+
+    private static void checkLargeScaleDifferences() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+        schemaNode.set("multipleOf", DecimalNode.valueOf(new BigDecimal(BigInteger.valueOf(3), Integer.MAX_VALUE)));
+        Schema tinyDivisor = registry.getSchema(schemaNode);
+        assertEquals(0, tinyDivisor.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.valueOf(3), Integer.MIN_VALUE))).size());
+        assertEquals(1, tinyDivisor.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.ONE, Integer.MIN_VALUE))).size());
+        assertEquals(0, tinyDivisor.validate(DecimalNode.valueOf(BigDecimal.ZERO)).size());
+
+        schemaNode = JsonNodeFactory.instance.objectNode();
+        schemaNode.set("multipleOf", DecimalNode.valueOf(new BigDecimal(BigInteger.ONE, Integer.MIN_VALUE)));
+        Schema hugeDivisor = registry.getSchema(schemaNode);
+        assertEquals(1, hugeDivisor.validate(DecimalNode.valueOf(new BigDecimal(BigInteger.ONE, Integer.MAX_VALUE))).size());
+    }
+
+    private static void checkLargeExponentsFromReaderAndLooseType() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder()
+                        .jsonMapper(JsonMapper.builder().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build())
+                        .build()).schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()));
+        Schema tinyDivisor = registry.getSchema("{\"multipleOf\":1e-20000000}");
+        assertEquals(0, tinyDivisor.validate("1", InputFormat.JSON).size());
+        Schema thirds = registry.getSchema("{\"multipleOf\":3}");
+        assertEquals(1, thirds.validate("1e5000000", InputFormat.JSON).size());
+        assertEquals(1, thirds.validate("\"1e5000000\"", InputFormat.JSON).size());
+        assertEquals(0, thirds.validate("\"3e5000000\"", InputFormat.JSON).size());
     }
 
     @Test
@@ -327,6 +473,36 @@ class MultipleOfValidatorTest {
         assertEquals(expectedErrors, schema.validate(dividend, InputFormat.JSON).size());
     }
 
+    @ParameterizedTest
+    @CsvSource({"18, 2, 0", "18, 3, 1", "19, 2, 0", "19, 3, 1"})
+    void smallAndLargePositiveScaleDifferences(int scale, int coefficient, int expectedErrors) {
+        ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+        schemaNode.set("multipleOf", DecimalNode.valueOf(new BigDecimal(BigInteger.valueOf(coefficient), scale)));
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema(schemaNode);
+        assertEquals(expectedErrors, schema.validate(IntNode.valueOf(1)).size());
+        assertEquals(expectedErrors, schema.validate(IntNode.valueOf(-1)).size());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"1.5", "9007199254740993", "1e400"})
+    void convertedDividendIsUsedBeforeIntegralFastPath(String convertedValue) {
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":3}");
+        MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                IntNode.valueOf(3), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDividend(JsonNode node) {
+                return new BigDecimal(convertedValue);
+            }
+        };
+        ExecutionContext context = parent.createExecutionContext();
+        JsonNode node = IntNode.valueOf(3);
+        validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
+        int expectedErrors = new BigDecimal(convertedValue).remainder(BigDecimal.valueOf(3)).signum() == 0 ? 0 : 1;
+        assertEquals(expectedErrors, context.getErrors().size());
+    }
+
     @Test
     void conversionOverridesAreNotBypassed() {
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema("{\"multipleOf\":2}");
@@ -337,11 +513,11 @@ class MultipleOfValidatorTest {
                 return BigDecimal.valueOf(3);
             }
         };
-        ExecutionContext context = new ExecutionContext();
-        context.evaluationPath = new NodePath(PathType.JSON_POINTER);
-        divisorOverride.validate(context, IntNode.valueOf(3), IntNode.valueOf(3), context.evaluationPath);
+        ExecutionContext context = parent.createExecutionContext();
+        NodePath instanceLocation = new NodePath(PathType.JSON_POINTER);
+        divisorOverride.validate(context, IntNode.valueOf(3), IntNode.valueOf(3), instanceLocation);
         assertTrue(context.getErrors().isEmpty());
-        divisorOverride.validate(context, IntNode.valueOf(2), IntNode.valueOf(2), context.evaluationPath);
+        divisorOverride.validate(context, IntNode.valueOf(2), IntNode.valueOf(2), instanceLocation);
         assertEquals("must be multiple of 3", context.getErrors().get(0).getMessage());
 
         final boolean[] called = {false};
@@ -353,9 +529,8 @@ class MultipleOfValidatorTest {
                 return BigDecimal.valueOf(6);
             }
         };
-        context = new ExecutionContext();
-        context.evaluationPath = new NodePath(PathType.JSON_POINTER);
-        dividendOverride.validate(context, IntNode.valueOf(3), IntNode.valueOf(3), context.evaluationPath);
+        context = parent.createExecutionContext();
+        dividendOverride.validate(context, IntNode.valueOf(3), IntNode.valueOf(3), instanceLocation);
         assertTrue(called[0]);
         assertTrue(context.getErrors().isEmpty());
     }
@@ -383,6 +558,53 @@ class MultipleOfValidatorTest {
                 .getSchema("{\"multipleOf\":0.1}");
         // FloatNode is still widened to double, as on the base branch.
         assertEquals(1, schema.validate(FloatNode.valueOf(0.3f)).size());
+    }
+
+    @Test
+    void mixedFloatingPointConversionOverridesAreNotBypassed() {
+        long value = 9007199254740993L;
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":" + value + "}");
+        MultipleOfValidator divisorOverride = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                IntNode.valueOf(2), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDivisor(JsonNode node) {
+                return BigDecimal.valueOf(value);
+            }
+        };
+        ExecutionContext context = parent.createExecutionContext();
+        JsonNode roundedInput = DoubleNode.valueOf((double) value);
+        divisorOverride.validate(context, roundedInput, roundedInput, new NodePath(PathType.JSON_POINTER));
+        assertEquals(1, context.getErrors().size());
+
+        MultipleOfValidator dividendOverride = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                LongNode.valueOf(value), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDividend(JsonNode node) {
+                return BigDecimal.valueOf(value);
+            }
+        };
+        context = parent.createExecutionContext();
+        dividendOverride.validate(context, roundedInput, roundedInput, new NodePath(PathType.JSON_POINTER));
+        assertTrue(context.getErrors().isEmpty());
+
+        MultipleOfValidator floatingSchemaOverride = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                DoubleNode.valueOf(2.0), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDivisor(JsonNode node) {
+                return BigDecimal.valueOf(value);
+            }
+        };
+        context = parent.createExecutionContext();
+        JsonNode exactInput = LongNode.valueOf(value);
+        floatingSchemaOverride.validate(context, exactInput, exactInput, new NodePath(PathType.JSON_POINTER));
+        assertTrue(context.getErrors().isEmpty());
+
+        MultipleOfValidator inherited = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                LongNode.valueOf(value), parent, parent.getSchemaContext()) { };
+        context = parent.createExecutionContext();
+        inherited.validate(context, roundedInput, roundedInput, new NodePath(PathType.JSON_POINTER));
+        assertTrue(context.getErrors().isEmpty());
     }
 
     @Test
