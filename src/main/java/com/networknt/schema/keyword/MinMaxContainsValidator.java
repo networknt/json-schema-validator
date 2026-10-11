@@ -25,8 +25,6 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
         super(KeywordType.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         Set<Analysis> analysis = null;
-        int min = 1;
-        int max = Integer.MAX_VALUE;
 
         JsonNode minNode = parentSchema.getSchemaNode().get("minContains");
         if (null != minNode) {
@@ -35,8 +33,6 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
                     analysis = new LinkedHashSet<>();
                 }
                 analysis.add(new Analysis("minContains", schemaLocation));
-            } else {
-                min = minNode.intValue();
             }
         }
 
@@ -47,17 +43,12 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
                     analysis = new LinkedHashSet<>();
                 }
                 analysis.add(new Analysis("maxContains", schemaLocation));
-            } else {
-                max = maxNode.intValue();
             }
         }
 
-        if (max < min) {
-            if (analysis == null) {
-                analysis = new LinkedHashSet<>();
-            }
-            analysis.add(new Analysis("minContainsVsMaxContains", schemaLocation));
-        }
+        // The specification does not require minContains <= maxContains. Contradictory
+        // bounds only mean that no array can satisfy contains, which ContainsValidator
+        // already reports, so they are not a schema error.
         this.analysis = analysis;
     }
 
