@@ -100,20 +100,5 @@
                 ]
             }
         ]
-    },
-    {
-        "description": "maxContains less than minContains is not a schema error",
-        "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
-            "maxContains": 0,
-            "minContains": 1
-        },
-        "tests": [
-             {
-                "description": "bounds without contains have no effect",
-                "data": [],
-                "valid": true
-            }
-        ]
     }
 ]

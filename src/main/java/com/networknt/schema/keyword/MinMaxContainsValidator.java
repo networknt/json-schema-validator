@@ -7,7 +7,7 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -22,34 +22,23 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
 
     public MinMaxContainsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
             SchemaContext schemaContext) {
-        super(KeywordType.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext);
+        super(keywordOf(schemaLocation), schemaNode, schemaLocation, parentSchema, schemaContext);
 
-        Set<Analysis> analysis = null;
-
-        JsonNode minNode = parentSchema.getSchemaNode().get("minContains");
-        if (null != minNode) {
-            if (!minNode.isNumber() || !minNode.canConvertToExactIntegral() || minNode.intValue() < 0) {
-                if (analysis == null) {
-                    analysis = new LinkedHashSet<>();
-                }
-                analysis.add(new Analysis("minContains", schemaLocation));
-            }
+        // minContains and maxContains each create their own validator, so each one only
+        // checks its own value. The specification does not require minContains <=
+        // maxContains. Contradictory bounds only mean that no array can satisfy contains,
+        // which ContainsValidator already reports, so they are not a schema error.
+        if (!schemaNode.isNumber() || !schemaNode.canConvertToExactIntegral() || schemaNode.intValue() < 0) {
+            this.analysis = Collections.singleton(new Analysis(getKeyword(), schemaLocation));
+        } else {
+            this.analysis = null;
         }
+    }
 
-        JsonNode maxNode = parentSchema.getSchemaNode().get("maxContains");
-        if (null != maxNode) {
-            if (!maxNode.isNumber() || !maxNode.canConvertToExactIntegral() || maxNode.intValue() < 0) {
-                if (analysis == null) {
-                    analysis = new LinkedHashSet<>();
-                }
-                analysis.add(new Analysis("maxContains", schemaLocation));
-            }
-        }
-
-        // The specification does not require minContains <= maxContains. Contradictory
-        // bounds only mean that no array can satisfy contains, which ContainsValidator
-        // already reports, so they are not a schema error.
-        this.analysis = analysis;
+    private static KeywordType keywordOf(SchemaLocation schemaLocation) {
+        return KeywordType.MIN_CONTAINS.getValue().equals(schemaLocation.getFragment().getName(-1))
+                ? KeywordType.MIN_CONTAINS
+                : KeywordType.MAX_CONTAINS;
     }
 
     @Override
