@@ -1,0 +1,221 @@
+[
+    {
+        "description": "maxContains 0 with the default minContains of 1",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "contains": true,
+            "maxContains": 0
+        },
+        "tests": [
+            {
+                "description": "integer is not an array",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "string is not an array",
+                "data": "x",
+                "valid": true
+            },
+            {
+                "description": "object is not an array",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "null is not an array",
+                "data": null,
+                "valid": true
+            },
+            {
+                "description": "boolean is not an array",
+                "data": true,
+                "valid": true
+            },
+            {
+                "description": "empty array fails",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "non-empty array fails",
+                "data": [
+                    1
+                ],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "maxContains less than an explicit minContains",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "contains": true,
+            "minContains": 2,
+            "maxContains": 1
+        },
+        "tests": [
+            {
+                "description": "integer is not an array",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "string is not an array",
+                "data": "x",
+                "valid": true
+            },
+            {
+                "description": "object is not an array",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "null is not an array",
+                "data": null,
+                "valid": true
+            },
+            {
+                "description": "boolean is not an array",
+                "data": true,
+                "valid": true
+            },
+            {
+                "description": "empty array fails",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "array with one match fails",
+                "data": [
+                    1
+                ],
+                "valid": false
+            },
+            {
+                "description": "array with two matches fails",
+                "data": [
+                    1,
+                    2
+                ],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "contradictory bounds without contains",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "minContains": 2,
+            "maxContains": 1
+        },
+        "tests": [
+            {
+                "description": "integer is valid",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "empty array is valid",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "array is valid",
+                "data": [
+                    1,
+                    2
+                ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "minContains 0 and maxContains 0",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "contains": true,
+            "minContains": 0,
+            "maxContains": 0
+        },
+        "tests": [
+            {
+                "description": "integer is valid",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "empty array is valid",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "array with a match fails",
+                "data": [
+                    1
+                ],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "contradictory bounds inside not",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "not": {
+                "contains": true,
+                "minContains": 2,
+                "maxContains": 1
+            }
+        },
+        "tests": [
+            {
+                "description": "non-array fails because the subschema passes",
+                "data": 5,
+                "valid": false
+            },
+            {
+                "description": "array passes because the subschema fails",
+                "data": [
+                    1
+                ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "contradictory bounds inside anyOf",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "anyOf": [
+                {
+                    "contains": true,
+                    "minContains": 2,
+                    "maxContains": 1
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "integer passes the first branch",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "string passes",
+                "data": "x",
+                "valid": true
+            },
+            {
+                "description": "array fails both branches",
+                "data": [
+                    1
+                ],
+                "valid": false
+            }
+        ]
+    }
+]
