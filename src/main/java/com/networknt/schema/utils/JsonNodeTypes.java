@@ -181,6 +181,20 @@ public class JsonNodeTypes {
         return false;
     }
 
+    /**
+     * Check if the node is a number and is one of NaN, Infinity or -Infinity
+     * 
+     * @param node to check
+     * @return true if it is NaN, Infinity or -Infinity
+     */
+    public static boolean isNonFiniteNumber(JsonNode node) {
+        if (node.isFloatingPointNumber() && !node.isBigDecimal() && !node.isBigInteger()
+                && !Double.isFinite(node.doubleValue())) {
+            return true;
+        }
+        return false;
+    }
+
     private static boolean isEnumObjectSchema(Schema jsonSchema, ExecutionContext executionContext) {
         
         // There are three conditions for enum object schema
