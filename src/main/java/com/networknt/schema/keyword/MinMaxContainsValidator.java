@@ -7,9 +7,6 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 /**
  * {@link KeywordValidator} for {@literal maxContains} and {@literal minContains} in a schema.
  * <p>
@@ -18,64 +15,74 @@ import java.util.Set;
  * and {@literal minContains} constraints exists within {@code ContainsValidator}.
  */
 public class MinMaxContainsValidator extends BaseKeywordValidator {
-    private final Set<Analysis> analysis;
+    /**
+     * The parent schema, used as the message argument, or null if the value is valid.
+     */
+    private final String malformedParentSchema;
 
+    public MinMaxContainsValidator(Keyword keyword, SchemaLocation schemaLocation, JsonNode schemaNode,
+            Schema parentSchema, SchemaContext schemaContext) {
+        super(keyword, schemaNode, schemaLocation, parentSchema, schemaContext);
+
+        // minContains and maxContains each create their own validator, so each one only
+        // checks its own value. The specification does not require minContains <=
+        // maxContains. Contradictory bounds only mean that no array can satisfy contains,
+        // which ContainsValidator already reports, so they are not a schema error.
+        if (!schemaNode.isNumber() || !schemaNode.canConvertToExactIntegral() || schemaNode.intValue() < 0) {
+            this.malformedParentSchema = parentSchema.getSchemaNode().toString();
+        } else {
+            this.malformedParentSchema = null;
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #MinMaxContainsValidator(Keyword, SchemaLocation, JsonNode, Schema, SchemaContext)}.
+     */
+    @Deprecated
     public MinMaxContainsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
             SchemaContext schemaContext) {
-        super(KeywordType.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext);
+        this(keywordOf(schemaLocation), schemaLocation, schemaNode, parentSchema, schemaContext);
+    }
 
-        Set<Analysis> analysis = null;
-        int min = 1;
-        int max = Integer.MAX_VALUE;
+    /**
+     * Works out the keyword from the last fragment segment of the location, for the
+     * deprecated constructor only.
+     */
+    private static KeywordType keywordOf(SchemaLocation schemaLocation) {
+        return KeywordType.MIN_CONTAINS.getValue().equals(schemaLocation.getFragment().getName(-1))
+                ? KeywordType.MIN_CONTAINS
+                : KeywordType.MAX_CONTAINS;
+    }
 
-        JsonNode minNode = parentSchema.getSchemaNode().get("minContains");
-        if (null != minNode) {
-            if (!minNode.isNumber() || !minNode.canConvertToExactIntegral() || minNode.intValue() < 0) {
-                if (analysis == null) {
-                    analysis = new LinkedHashSet<>();
-                }
-                analysis.add(new Analysis("minContains", schemaLocation));
-            } else {
-                min = minNode.intValue();
-            }
-        }
+    static MinMaxContainsValidator minContains(SchemaLocation schemaLocation, JsonNode schemaNode,
+            Schema parentSchema, SchemaContext schemaContext) {
+        return new MinMaxContainsValidator(KeywordType.MIN_CONTAINS, schemaLocation, schemaNode, parentSchema,
+                schemaContext);
+    }
 
-        JsonNode maxNode = parentSchema.getSchemaNode().get("maxContains");
-        if (null != maxNode) {
-            if (!maxNode.isNumber() || !maxNode.canConvertToExactIntegral() || maxNode.intValue() < 0) {
-                if (analysis == null) {
-                    analysis = new LinkedHashSet<>();
-                }
-                analysis.add(new Analysis("maxContains", schemaLocation));
-            } else {
-                max = maxNode.intValue();
-            }
-        }
-
-        if (max < min) {
-            if (analysis == null) {
-                analysis = new LinkedHashSet<>();
-            }
-            analysis.add(new Analysis("minContainsVsMaxContains", schemaLocation));
-        }
-        this.analysis = analysis;
+    static MinMaxContainsValidator maxContains(SchemaLocation schemaLocation, JsonNode schemaNode,
+            Schema parentSchema, SchemaContext schemaContext) {
+        return new MinMaxContainsValidator(KeywordType.MAX_CONTAINS, schemaLocation, schemaNode, parentSchema,
+                schemaContext);
     }
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation) {
-        if (this.analysis != null) {
-            this.analysis.stream()
-            .map(analysis -> error().instanceNode(node)
+        if (this.malformedParentSchema != null) {
+            executionContext.addError(error().instanceNode(node)
                     .instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath())
-                    .messageKey(analysis.getMessageKey()).locale(executionContext.getExecutionConfig().getLocale())
-                    .keyword(analysis.getMessageKey())
-                    .arguments(parentSchema.getSchemaNode().toString()).build())
-            .forEach(executionContext::addError);
+                    .messageKey(getKeyword()).locale(executionContext.getExecutionConfig().getLocale())
+                    .keyword(getKeyword())
+                    .arguments(this.malformedParentSchema).build());
         }
     }
-    
+
+    /**
+     * @deprecated No longer used. Each validator now checks only its own keyword.
+     */
+    @Deprecated
     public static class Analysis {
         public String getMessageKey() {
             return messageKey;
