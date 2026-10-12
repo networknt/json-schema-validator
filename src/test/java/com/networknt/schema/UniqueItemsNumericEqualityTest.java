@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
@@ -91,20 +92,68 @@ class UniqueItemsNumericEqualityTest {
     @Test
     void numbersOutsideTheLongRangeAreComparedByValue() {
         BigInteger twoTo63 = BigInteger.ONE.shiftLeft(63);
-        assertFalse(valid(array().add(twoTo63).add(0x1p63)), "2^63 as a BigInteger and as a double are the same");
+        BigInteger twoTo70 = BigInteger.ONE.shiftLeft(70);
         assertTrue(valid(array().add(twoTo63).add(twoTo63.add(BigInteger.ONE))), "2^63 and 2^63 + 1 differ");
+        assertTrue(valid(array().add(twoTo70).add(twoTo70.add(BigInteger.ONE))), "2^70 and 2^70 + 1 differ");
+        assertFalse(valid(array().add(twoTo70).add(new BigDecimal(twoTo70))), "2^70 as a BigInteger and a BigDecimal");
         assertTrue(valid(array().add(Long.MAX_VALUE).add(0x1p63)), "Long.MAX_VALUE is not 2^63");
     }
 
     /**
-     * A whole double above 2^53 is compared by its exact value, not by its
-     * shortest decimal form (1.15292150460684698E18 for 2^60).
+     * A double's value is its shortest decimal form, as for {@code const}. For
+     * whole doubles above 2^53 that is not always the exact binary value: 1e30 is
+     * 10^30, and 2^60 is 1.15292150460684698E18.
      */
     @Test
-    void largeWholeDoublesAreComparedByExactValue() {
+    void largeWholeDoublesAreComparedByTheirShortestDecimalForm() {
+        assertFalse(valid("[1e30, 1000000000000000000000000000000]"), "1e30 and 10^30 are the same number");
+        assertFalse(valid("[[1e30], [1000000000000000000000000000000]]"), "nested 1e30 and 10^30 are the same");
+        assertFalse(valid("[1e18, 1000000000000000000]"), "1e18 and 10^18 are the same number");
         long twoTo60 = 1L << 60;
-        assertFalse(valid(array().add(twoTo60).add((double) twoTo60)), "2^60 as a long and as a double are the same");
-        assertTrue(valid(array().add(twoTo60 + 4).add((double) twoTo60)), "2^60 + 4 is not 2^60");
+        assertTrue(valid(array().add(twoTo60).add((double) twoTo60)), "2^60 and 1.15292150460684698E18 differ");
+        BigInteger twoTo63 = BigInteger.ONE.shiftLeft(63);
+        assertTrue(valid(array().add(twoTo63).add(0x1p63)), "2^63 and 9.223372036854776E18 differ");
+    }
+
+    /**
+     * Integers that round to the same double must not be treated as equal. Runs of
+     * 2^18 consecutive integers near 2^70 share a double, so these all collide on
+     * the double's hash unless the exact value is hashed.
+     */
+    @Test
+    void consecutiveIntegersSharingADoubleAreUnique() {
+        BigInteger twoTo70 = BigInteger.ONE.shiftLeft(70);
+        ArrayNode items = array();
+        for (int i = 0; i < 1000; i++) {
+            items.add(twoTo70.add(BigInteger.valueOf(i)));
+        }
+        assertTrue(valid(items));
+        items.add(twoTo70.add(BigInteger.valueOf(500)));
+        assertFalse(valid(items), "a repeated integer is still a duplicate");
+    }
+
+    /**
+     * Integers beyond the double range have no double value. Jackson 3 throws if
+     * one is asked for, so they must be compared without it.
+     */
+    @Test
+    void numbersBeyondTheDoubleRangeDoNotFailValidation() {
+        String tenTo400 = "1" + String.join("", Collections.nCopies(400, "0"));
+        assertTrue(valid("[" + tenTo400 + "]"));
+        assertTrue(valid("[[" + tenTo400 + "], {\"a\": " + tenTo400 + "}]"));
+        assertFalse(valid("[" + tenTo400 + ", " + tenTo400 + "]"), "10^400 twice is a duplicate");
+        assertTrue(valid("[" + tenTo400 + ", 1" + tenTo400 + "]"));
+
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                        builder -> builder.nodeReader(NodeReader.builder()
+                                .jsonMapper(JsonMapper.builder()
+                                        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build())
+                                .build()))
+                .getSchema("{\"type\":\"array\",\"uniqueItems\":true}");
+        assertTrue(schema.validate("[1e400, 1e401]", InputFormat.JSON).isEmpty());
+        assertFalse(schema.validate("[1e400, 1e400]", InputFormat.JSON).isEmpty(), "1e400 twice is a duplicate");
+        assertFalse(schema.validate("[1e400, 10e399]", InputFormat.JSON).isEmpty(), "1e400 and 10e399 are the same");
     }
 
     @Test

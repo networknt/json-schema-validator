@@ -68,9 +68,11 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
      * nodes can't be compared directly. This key walks the node instead and
      * compares numbers by value, without copying arrays or objects.
      *
-     * Numbers that are whole and fit in a long are compared as longs, and other
-     * doubles as doubles. Only a BigDecimal or BigInteger that isn't a long is
-     * compared as a BigDecimal. NaN, Infinity and -Infinity have no BigDecimal
+     * A number's value is its {@code decimalValue()}, which for a double is its
+     * shortest decimal form, so a double read from 0.1 equals a BigDecimal 0.1.
+     * Numbers whose value is whole and fits in a long are compared as longs, and
+     * other doubles as doubles. Only a BigDecimal or BigInteger that isn't a long
+     * is compared as a BigDecimal. NaN, Infinity and -Infinity have no BigDecimal
      * form, so they keep comparing as nodes.
      *
      * Only numbers are folded together. A number and a boolean stay distinct,
@@ -128,7 +130,9 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
             if (!Double.isFinite(value)) {
                 return NON_FINITE;
             }
-            // 0x1p63 is 2^63, the first double above Long.MAX_VALUE.
+            // 0x1p63 is 2^63, the first double above Long.MAX_VALUE. Every double
+            // at or above 2^53 is whole, and its shortest form is a whole number
+            // that still fits in a long below 2^63.
             return value == Math.rint(value) && value >= -0x1p63 && value < 0x1p63 ? WHOLE : DOUBLE;
         case BIG_INTEGER:
             return node.canConvertToLong() ? WHOLE : BIG;
@@ -142,7 +146,10 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
     /** The value of a {@link #WHOLE} number. */
     private static long wholeValue(JsonNode node) {
         if (node.isDouble() || node.isFloat()) {
-            return (long) node.doubleValue();
+            double value = node.doubleValue();
+            // 0x1p53 is 2^53. Below it a whole double's shortest form is its exact
+            // value; above it the two can differ (2^60 is 1.15292150460684698E18).
+            return Math.abs(value) < 0x1p53 ? (long) value : node.decimalValue().longValue();
         }
         return node.longValue();
     }
@@ -155,9 +162,20 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
                 return Long.hashCode(wholeValue(node));
             case NON_FINITE:
                 return node.hashCode();
-            default:
-                // Equal numbers have the same double value, whatever their type.
+            case DOUBLE:
                 return Double.hashCode(node.doubleValue());
+            default: // BIG
+                // Not doubleValue() on the node: Jackson 3 throws when the value is
+                // outside the double range. BigDecimal returns +/-Infinity instead.
+                BigDecimal value = node.decimalValue();
+                double d = value.doubleValue();
+                if (Double.isFinite(d) && BigDecimal.valueOf(d).compareTo(value) == 0) {
+                    // Equal to a double's value, so it must share that double's hash.
+                    return Double.hashCode(d);
+                }
+                // No double has this value. Hashing its own exact value keeps
+                // distinct numbers that round to the same double apart.
+                return value.stripTrailingZeros().hashCode();
             }
         case ARRAY:
             int arrayHash = 1;
@@ -224,24 +242,7 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
         if (aKind == DOUBLE && bKind == DOUBLE) {
             return a.doubleValue() == b.doubleValue();
         }
-        return decimalValue(a).compareTo(decimalValue(b)) == 0;
-    }
-
-    /**
-     * The value of a {@link #DOUBLE} or {@link #BIG} number. A double at or
-     * above 2^63 is always whole, and its shortest decimal form, which
-     * {@code decimalValue()} uses, is not its exact value, so the exact value is
-     * used instead. Smaller doubles keep their shortest form, so a double read
-     * from 0.1 equals a BigDecimal 0.1.
-     */
-    private static BigDecimal decimalValue(JsonNode node) {
-        if (node.isDouble() || node.isFloat()) {
-            double value = node.doubleValue();
-            if (Math.abs(value) >= 0x1p63) {
-                return new BigDecimal(value);
-            }
-        }
-        return node.decimalValue();
+        return a.decimalValue().compareTo(b.decimalValue()) == 0;
     }
 
 }
