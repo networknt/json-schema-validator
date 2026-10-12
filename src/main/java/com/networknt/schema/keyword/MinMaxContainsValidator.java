@@ -35,6 +35,25 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
         }
     }
 
+    /**
+     * @deprecated Use {@link #MinMaxContainsValidator(Keyword, SchemaLocation, JsonNode, Schema, SchemaContext)}.
+     */
+    @Deprecated
+    public MinMaxContainsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
+            SchemaContext schemaContext) {
+        this(keywordOf(schemaLocation), schemaLocation, schemaNode, parentSchema, schemaContext);
+    }
+
+    /**
+     * Works out the keyword from the last fragment segment of the location, for the
+     * deprecated constructor only.
+     */
+    private static KeywordType keywordOf(SchemaLocation schemaLocation) {
+        return KeywordType.MIN_CONTAINS.getValue().equals(schemaLocation.getFragment().getName(-1))
+                ? KeywordType.MIN_CONTAINS
+                : KeywordType.MAX_CONTAINS;
+    }
+
     static MinMaxContainsValidator minContains(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         return new MinMaxContainsValidator(KeywordType.MIN_CONTAINS, schemaLocation, schemaNode, parentSchema,
@@ -57,6 +76,29 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
                     .messageKey(getKeyword()).locale(executionContext.getExecutionConfig().getLocale())
                     .keyword(getKeyword())
                     .arguments(this.malformedParentSchema).build());
+        }
+    }
+
+    /**
+     * @deprecated No longer used. Each validator now checks only its own keyword.
+     */
+    @Deprecated
+    public static class Analysis {
+        public String getMessageKey() {
+            return messageKey;
+        }
+
+        public SchemaLocation getSchemaLocation() {
+            return schemaLocation;
+        }
+
+        private final String messageKey;
+        private final SchemaLocation schemaLocation;
+
+        public Analysis(String messageKey, SchemaLocation schemaLocation) {
+            super();
+            this.messageKey = messageKey;
+            this.schemaLocation = schemaLocation;
         }
     }
 }
