@@ -3,12 +3,18 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.serialization.NodeReader;
 
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 /**
  * uniqueItems compares numbers by mathematical value, so 1 and 1.0 are the same
@@ -21,11 +27,22 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
  */
 class UniqueItemsNumericEqualityTest {
 
-    private boolean valid(String instance) {
-        Schema schema = SchemaRegistry
+    private static Schema schema() {
+        return SchemaRegistry
                 .withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"type\":\"array\",\"uniqueItems\":true}");
-        return schema.validate(instance, InputFormat.JSON).isEmpty();
+    }
+
+    private boolean valid(String instance) {
+        return schema().validate(instance, InputFormat.JSON).isEmpty();
+    }
+
+    private boolean valid(ArrayNode instance) {
+        return schema().validate(instance).isEmpty();
+    }
+
+    private static ArrayNode array() {
+        return JsonNodeFactory.instance.arrayNode();
     }
 
     @Test
@@ -38,9 +55,56 @@ class UniqueItemsNumericEqualityTest {
         assertFalse(valid("[1, 1.00]"), "1 and 1.00 are the same number");
     }
 
+    /**
+     * The default mapper reads 1.0 and 1.00 as the same DoubleNode, so they are
+     * read as BigDecimals here to keep their different scales.
+     */
     @Test
     void decimalsWithDifferentScaleAreDuplicates() {
-        assertFalse(valid("[1.0, 1.00]"), "1.0 and 1.00 are the same number");
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                        builder -> builder.nodeReader(NodeReader.builder()
+                                .jsonMapper(JsonMapper.builder()
+                                        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build())
+                                .build()))
+                .getSchema("{\"type\":\"array\",\"uniqueItems\":true}");
+        assertFalse(schema.validate("[1.0, 1.00]", InputFormat.JSON).isEmpty(), "1.0 and 1.00 are the same number");
+        assertFalse(schema.validate("[2.50, 2.5]", InputFormat.JSON).isEmpty(), "2.50 and 2.5 are the same number");
+        assertTrue(schema.validate("[2.5, 2.25]", InputFormat.JSON).isEmpty());
+    }
+
+    @Test
+    void doubleAndBigDecimalWithTheSameValueAreDuplicates() {
+        assertFalse(valid(array().add(0.5).add(new BigDecimal("0.50"))), "0.5 and 0.50 are the same number");
+        assertTrue(valid(array().add(0.5).add(new BigDecimal("0.51"))));
+    }
+
+    @Test
+    void zeroAndNegativeZeroAreDuplicates() {
+        assertFalse(valid("[0, -0.0]"), "0 and -0.0 are the same number");
+    }
+
+    /**
+     * Numbers outside the long range are compared by value too. Their doubles can
+     * be equal when the numbers are not, which must not make them duplicates.
+     */
+    @Test
+    void numbersOutsideTheLongRangeAreComparedByValue() {
+        BigInteger twoTo63 = BigInteger.ONE.shiftLeft(63);
+        assertFalse(valid(array().add(twoTo63).add(0x1p63)), "2^63 as a BigInteger and as a double are the same");
+        assertTrue(valid(array().add(twoTo63).add(twoTo63.add(BigInteger.ONE))), "2^63 and 2^63 + 1 differ");
+        assertTrue(valid(array().add(Long.MAX_VALUE).add(0x1p63)), "Long.MAX_VALUE is not 2^63");
+    }
+
+    /**
+     * A whole double above 2^53 is compared by its exact value, not by its
+     * shortest decimal form (1.15292150460684698E18 for 2^60).
+     */
+    @Test
+    void largeWholeDoublesAreComparedByExactValue() {
+        long twoTo60 = 1L << 60;
+        assertFalse(valid(array().add(twoTo60).add((double) twoTo60)), "2^60 as a long and as a double are the same");
+        assertTrue(valid(array().add(twoTo60 + 4).add((double) twoTo60)), "2^60 + 4 is not 2^60");
     }
 
     @Test
@@ -75,6 +139,13 @@ class UniqueItemsNumericEqualityTest {
         assertFalse(valid("[{\"a\": 1}, {\"a\": 1.0}]"), "nested 1 and 1.0 are the same");
         assertFalse(valid("[[1], [1.0]]"), "1 and 1.0 inside arrays are the same");
         assertTrue(valid("[{\"a\": 1}, {\"a\": 2}]"));
+    }
+
+    @Test
+    void objectPropertyOrderDoesNotMatter() {
+        assertFalse(valid("[{\"a\": 1, \"b\": [2]}, {\"b\": [2.0], \"a\": 1.0}]"), "same properties in another order");
+        assertTrue(valid("[{\"a\": 1, \"b\": 2}, {\"a\": 1, \"c\": 2}]"));
+        assertTrue(valid("[[1, 2], [2, 1]]"), "array order does matter");
     }
 
     /**
