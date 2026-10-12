@@ -50,8 +50,10 @@ public class TimeFormat implements Format {
             int pos = value.indexOf('Z');
             if (-1 != pos && pos != value.length() - 1) return false;
 
-            TemporalAccessor accessor = formatter.parseUnresolved(value, new ParsePosition(0));
-            if (null == accessor) return false;
+            ParsePosition position = new ParsePosition(0);
+            TemporalAccessor accessor = formatter.parseUnresolved(value, position);
+            // parseUnresolved stops at the end of the pattern, so trailing text must be rejected here
+            if (null == accessor || position.getIndex() != value.length()) return false;
 
             long offset = accessor.getLong(OFFSET_SECONDS) / 60;
             if (MAX_OFFSET_MIN < offset || MIN_OFFSET_MIN > offset) return false;
