@@ -25,11 +25,10 @@ import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.Annotation;
 import com.networknt.schema.path.NodePath;
 
-import static com.networknt.schema.SpecificationVersionRange.MIN_DRAFT_2019_09;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -40,7 +39,7 @@ public class ContainsValidator extends BaseKeywordValidator {
     private static final String CONTAINS_MIN = "contains.min";
 
     private final Schema schema;
-    private final boolean isMinV201909;
+    private final boolean hasMinContains;
 
     private final Integer min;
     private final Integer max;
@@ -49,25 +48,28 @@ public class ContainsValidator extends BaseKeywordValidator {
         super(KeywordType.CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         // Draft 6 added the contains keyword but maxContains and minContains first
-        // appeared in Draft 2019-09 so the semantics of the validation changes
-        // slightly.
-        this.isMinV201909 = MIN_DRAFT_2019_09.getVersions().contains(this.schemaContext.getDialect().getSpecificationVersion());
+        // appeared in Draft 2019-09. They only apply when the dialect has them, so
+        // Draft 6 and 7 ignore them unless a custom dialect adds them.
+        Map<String, Keyword> keywords = this.schemaContext.getDialect().getKeywords();
+        this.hasMinContains = keywords.containsKey(KeywordType.MIN_CONTAINS.getValue());
+        boolean hasMaxContains = keywords.containsKey(KeywordType.MAX_CONTAINS.getValue());
 
         Integer currentMax = null;
         Integer currentMin = null;
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
-            // Before Draft 2019-09, maxContains and minContains are unknown keywords and
-            // contains only needs one matching element.
-            if (this.isMinV201909) {
-                JsonNode parentSchemaNode = parentSchema.getSchemaNode();
+            // Without these keywords, contains only needs one matching element.
+            JsonNode parentSchemaNode = parentSchema.getSchemaNode();
+            if (hasMaxContains) {
                 Optional<JsonNode> maxNode = Optional
                         .ofNullable(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()))
                         .filter(JsonNode::canConvertToExactIntegral);
                 if (maxNode.isPresent()) {
                     currentMax = maxNode.get().intValue();
                 }
+            }
 
+            if (this.hasMinContains) {
                 Optional<JsonNode> minNode = Optional
                         .ofNullable(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()))
                         .filter(JsonNode::canConvertToExactIntegral);
@@ -116,13 +118,13 @@ public class ContainsValidator extends BaseKeywordValidator {
                 m = this.min;
             }
             if (actual < m) {
-                boundsViolated(executionContext, isMinV201909 ? KeywordType.MIN_CONTAINS : KeywordType.CONTAINS,
+                boundsViolated(executionContext, this.hasMinContains ? KeywordType.MIN_CONTAINS : KeywordType.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         node, instanceLocation, m);
             }
 
             if (this.max != null && actual > this.max) {
-                boundsViolated(executionContext, isMinV201909 ? KeywordType.MAX_CONTAINS : KeywordType.CONTAINS,
+                boundsViolated(executionContext, KeywordType.MAX_CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         node, instanceLocation, this.max);
             }

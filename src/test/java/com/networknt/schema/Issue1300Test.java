@@ -21,6 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.keyword.KeywordType;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -53,19 +58,37 @@ class Issue1300Test {
 
     @ParameterizedTest
     @EnumSource(value = SpecificationVersion.class, names = { "DRAFT_6", "DRAFT_7" })
-    void malformedBoundsAreIgnored(SpecificationVersion version) {
-        assertEquals(List.of(),
-                validate(version, "{\"contains\":{\"const\":1},\"minContains\":-1,\"maxContains\":\"x\"}", "[1]"));
+    void moreMatchesThanMaxContainsAreAccepted(SpecificationVersion version) {
+        assertEquals(List.of(), validate(version, "{\"contains\":{\"const\":1},\"maxContains\":0}", "[1,1]"));
     }
 
     @ParameterizedTest
     @EnumSource(value = SpecificationVersion.class, names = { "DRAFT_6", "DRAFT_7" })
-    void noMatchIsReportedOnceUnderContains(SpecificationVersion version) {
-        List<Error> errors = validate(version, "{\"contains\":{\"const\":1},\"minContains\":2,\"maxContains\":0}",
-                "[2]");
+    void bothBoundsAreIgnored(SpecificationVersion version) {
+        assertEquals(List.of(),
+                validate(version, "{\"contains\":{\"const\":1},\"minContains\":3,\"maxContains\":0}", "[1,1]"));
+    }
+
+    /**
+     * A custom dialect based on Draft 7 that adds minContains and maxContains
+     * enforces them.
+     */
+    @Test
+    void customDraft7DialectWithBoundsEnforcesThem() {
+        Dialect dialect = Dialect.builder(Dialects.getDraft7()).keyword(KeywordType.MIN_CONTAINS)
+                .keyword(KeywordType.MAX_CONTAINS).build();
+        SchemaRegistry registry = SchemaRegistry.withDialect(dialect);
+
+        List<Error> minErrors = registry.getSchema("{\"contains\":{\"const\":1},\"minContains\":2}")
+                .validate("[1]", InputFormat.JSON);
         assertEquals(List.of(
-                "contains /contains : does not contain an element that passes these validations: {\"const\":1}"),
-                describe(errors));
+                "minContains /contains : must contain at least 2 element(s) that passes these validations: {\"const\":1}"),
+                describe(minErrors));
+
+        List<Error> maxErrors = registry.getSchema("{\"contains\":true,\"maxContains\":1}")
+                .validate("[1,2]", InputFormat.JSON);
+        assertEquals(List.of("maxContains /contains : must contain at most 1 element(s) that passes these validations: true"),
+                describe(maxErrors));
     }
 
     @ParameterizedTest
