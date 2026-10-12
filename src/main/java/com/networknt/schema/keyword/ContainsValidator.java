@@ -57,19 +57,23 @@ public class ContainsValidator extends BaseKeywordValidator {
         Integer currentMin = null;
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
-            JsonNode parentSchemaNode = parentSchema.getSchemaNode();
-            Optional<JsonNode> maxNode = Optional
-                    .ofNullable(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()))
-                    .filter(JsonNode::canConvertToExactIntegral);
-            if (maxNode.isPresent()) {
-                currentMax = maxNode.get().intValue();
-            }
+            // Before Draft 2019-09, maxContains and minContains are unknown keywords and
+            // contains only needs one matching element.
+            if (this.isMinV201909) {
+                JsonNode parentSchemaNode = parentSchema.getSchemaNode();
+                Optional<JsonNode> maxNode = Optional
+                        .ofNullable(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()))
+                        .filter(JsonNode::canConvertToExactIntegral);
+                if (maxNode.isPresent()) {
+                    currentMax = maxNode.get().intValue();
+                }
 
-            Optional<JsonNode> minNode = Optional
-                    .ofNullable(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()))
-                    .filter(JsonNode::canConvertToExactIntegral);
-            if (minNode.isPresent()) {
-                currentMin = minNode.get().intValue();
+                Optional<JsonNode> minNode = Optional
+                        .ofNullable(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()))
+                        .filter(JsonNode::canConvertToExactIntegral);
+                if (minNode.isPresent()) {
+                    currentMin = minNode.get().intValue();
+                }
             }
         } else {
             this.schema = null;

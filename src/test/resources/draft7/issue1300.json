@@ -1,0 +1,156 @@
+[
+    {
+        "description": "maxContains is ignored",
+        "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "contains": true,
+            "maxContains": 0
+        },
+        "tests": [
+            {
+                "description": "one element is valid",
+                "data": [
+                    1
+                ],
+                "valid": true
+            },
+            {
+                "description": "several elements are valid",
+                "data": [
+                    1,
+                    2
+                ],
+                "valid": true
+            },
+            {
+                "description": "empty array is still invalid",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "non-array is ignored",
+                "data": 5,
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "minContains is ignored",
+        "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "contains": {
+                "const": 1
+            },
+            "minContains": 2
+        },
+        "tests": [
+            {
+                "description": "one match is valid",
+                "data": [
+                    1
+                ],
+                "valid": true
+            },
+            {
+                "description": "two matches are valid",
+                "data": [
+                    1,
+                    1
+                ],
+                "valid": true
+            },
+            {
+                "description": "no match is still invalid",
+                "data": [
+                    2
+                ],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "minContains 0 does not allow an empty array",
+        "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "contains": {
+                "const": 1
+            },
+            "minContains": 0
+        },
+        "tests": [
+            {
+                "description": "empty array is invalid",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "no match is invalid",
+                "data": [
+                    2
+                ],
+                "valid": false
+            },
+            {
+                "description": "one match is valid",
+                "data": [
+                    1
+                ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "maxContains does not limit matches",
+        "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "contains": {
+                "const": 1
+            },
+            "maxContains": 1
+        },
+        "tests": [
+            {
+                "description": "one match is valid",
+                "data": [
+                    1
+                ],
+                "valid": true
+            },
+            {
+                "description": "two matches are valid",
+                "data": [
+                    1,
+                    1
+                ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "malformed minContains and maxContains are ignored",
+        "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "contains": {
+                "const": 1
+            },
+            "minContains": -1,
+            "maxContains": "x"
+        },
+        "tests": [
+            {
+                "description": "one match is valid",
+                "data": [
+                    1
+                ],
+                "valid": true
+            },
+            {
+                "description": "no match is invalid",
+                "data": [
+                    2
+                ],
+                "valid": false
+            }
+        ]
+    }
+]
