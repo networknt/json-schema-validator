@@ -63,7 +63,7 @@ class UniqueItemsApplicabilityTest {
         Schema schema = SchemaRegistry.withDefaultDialect(version).getSchema("{\"uniqueItems\":true}");
         for (String instance : new String[] {
                 "[\"x\",\"x\"]",
-                "[1,1]",
+                "[1,1.0]",
                 "[[1],[1]]",
                 "[{\"a\":1},{\"a\":1}]" }) {
             assertEquals(1, schema.validate(instance, InputFormat.JSON).size(), instance);
