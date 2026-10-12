@@ -26,7 +26,6 @@ import com.networknt.schema.utils.JsonNodeTypes;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,9 +92,7 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
         if (node.isObject()) {
             // Map equality ignores insertion order, which is what JSON objects want.
             Map<String, Object> properties = new LinkedHashMap<>();
-            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> property = fields.next();
+            for (Map.Entry<String, JsonNode> property : node.properties()) {
                 properties.put(property.getKey(), comparisonKey(property.getValue()));
             }
             return properties;
