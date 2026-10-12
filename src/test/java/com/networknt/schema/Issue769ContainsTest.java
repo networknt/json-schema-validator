@@ -24,8 +24,12 @@ class Issue769ContainsTest extends AbstractJsonSchemaTest {
         assertValidatorType("min-contains.json", KeywordType.MIN_CONTAINS);
     }
 
+    /**
+     * Draft 7 ignores minContains and maxContains (#1300), so these documents have no
+     * matching element and fail contains itself.
+     */
     @Test
-    void shouldReturnContainsKeywordForMinContainsV7() {
+    void shouldReturnContainsKeywordForNoMatchWithMinContainsV7() {
         assertValidatorType("min-contains-v7.json", KeywordType.CONTAINS);
     }
 
@@ -35,7 +39,7 @@ class Issue769ContainsTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    void shouldReturnContainsKeywordForMaxContainsV7() {
+    void shouldReturnContainsKeywordForNoMatchWithMaxContainsV7() {
         assertValidatorType("max-contains-v7.json", KeywordType.CONTAINS);
     }
 
