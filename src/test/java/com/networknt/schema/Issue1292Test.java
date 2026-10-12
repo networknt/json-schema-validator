@@ -18,20 +18,27 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+
+import com.networknt.schema.keyword.KeywordType;
+import com.networknt.schema.walk.KeywordWalkHandler;
+import com.networknt.schema.walk.WalkEvent;
+import com.networknt.schema.walk.WalkFlow;
+import com.networknt.schema.walk.WalkListener;
 
 /**
  * minContains and maxContains each report only their own malformed value, under
  * their own keyword, and contradictory bounds are left to contains.
  */
 class Issue1292Test {
-    private static List<Error> validate(String schemaData, String inputData) {
-        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+    private static List<Error> validate(SpecificationVersion version, String schemaData, String inputData) {
+        Schema schema = SchemaRegistry.withDefaultDialect(version).getSchema(schemaData);
         return schema.validate(inputData, InputFormat.JSON);
     }
 
@@ -40,40 +47,72 @@ class Issue1292Test {
                 .collect(Collectors.toList());
     }
 
-    @Test
-    void malformedMinContainsIsReportedOnceUnderMinContains() {
-        List<Error> errors = validate("{\"minContains\":-1,\"maxContains\":2}", "[]");
+    @ParameterizedTest
+    @EnumSource(value = SpecificationVersion.class, names = { "DRAFT_2019_09", "DRAFT_2020_12" })
+    void malformedMinContainsIsReportedOnceUnderMinContains(SpecificationVersion version) {
+        List<Error> errors = validate(version, "{\"minContains\":-1,\"maxContains\":2}", "[]");
         assertEquals(Arrays.asList("minContains /minContains"), keywordsAndPaths(errors));
     }
 
-    @Test
-    void malformedMaxContainsIsReportedOnceUnderMaxContains() {
-        List<Error> errors = validate("{\"minContains\":1,\"maxContains\":-1}", "[]");
+    @ParameterizedTest
+    @EnumSource(value = SpecificationVersion.class, names = { "DRAFT_2019_09", "DRAFT_2020_12" })
+    void malformedMaxContainsIsReportedOnceUnderMaxContains(SpecificationVersion version) {
+        List<Error> errors = validate(version, "{\"minContains\":1,\"maxContains\":-1}", "[]");
         assertEquals(Arrays.asList("maxContains /maxContains"), keywordsAndPaths(errors));
     }
 
-    @Test
-    void bothMalformedBoundsAreEachReportedOnce() {
-        List<Error> errors = validate("{\"minContains\":-1,\"maxContains\":-2}", "[]");
+    @ParameterizedTest
+    @EnumSource(value = SpecificationVersion.class, names = { "DRAFT_2019_09", "DRAFT_2020_12" })
+    void bothMalformedBoundsAreEachReportedOnce(SpecificationVersion version) {
+        List<Error> errors = validate(version, "{\"minContains\":-1,\"maxContains\":-2}", "[]");
         assertEquals(Arrays.asList("minContains /minContains", "maxContains /maxContains"), keywordsAndPaths(errors));
     }
 
-    @Test
-    void minContainsAloneIsReportedUnderMinContains() {
-        List<Error> errors = validate("{\"minContains\":-1}", "[]");
+    @ParameterizedTest
+    @EnumSource(value = SpecificationVersion.class, names = { "DRAFT_2019_09", "DRAFT_2020_12" })
+    void minContainsAloneIsReportedUnderMinContains(SpecificationVersion version) {
+        List<Error> errors = validate(version, "{\"minContains\":-1}", "[]");
         assertEquals(Arrays.asList("minContains /minContains"), keywordsAndPaths(errors));
     }
 
-    @Test
-    void contradictoryBoundsOnAnArrayOnlyFailContains() {
-        List<Error> errors = validate("{\"contains\":true,\"minContains\":2,\"maxContains\":1}", "[1]");
+    @ParameterizedTest
+    @EnumSource(value = SpecificationVersion.class, names = { "DRAFT_2019_09", "DRAFT_2020_12" })
+    void contradictoryBoundsOnAnArrayOnlyFailContains(SpecificationVersion version) {
+        List<Error> errors = validate(version, "{\"contains\":true,\"minContains\":2,\"maxContains\":1}", "[1]");
         assertEquals(Arrays.asList("minContains /contains"), keywordsAndPaths(errors));
         assertEquals(": must contain at least 2 element(s) that passes these validations: true",
                 errors.get(0).toString());
     }
 
-    @Test
-    void contradictoryBoundsWithoutContainsPass() {
-        assertEquals(Collections.emptyList(), validate("{\"minContains\":2,\"maxContains\":1}", "[1]"));
+    @ParameterizedTest
+    @EnumSource(value = SpecificationVersion.class, names = { "DRAFT_2019_09", "DRAFT_2020_12" })
+    void contradictoryBoundsWithoutContainsPass(SpecificationVersion version) {
+        assertEquals(Arrays.asList(), validate(version, "{\"minContains\":2,\"maxContains\":1}", "[1]"));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = SpecificationVersion.class, names = { "DRAFT_2019_09", "DRAFT_2020_12" })
+    void walkListenersFireOnceForEachKeyword(SpecificationVersion version) {
+        List<String> walkedKeywords = new ArrayList<>();
+        WalkListener listener = new WalkListener() {
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                walkedKeywords.add(walkEvent.getKeyword());
+                return WalkFlow.CONTINUE;
+            }
+
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
+            }
+        };
+        KeywordWalkHandler keywordWalkHandler = KeywordWalkHandler.builder()
+                .keywordWalkListener(KeywordType.MIN_CONTAINS.getValue(), listener)
+                .keywordWalkListener(KeywordType.MAX_CONTAINS.getValue(), listener)
+                .build();
+        Schema schema = SchemaRegistry.withDefaultDialect(version).getSchema("{\"minContains\":1,\"maxContains\":2}");
+        schema.walk("[1]", InputFormat.JSON, true, executionContext -> executionContext
+                .walkConfig(walkConfig -> walkConfig.keywordWalkHandler(keywordWalkHandler)));
+        walkedKeywords.sort(null);
+        assertEquals(Arrays.asList("maxContains", "minContains"), walkedKeywords);
     }
 }
