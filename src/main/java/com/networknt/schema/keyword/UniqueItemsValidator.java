@@ -44,7 +44,7 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
-        if (unique) {
+        if (unique && node.isArray()) {
             Set<JsonNode> set = new HashSet<>();
             for (JsonNode n : node) {
                 if (!set.add(n)) {
