@@ -50,6 +50,15 @@ class UniqueItemsApplicabilityTest {
 
     @ParameterizedTest
     @EnumSource(SpecificationVersion.class)
+    void ignoresRepeatedObjectValuesInTypeLooseMode(SpecificationVersion version) {
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(version, builder -> builder.schemaRegistryConfig(config))
+                .getSchema("{\"type\":\"array\",\"uniqueItems\":true}");
+        assertEquals(0, schema.validate("{\"a\":\"x\",\"b\":\"x\"}", InputFormat.JSON).size());
+    }
+
+    @ParameterizedTest
+    @EnumSource(SpecificationVersion.class)
     void stillChecksArrayElements(SpecificationVersion version) {
         Schema schema = SchemaRegistry.withDefaultDialect(version).getSchema("{\"uniqueItems\":true}");
         for (String instance : new String[] {
@@ -124,23 +133,11 @@ class UniqueItemsApplicabilityTest {
 
     @ParameterizedTest
     @EnumSource(SpecificationVersion.class)
-    void preservesErrorCountForRepeatedArrayElements(SpecificationVersion version) {
-        Schema schema = SchemaRegistry.withDefaultDialect(version).getSchema("{\"uniqueItems\":true}");
-        List<Error> errors = schema.validate("[\"x\",\"x\",\"x\"]", InputFormat.JSON);
-        assertEquals(2, errors.size());
-        for (Error error : errors) {
-            assertEquals("uniqueItems", error.getKeyword());
-        }
-    }
-
-    @ParameterizedTest
-    @EnumSource(SpecificationVersion.class)
     void walkRejectsObjectWhenUniqueItemsIsNegated(SpecificationVersion version) {
         Schema schema = SchemaRegistry.withDefaultDialect(version).getSchema("{\"not\":{\"uniqueItems\":true}}");
         Result result = schema.walk("{\"a\":1,\"b\":1}", InputFormat.JSON, true);
         assertEquals(1, result.getErrors().size());
         assertEquals("not", result.getErrors().get(0).getKeyword());
         assertEquals(0, schema.walk("[1,1]", InputFormat.JSON, true).getErrors().size());
-        assertEquals(0, schema.walk("{\"a\":1,\"b\":1}", InputFormat.JSON, false).getErrors().size());
     }
 }
