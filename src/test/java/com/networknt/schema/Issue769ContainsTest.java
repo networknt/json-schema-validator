@@ -29,7 +29,7 @@ class Issue769ContainsTest extends AbstractJsonSchemaTest {
      * matching element and fail contains itself.
      */
     @Test
-    void shouldReturnContainsKeywordForMinContainsV7() {
+    void shouldReturnContainsKeywordForNoMatchWithMinContainsV7() {
         assertValidatorType("min-contains-v7.json", KeywordType.CONTAINS);
     }
 
@@ -39,7 +39,7 @@ class Issue769ContainsTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    void shouldReturnContainsKeywordForMaxContainsV7() {
+    void shouldReturnContainsKeywordForNoMatchWithMaxContainsV7() {
         assertValidatorType("max-contains-v7.json", KeywordType.CONTAINS);
     }
 
