@@ -25,11 +25,18 @@ List<Error> errors = schema.validate(input, InputFormat.JSON);
 ### Unknown-keyword diagnostics
 
 When loading a schema by a JSON Pointer fragment, such as `#/components/schemas/PetRequest`,
+either directly or through an external `$ref`,
 unknown fields at the containing document's root are treated as annotations without
 calling the unknown-keyword factory. Known keywords are still processed so that
 reference resolution retains the document context. Unknown keywords in the selected
 schema and its subschemas still use the configured factory. Loading the document
 directly, without a fragment, or through an anchor fragment retains normal unknown-keyword diagnostics.
+Container loads and direct schema loads use separate registry caches so diagnostics for
+separate registry loads do not depend on which form was loaded first.
+Within a single schema, references still share loaded documents: if a JSON Pointer
+reference loads a document before a whole-document reference to it, the latter reuses
+the container and does not report unknown root fields, even with a strict factory;
+reversing that reference order retains normal root diagnostics.
 
 In releases affected by [#1205](https://github.com/networknt/json-schema-validator/issues/1205),
 these document fields warn once per name per JVM. A custom dialect can treat them as
