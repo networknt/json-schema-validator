@@ -141,6 +141,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);
+            executionContext.setErrors(existingErrors);
         }
 
         if (this.schemaContext.isDiscriminatorKeywordEnabled()) {

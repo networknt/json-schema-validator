@@ -199,6 +199,7 @@ public class OneOfValidator extends BaseKeywordValidator {
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);
+            executionContext.setErrors(existingErrors);
         }
 
         boolean nullMatchedMoreThanOneBranch = nullableNode && numberOfValidSchema > 1;

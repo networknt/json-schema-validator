@@ -41,19 +41,22 @@ public class PropertyNamesValidator extends BaseKeywordValidator implements Keyw
         List<Error> existingErrors = executionContext.getErrors();
         List<Error> schemaErrors = new ArrayList<>();
         executionContext.setErrors(schemaErrors);
-        for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext(); ) {
-            final String pname = it.next();
-            final StringNode pnameText = StringNode.valueOf(pname);
-            innerSchema.validate(executionContext, pnameText, node, instanceLocation.append(pname));
-            for (final Error schemaError : schemaErrors) {
-                existingErrors.add(
-                        error().property(pname).instanceNode(node).instanceLocation(instanceLocation)
-                                .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                                .arguments(pname, schemaError.getMessage()).build());
+        try {
+            for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext(); ) {
+                final String pname = it.next();
+                final StringNode pnameText = StringNode.valueOf(pname);
+                innerSchema.validate(executionContext, pnameText, node, instanceLocation.append(pname));
+                for (final Error schemaError : schemaErrors) {
+                    existingErrors.add(
+                            error().property(pname).instanceNode(node).instanceLocation(instanceLocation)
+                                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
+                                    .arguments(pname, schemaError.getMessage()).build());
+                }
+                schemaErrors.clear();
             }
-            schemaErrors.clear();
+        } finally {
+            executionContext.setErrors(existingErrors);
         }
-        executionContext.setErrors(existingErrors);
     }
 
 

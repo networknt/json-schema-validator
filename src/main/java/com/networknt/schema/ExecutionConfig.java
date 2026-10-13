@@ -75,10 +75,49 @@ public class ExecutionConfig {
      */
     private final Boolean writeOnly;
 
+    private final long maxEvaluationSteps;
+    private final int maxEvaluationDepth;
+
+    /**
+     * Legacy constructor with unlimited evaluation. Subclass builders that support
+     * limits must use the builder constructor or the overload accepting both limits.
+     *
+     * @param locale the locale
+     * @param annotationCollectionEnabled whether to report annotations
+     * @param annotationCollectionFilter which annotations to report
+     * @param formatAssertionsEnabled whether to assert formats
+     * @param failFast whether to fail fast
+     * @param readOnly the read-only policy
+     * @param writeOnly the write-only policy
+     */
     protected ExecutionConfig(Locale locale, boolean annotationCollectionEnabled,
             Predicate<String> annotationCollectionFilter, Boolean formatAssertionsEnabled, boolean failFast,
             Boolean readOnly, Boolean writeOnly) {
+        this(locale, annotationCollectionEnabled, annotationCollectionFilter, formatAssertionsEnabled, failFast,
+                readOnly, writeOnly, 0, 0);
+    }
+
+    /**
+     * Creates configuration from all inherited builder options, including limits.
+     * Subclass builders overriding {@code build()} can pass themselves to this
+     * constructor rather than manually forwarding individual properties.
+     *
+     * @param builder the builder to snapshot
+     */
+    protected ExecutionConfig(BuilderSupport<?> builder) {
+        this(builder.locale == null ? Locale.getDefault() : builder.locale, builder.annotationCollectionEnabled,
+                Objects.requireNonNull(builder.annotationCollectionFilter, "annotationCollectionFilter must not be null"),
+                builder.formatAssertionsEnabled, builder.failFast, builder.readOnly, builder.writeOnly,
+                builder.maxEvaluationSteps, builder.maxEvaluationDepth);
+    }
+
+    protected ExecutionConfig(Locale locale, boolean annotationCollectionEnabled,
+            Predicate<String> annotationCollectionFilter, Boolean formatAssertionsEnabled, boolean failFast,
+            Boolean readOnly, Boolean writeOnly, long maxEvaluationSteps, int maxEvaluationDepth) {
         super();
+        if (maxEvaluationSteps < 0 || maxEvaluationDepth < 0) {
+            throw new IllegalArgumentException("Evaluation limits must not be negative");
+        }
         this.locale = locale;
         this.annotationCollectionEnabled = annotationCollectionEnabled;
         this.annotationCollectionFilter = annotationCollectionFilter;
@@ -86,6 +125,18 @@ public class ExecutionConfig {
         this.failFast = failFast;
         this.readOnly = readOnly;
         this.writeOnly = writeOnly;
+        this.maxEvaluationSteps = maxEvaluationSteps;
+        this.maxEvaluationDepth = maxEvaluationDepth;
+    }
+
+    /** @return maximum admitted schema-entry and keyword-dispatch steps; zero means unlimited */
+    public long getMaxEvaluationSteps() {
+        return maxEvaluationSteps;
+    }
+
+    /** @return maximum active schema evaluation frames, including the root; zero means unlimited */
+    public int getMaxEvaluationDepth() {
+        return maxEvaluationDepth;
     }
 
     /**
@@ -185,6 +236,8 @@ public class ExecutionConfig {
         copy.failFast = config.failFast;
         copy.readOnly = config.readOnly;
         copy.writeOnly = config.writeOnly;
+        copy.maxEvaluationSteps = config.maxEvaluationSteps;
+        copy.maxEvaluationDepth = config.maxEvaluationDepth;
         return copy;
     }
 
@@ -210,6 +263,8 @@ public class ExecutionConfig {
         protected boolean failFast = false;
         protected Boolean readOnly = null;
         protected Boolean writeOnly = null;
+        protected long maxEvaluationSteps = 0;
+        protected int maxEvaluationDepth = 0;
 
         protected abstract T self();
 
@@ -292,18 +347,37 @@ public class ExecutionConfig {
         }
 
         /**
+         * Sets the maximum admitted schema-entry and keyword-dispatch steps per execution.
+         * This does not interrupt work within a keyword. Zero (the default) means unlimited.
+         *
+         * @param maxEvaluationSteps nonnegative step capacity
+         * @return the builder
+         */
+        public T maxEvaluationSteps(long maxEvaluationSteps) {
+            this.maxEvaluationSteps = maxEvaluationSteps;
+            return self();
+        }
+
+        /**
+         * Sets the maximum simultaneously active schema frames, including the root.
+         * This includes references and schema wrappers, rather than just JSON nesting.
+         * Zero (the default) means unlimited.
+         *
+         * @param maxEvaluationDepth nonnegative depth capacity
+         * @return the builder
+         */
+        public T maxEvaluationDepth(int maxEvaluationDepth) {
+            this.maxEvaluationDepth = maxEvaluationDepth;
+            return self();
+        }
+
+        /**
          * Builds the {@link ExecutionConfig}.
          * 
          * @return the execution configuration
          */
         public ExecutionConfig build() {
-            Locale locale = this.locale;
-            if (locale == null) {
-                locale = Locale.getDefault();
-            }
-            Objects.requireNonNull(annotationCollectionFilter, "annotationCollectionFilter must not be null");
-            return new ExecutionConfig(locale, annotationCollectionEnabled, annotationCollectionFilter,
-                    formatAssertionsEnabled, failFast, readOnly, writeOnly);
+            return new ExecutionConfig(this);
         }
     }
 }
