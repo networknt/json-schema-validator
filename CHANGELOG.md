@@ -10,6 +10,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Added
 
 ### Changed
+- Treat unknown document-root fields as annotations when loading a schema by JSON Pointer fragment, while preserving known keyword processing and diagnostics in subschemas. With `DisallowUnknownKeywordFactory`, such fragment loads now succeed instead of throwing on unknown root fields; direct document loads still throw. If the selected schema references the root with `$ref: "#"`, unknown root fields also remain annotations and do not reach the unknown-keyword factory. (#1205)
 - `Error.getMessageKey()` now returns the message key when the schema supplies a custom message, such as `type` or `required`, instead of the custom message text. Unresolved `$ref`, `$dynamicRef` and `$recursiveRef` errors return `internal.unresolvedRef` instead of `Reference {0} cannot be resolved`. Use `getMessage()` for the text and `isCustomMessage()` to detect custom messages. Errors created without a key still use their message pattern as the key. (#1319)
 
 
