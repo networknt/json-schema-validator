@@ -25,6 +25,7 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.format.Format;
+import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.FormatKeyword;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordFactory;
@@ -461,7 +462,8 @@ public class Dialect {
                     return KeywordType.DISCRIMINATOR.newValidator(schemaLocation, schemaNode,
                             parentSchema, schemaContext);
                 }
-                kw = this.builder.unknownKeywordFactory != null
+                kw = schemaContext.isDocumentContainer(parentSchema) ? new AnnotationKeyword(keyword)
+                        : this.builder.unknownKeywordFactory != null
                         ? this.builder.unknownKeywordFactory.getKeyword(keyword, schemaContext)
                         : UnknownKeywordFactory.getInstance().getKeyword(keyword, schemaContext);
                 if (kw == null) {
