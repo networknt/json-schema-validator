@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.KeywordValidator;
 
 /**
@@ -32,6 +33,7 @@ public class SchemaContext {
     private final ConcurrentMap<String, Schema> schemaReferences;
     private final ConcurrentMap<String, Schema> schemaResources;
     private final ConcurrentMap<String, Schema> dynamicAnchors;
+    private JsonNode documentContainer;
     
     /**
      * When set to true, support for discriminators is enabled for validations of
@@ -123,7 +125,17 @@ public class SchemaContext {
 
     public KeywordValidator newValidator(SchemaLocation schemaLocation,
             String keyword /* keyword */, JsonNode schemaNode, Schema parentSchema) {
+        if (parentSchema != null && parentSchema.getSchemaNode() == this.documentContainer
+                && !this.dialect.getKeywords().containsKey(keyword)
+                && !keyword.equals(getSchemaRegistryConfig().getErrorMessageKeyword())) {
+            return new AnnotationKeyword(keyword).newValidator(schemaLocation, schemaNode, parentSchema, this);
+        }
         return this.dialect.newValidator(this, schemaLocation, keyword, schemaNode, parentSchema);
+    }
+
+    /** Marks the container before constructing the document used to resolve a fragment. */
+    void setDocumentContainer(JsonNode documentContainer) {
+        this.documentContainer = documentContainer;
     }
 
     public String resolveSchemaId(JsonNode schemaNode) {
