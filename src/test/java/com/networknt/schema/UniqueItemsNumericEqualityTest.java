@@ -102,7 +102,7 @@ class UniqueItemsNumericEqualityTest {
     /**
      * A double's value is its shortest decimal form, as for {@code const}. For
      * whole doubles above 2^53 that is not always the exact binary value: 1e30 is
-     * 10^30, and 2^60 is 1.15292150460684698E18.
+     * 10^30, and the shortest form of 2^60 is not 2^60.
      */
     @Test
     void largeWholeDoublesAreComparedByTheirShortestDecimalForm() {
@@ -110,15 +110,29 @@ class UniqueItemsNumericEqualityTest {
         assertFalse(valid("[[1e30], [1000000000000000000000000000000]]"), "nested 1e30 and 10^30 are the same");
         assertFalse(valid("[1e18, 1000000000000000000]"), "1e18 and 10^18 are the same number");
         long twoTo60 = 1L << 60;
-        assertTrue(valid(array().add(twoTo60).add((double) twoTo60)), "2^60 and 1.15292150460684698E18 differ");
+        assertTrue(valid(array().add(twoTo60).add((double) twoTo60)), "2^60 as a long and as a double differ");
         BigInteger twoTo63 = BigInteger.ONE.shiftLeft(63);
-        assertTrue(valid(array().add(twoTo63).add(0x1p63)), "2^63 and 9.223372036854776E18 differ");
+        assertTrue(valid(array().add(twoTo63).add(0x1p63)), "2^63 and the double 2^63 differ");
+    }
+
+    /**
+     * The double -2^63 is compared by its shortest form, which can lie below
+     * Long.MIN_VALUE (-9223372036854776000 on JDK 19+), so it must not be read as
+     * a long.
+     */
+    @Test
+    void minusTwoToSixtyThreeAsADoubleIsComparedByItsShortestDecimalForm() {
+        BigInteger shortest = new BigDecimal(Double.toString(-0x1p63)).toBigIntegerExact();
+        assertFalse(valid(array().add(-0x1p63).add(shortest)), "-2^63 and its shortest form are the same number");
+        assertTrue(valid(array().add(-0x1p63).add(new BigInteger("9223372036854775616"))),
+                "-2^63 is not 9223372036854775616");
     }
 
     /**
      * Integers that round to the same double must not be treated as equal. Runs of
-     * 2^18 consecutive integers near 2^70 share a double, so these all collide on
-     * the double's hash unless the exact value is hashed.
+     * 2^18 consecutive integers near 2^70 share a double. This checks the verdict
+     * only; the hash of a big integer that is not exactly a double keeps such runs
+     * from all landing in one bucket.
      */
     @Test
     void consecutiveIntegersSharingADoubleAreUnique() {
