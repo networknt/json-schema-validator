@@ -643,6 +643,8 @@ For applications processing untrusted instances, review recursive schemas for ov
 
 ## [Regular Expressions](doc/ecma-262.md)
 
+## [Error Reference](doc/error-reference.md)
+
 ## [Custom Error Messages](doc/error-message.md)
 
 ## [Multiple Language](doc/multiple-language.md)

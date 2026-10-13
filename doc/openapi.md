@@ -22,6 +22,22 @@ String input = "{\r\n"
 List<Error> errors = schema.validate(input, InputFormat.JSON);
 ```
 
+### Unknown-keyword diagnostics
+
+When loading a schema by a JSON Pointer fragment, such as `#/components/schemas/PetRequest`,
+unknown fields at the containing document's root are treated as annotations without
+calling the unknown-keyword factory. Known keywords are still processed so that
+reference resolution retains the document context. Unknown keywords in the selected
+schema and its subschemas still use the configured factory. Loading the document
+directly, without a fragment, or through an anchor fragment retains normal unknown-keyword diagnostics.
+
+In releases affected by [#1205](https://github.com/networknt/json-schema-validator/issues/1205),
+these document fields warn once per name per JVM. A custom dialect can treat them as
+`AnnotationKeyword` and delegate other names to `UnknownKeywordFactory`, at the cost
+of accepting those names throughout the dialect. Setting the logger
+`com.networknt.schema.keyword.UnknownKeywordFactory` to `ERROR` is a simpler workaround,
+but also hides genuine unknown-keyword warnings.
+
 ## Validating an OpenAPI document
 
 The library can be used to validate OpenAPI documents, however the OpenAPI meta-schema documents are not bundled with the library.

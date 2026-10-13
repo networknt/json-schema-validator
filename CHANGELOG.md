@@ -11,6 +11,8 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 - `MultipleOfValidator.getDivisor` and `getDividend` now preserve exact integral and BigDecimal values. Custom validators, including overrides calling `super`, receive these exact values; validation uses hook results without further rounding. Integral dividend scales can change (for example, `2.0` becomes `2`), which affects scale-sensitive comparisons in overrides. Mixed integral/Double or Float inputs above 2^53 can produce different results. Precision already lost when parsing floating-point values is tracked separately in #1293. (#1291)
+- Treat unknown document-root fields as annotations when loading a schema by JSON Pointer fragment, while preserving known keyword processing and diagnostics in subschemas. With `DisallowUnknownKeywordFactory`, such fragment loads now succeed instead of throwing on unknown root fields; direct document loads still throw. If the selected schema references the root with `$ref: "#"`, unknown root fields also remain annotations and do not reach the unknown-keyword factory. (#1205)
+- `Error.getMessageKey()` now returns the message key when the schema supplies a custom message, such as `type` or `required`, instead of the custom message text. Unresolved `$ref`, `$dynamicRef` and `$recursiveRef` errors return `internal.unresolvedRef` instead of `Reference {0} cannot be resolved`. Use `getMessage()` for the text and `isCustomMessage()` to detect custom messages. Errors created without a key still use their message pattern as the key. (#1319)
 
 
 ## 2.0.8- 2026-10-01

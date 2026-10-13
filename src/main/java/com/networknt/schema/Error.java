@@ -192,6 +192,14 @@ public class Error {
         return customMessage;
     }
 
+    /**
+     * Gets the key of the message in the message source, such as
+     * {@code required} or {@code format.email}. The key does not change when
+     * the schema supplies a custom message. An error created without a key
+     * returns its message pattern.
+     *
+     * @return the message key
+     */
     public String getMessageKey() {
         return messageKey;
     }
@@ -393,7 +401,11 @@ public class Error {
             String messageKey = this.messageKey;
             
             if (!Strings.isBlank(this.message)) {
-                messageKey = this.message;
+                // A message replaces the text, not the key. Only an error built
+                // without a key uses its message pattern as the key.
+                if (messageKey == null) {
+                    messageKey = this.message;
+                }
                 if (this.message.contains("{")) {
                     messageSupplier = new CachingSupplier<>(() -> {
                         MessageFormat format = new MessageFormat(this.message);

@@ -22,6 +22,7 @@ import com.networknt.schema.dialect.DefaultDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.dialect.DialectRegistry;
+import com.networknt.schema.path.PathType;
 import com.networknt.schema.resource.InputStreamSource;
 import com.networknt.schema.resource.ResourceLoaders;
 import com.networknt.schema.resource.SchemaIdResolvers;
@@ -847,6 +848,11 @@ public class SchemaRegistry {
                 } else {
                     // Schema with fragment pointing to sub schema
                     final SchemaContext schemaContext = createSchemaContext(schemaNode);
+                    // Keep document keyword processing for reference resolution, but do not
+                    // report its unknown fields as unknown keywords of the selected schema.
+                    if (PathType.JSON_POINTER.equals(schemaUri.getFragment().getPathType())) {
+                        schemaContext.setDocumentContainer(schemaNode);
+                    }
                     SchemaLocation documentLocation = new SchemaLocation(schemaUri.getAbsoluteIri());
                     Schema document = doCreate(schemaContext, documentLocation, schemaNode, null,
                             false, false);
