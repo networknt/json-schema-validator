@@ -198,14 +198,14 @@ class MultipleOfValidatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "9007199254740993, 9007199254740993.0, 0",
-            "9007199254740993.0, 9007199254740993, 0",
-            "9007199254740993, 18014398509481986.0, 0",
-            "9007199254740993.0, 18014398509481986, 0",
-            "9007199254740993, -9007199254740993.0, 0",
-            "9007199254740993.0, -9007199254740993, 0",
-            "-9007199254740993, 9007199254740993.0, 0",
-            "-9007199254740993.0, 9007199254740993, 0",
+            "9007199254740993, 9007199254740993.0, 1",
+            "9007199254740993.0, 9007199254740993, 1",
+            "9007199254740993, 18014398509481986.0, 1",
+            "9007199254740993.0, 18014398509481986, 1",
+            "9007199254740993, -9007199254740993.0, 1",
+            "9007199254740993.0, -9007199254740993, 1",
+            "-9007199254740993, 9007199254740993.0, 1",
+            "-9007199254740993.0, 9007199254740993, 1",
             "9007199254740993, 9007199254740996.0, 1",
             "9007199254740993.0, 9007199254740996, 1",
             "9007199254740993, 0.0, 0",
@@ -217,31 +217,31 @@ class MultipleOfValidatorTest {
             "3, 3.0000000000000004, 1",
             "3.0000000000000004, 3, 1"
     })
-    void mixedFloatingPointOperandsKeepBaseBehavior(String divisor, String dividend, int expectedErrors) {
+    void mixedFloatingPointOperandsUseExactIntegralValues(String divisor, String dividend, int expectedErrors) {
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":" + divisor + "}");
         assertEquals(expectedErrors, schema.validate(dividend, InputFormat.JSON).size());
     }
 
     @Test
-    void mixedFloatingPointOperandsRetainExistingRounding() {
+    void mixedFloatingPointOperandsDoNotRoundIntegralValues() {
         SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
-        // Preserve the base branch's rounded results for mixed floating-point inputs.
-        assertEquals(0, registry.getSchema("{\"multipleOf\":2.0}")
+        // The exact integer is no longer rounded to match the floating-point operand.
+        assertEquals(1, registry.getSchema("{\"multipleOf\":2.0}")
                 .validate("9007199254740993", InputFormat.JSON).size());
-        assertEquals(0, registry.getSchema("{\"multipleOf\":9007199254740993}")
+        assertEquals(1, registry.getSchema("{\"multipleOf\":9007199254740993}")
                 .validate("9007199254740992.0", InputFormat.JSON).size());
     }
 
     @Test
-    void mixedFloatNodesKeepBaseBehavior() {
+    void mixedFloatNodesUseExactIntegralValues() {
         long value = 9007199254740993L;
         SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
-        assertEquals(0, registry.getSchema("{\"multipleOf\":" + value + "}")
+        assertEquals(1, registry.getSchema("{\"multipleOf\":" + value + "}")
                 .validate(FloatNode.valueOf((float) value)).size());
         ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
         schemaNode.set("multipleOf", FloatNode.valueOf((float) value));
-        assertEquals(0, registry.getSchema(schemaNode).validate(LongNode.valueOf(value)).size());
+        assertEquals(1, registry.getSchema(schemaNode).validate(LongNode.valueOf(value)).size());
     }
 
     @ParameterizedTest
@@ -378,6 +378,7 @@ class MultipleOfValidatorTest {
         // BigInteger arithmetic does not respond to interrupts. Isolate these extreme
         // inputs so a regression can be stopped without leaving work in the test JVM.
         Path output = Files.createTempFile("multiple-of-", ".log");
+        boolean terminated = true;
         try {
             String executable = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
             String java = Path.of(System.getProperty("java.home"), "bin", executable).toString();
@@ -393,17 +394,23 @@ class MultipleOfValidatorTest {
                 finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
             } finally {
                 if (process.isAlive()) {
+                    terminated = false;
                     process.destroyForcibly();
-                    process.waitFor(5, TimeUnit.SECONDS);
+                    terminated = process.waitFor(5, TimeUnit.SECONDS);
                 }
             }
-            assertTrue(finished, "Timed out: " + testName);
+            assertTrue(finished, "Timed out: " + testName
+                    + (terminated ? "" : "; child process is still running, output: " + output));
             int exitCode = process.exitValue();
             if (exitCode != 0) {
                 assertEquals(0, exitCode, Files.readString(output));
             }
         } finally {
-            Files.deleteIfExists(output);
+            if (terminated) {
+                Files.deleteIfExists(output);
+            } else {
+                output.toFile().deleteOnExit();
+            }
         }
     }
 
@@ -644,8 +651,8 @@ class MultipleOfValidatorTest {
         };
         context = parent.createExecutionContext();
         dividendOverride.validate(context, roundedInput, roundedInput, new NodePath(PathType.JSON_POINTER));
-        // The floating-point input selects the rounded schema divisor.
-        assertEquals(1, context.getErrors().size());
+        // The exact dividend returned by the hook equals the exact divisor.
+        assertEquals(0, context.getErrors().size());
 
         MultipleOfValidator floatingSchemaOverride = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
                 DoubleNode.valueOf(2.0), parent, parent.getSchemaContext()) {
@@ -664,7 +671,7 @@ class MultipleOfValidatorTest {
                 LongNode.valueOf(value), parent, parent.getSchemaContext()) { };
         context = parent.createExecutionContext();
         inherited.validate(context, roundedInput, roundedInput, new NodePath(PathType.JSON_POINTER));
-        assertTrue(context.getErrors().isEmpty());
+        assertEquals(1, context.getErrors().size());
     }
 
     @Test
@@ -678,12 +685,14 @@ class MultipleOfValidatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "abs, -9007199254740992, 0", "abs, -9007199254740996, 1",
-            "negate, 9007199254740992, 0", "negate, -9007199254740992, 0",
-            "double, 9007199254740992, 0", "double, -9007199254740992, 0",
-            "shift, 9007199254740992, 0", "shift, -9007199254740992, 0"
+            "abs, -9007199254740993, 0, 1", "abs, -9007199254740996, 1, 1",
+            "negate, 9007199254740993, 0, 1", "negate, -9007199254740993, 0, 1",
+            "double, 9007199254740993, 0, 1", "double, -9007199254740993, 0, 1",
+            "shift, 9007199254740993, 0, 1", "shift, -9007199254740993, 0, 1",
+            "abs, 0, 0, 0"
     })
-    void transformedDividendKeepsBaseBehavior(String operation, double value, int expectedErrors) {
+    void transformedDividendIsUsedForLongAndDoubleNodes(String operation, long value,
+            int expectedIntegerErrors, int expectedFloatingPointErrors) {
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":9007199254740993}");
         int[] calls = { 0 };
@@ -702,11 +711,14 @@ class MultipleOfValidatorTest {
                 }
             }
         };
-        ExecutionContext context = parent.createExecutionContext();
-        JsonNode node = DoubleNode.valueOf(value);
-        validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
-        assertEquals(expectedErrors, context.getErrors().size());
-        assertEquals(1, calls[0]);
+        JsonNode[] nodes = { LongNode.valueOf(value), DoubleNode.valueOf(value) };
+        int[] expectedErrors = { expectedIntegerErrors, expectedFloatingPointErrors };
+        for (int i = 0; i < nodes.length; i++) {
+            ExecutionContext context = parent.createExecutionContext();
+            validator.validate(context, nodes[i], nodes[i], new NodePath(PathType.JSON_POINTER));
+            assertEquals(expectedErrors[i], context.getErrors().size());
+        }
+        assertEquals(nodes.length, calls[0]);
     }
 
     @Test
@@ -728,7 +740,7 @@ class MultipleOfValidatorTest {
         ExecutionContext context = parent.createExecutionContext();
         JsonNode node = DoubleNode.valueOf(-9007199254740992d);
         validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
-        assertTrue(context.getErrors().isEmpty());
+        assertEquals(1, context.getErrors().size());
     }
 
     @Test
@@ -769,14 +781,14 @@ class MultipleOfValidatorTest {
     void mixedInputMessageUsesTheDivisorUsedForValidation() {
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":9007199254740993}");
-        assertEquals("must be multiple of 9007199254740992",
+        assertEquals("must be multiple of 9007199254740993",
                 schema.validate("27021597764222979.0", InputFormat.JSON).get(0).getMessage());
         assertEquals("must be multiple of 9007199254740993",
                 schema.validate("2", InputFormat.JSON).get(0).getMessage());
     }
 
     @Test
-    void divisorScaleDoesNotChangeMixedInputRounding() {
+    void divisorScaleDoesNotChangeItsExactValue() {
         long value = 9007199254740993L;
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":" + value + "}");
@@ -790,7 +802,56 @@ class MultipleOfValidatorTest {
         ExecutionContext context = parent.createExecutionContext();
         JsonNode node = DoubleNode.valueOf((double) value);
         validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
-        assertTrue(context.getErrors().isEmpty());
+        assertEquals(1, context.getErrors().size());
+    }
+
+    @Test
+    void constantConversionResultsDoNotDependOnInputNodeType() {
+        long value = 9007199254740993L;
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":" + value + "}");
+        MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                LongNode.valueOf(value), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDivisor(JsonNode node) {
+                return BigDecimal.valueOf(value);
+            }
+
+            @Override
+            protected BigDecimal getDividend(JsonNode node) {
+                return BigDecimal.valueOf(value);
+            }
+        };
+        for (JsonNode node : new JsonNode[] { IntNode.valueOf(2), LongNode.valueOf(value),
+                DoubleNode.valueOf(value), FloatNode.valueOf(value), DecimalNode.valueOf(BigDecimal.valueOf(value)) }) {
+            ExecutionContext context = parent.createExecutionContext();
+            validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
+            assertTrue(context.getErrors().isEmpty(), node.getClass().getSimpleName());
+        }
+    }
+
+    @Test
+    void explicitRoundedConversionsAreUsedUnchanged() {
+        long value = 9007199254740993L;
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":" + value + "}");
+        MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                LongNode.valueOf(value), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDivisor(JsonNode node) {
+                return BigDecimal.valueOf(node.doubleValue());
+            }
+
+            @Override
+            protected BigDecimal getDividend(JsonNode node) {
+                return BigDecimal.valueOf(node.doubleValue());
+            }
+        };
+        for (JsonNode node : new JsonNode[] { LongNode.valueOf(value), DoubleNode.valueOf(value) }) {
+            ExecutionContext context = parent.createExecutionContext();
+            validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
+            assertTrue(context.getErrors().isEmpty());
+        }
     }
 
     @Test
