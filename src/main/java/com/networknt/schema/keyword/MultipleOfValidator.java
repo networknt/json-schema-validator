@@ -42,7 +42,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         this.divisor = getDivisor(schemaNode);
         this.denominator = this.divisor == null ? null : this.divisor.unscaledValue().abs();
         this.longDivisor = integralDivisor(this.divisor);
-        this.divisorMessage = formatDivisor(this.divisor);
+        this.divisorMessage = this.divisor == null ? null : this.divisor.toString();
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
@@ -83,15 +83,12 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         }
     }
 
-    private static String formatDivisor(BigDecimal value) {
-        if (value == null) {
-            return null;
-        }
+    private static BigDecimal normalizeDivisor(BigDecimal value) {
         try {
-            return value.stripTrailingZeros().toString();
+            return value.stripTrailingZeros();
         } catch (ArithmeticException exception) {
             // Removing zeros at the minimum scale can overflow the scale range.
-            return value.toString();
+            return value;
         }
     }
 
@@ -135,6 +132,8 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      * {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
      * Validation uses the returned value without further rounding, including when
      * this method is overridden.
+     * The default conversion removes trailing zeros unless doing so would overflow the scale.
+     * Error messages preserve the string representation of the returned value.
      * 
      * @param schemaNode the schema node
      * @return the divisor or null if the input is not correct
@@ -143,8 +142,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         if (schemaNode.isNumber()) {
             if (schemaNode.isIntegralNumber() || schemaNode.isBigDecimal()) {
                 BigDecimal value = schemaNode.decimalValue();
-                // Keep the exact coefficient and scale; normalization can overflow at scale limits.
-                return value.signum() == 0 ? null : value;
+                return value.signum() == 0 ? null : normalizeDivisor(value);
             }
             double divisor = schemaNode.doubleValue();
             if (divisor != 0) {
@@ -162,6 +160,8 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      * {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
      * Validation uses the returned value without further rounding, including when
      * this method is overridden.
+     * Integral inputs can have a different scale than with the former
+     * double-based conversion, for example {@code 2} instead of {@code 2.0}.
      * 
      * @param node the node
      * @return the dividend or null if the type is incorrect

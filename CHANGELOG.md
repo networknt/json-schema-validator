@@ -10,7 +10,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Added
 
 ### Changed
-- `MultipleOfValidator.getDivisor` and `getDividend` now preserve exact integral and BigDecimal values. Custom validators, including overrides calling `super`, receive these exact values; validation uses hook results without further rounding. Mixed integral/Double or Float inputs above 2^53 can therefore produce different results. Precision already lost when parsing floating-point values is tracked separately in #1293. (#1291)
+- `MultipleOfValidator.getDivisor` and `getDividend` now preserve exact integral and BigDecimal values. Custom validators, including overrides calling `super`, receive these exact values; validation uses hook results without further rounding. Integral dividend scales can change (for example, `2.0` becomes `2`), which affects scale-sensitive comparisons in overrides. Mixed integral/Double or Float inputs above 2^53 can produce different results. Precision already lost when parsing floating-point values is tracked separately in #1293. (#1291)
 
 
 ## 2.0.8- 2026-10-01

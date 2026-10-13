@@ -286,6 +286,43 @@ class MultipleOfValidatorTest {
                 schema.validate(DecimalNode.valueOf(new BigDecimal("0.0000001"))).get(0).getMessage());
     }
 
+    @ParameterizedTest
+    @CsvSource({"2.0, 2", "100.00, 1E+2"})
+    void defaultDivisorConversionRetainsNormalizedScale(String value, String expectedValue) {
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":2}");
+        BigDecimal[] converted = { null };
+        new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                DecimalNode.valueOf(new BigDecimal(value)), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDivisor(JsonNode node) {
+                converted[0] = super.getDivisor(node);
+                return converted[0];
+            }
+        };
+        assertEquals(new BigDecimal(expectedValue), converted[0]);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"3.0", "100.00"})
+    void overriddenDivisorRetainsMessageRepresentation(String value) {
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":2}");
+        MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                IntNode.valueOf(2), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDivisor(JsonNode node) {
+                return new BigDecimal(value);
+            }
+        };
+        ExecutionContext context = parent.createExecutionContext();
+        JsonNode node = IntNode.valueOf(1);
+        validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
+        assertEquals(1, context.getErrors().size());
+        assertEquals(value, context.getErrors().get(0).getArguments()[0]);
+        assertEquals("must be multiple of " + value, context.getErrors().get(0).getMessage());
+    }
+
     @Test
     void divisorMessageAtMinimumScale() {
         BigDecimal divisor = new BigDecimal(BigInteger.TEN, Integer.MIN_VALUE);
