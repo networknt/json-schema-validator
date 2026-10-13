@@ -55,6 +55,13 @@ public class TimeFormat implements Format {
             // parseUnresolved stops at the end of the pattern, so trailing text must be rejected here
             if (null == accessor || position.getIndex() != value.length()) return false;
 
+            char last = value.charAt(value.length() - 1);
+            if (last != 'Z' && last != 'z') {
+                // A numeric offset is exactly +HH:MM or -HH:MM. Java 8 also accepts +HH:MM:SS.
+                char sign = value.charAt(value.length() - 6);
+                if (sign != '+' && sign != '-') return false;
+            }
+
             long offset = accessor.getLong(OFFSET_SECONDS) / 60;
             if (MAX_OFFSET_MIN < offset || MIN_OFFSET_MIN > offset) return false;
 
