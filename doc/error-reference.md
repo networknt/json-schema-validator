@@ -30,15 +30,14 @@ Use the message key to identify the kind of error, for example to map errors to 
 ```java
 List<Error> errors = schema.validate(input, InputFormat.JSON);
 for (Error error : errors) {
-    String key = error.isCustomMessage() ? error.getKeyword() : error.getMessageKey();
-    String link = "https://example.com/docs/validation-errors#" + key;
+    String link = "https://example.com/docs/validation-errors#" + error.getMessageKey();
     System.out.println(error.getInstanceLocation() + ": " + error.getMessage() + " (see " + link + ")");
 }
 ```
 
 The keyword alone does not always tell errors apart. Every `format` error has the keyword `format`, but the message key names the format, such as `format.email` or `format.date`. `oneOf` reports `oneOf` when no schema matched and `oneOf.indexes` when more than one matched.
 
-When a schema supplies a custom message through the configured error message keyword, `getMessageKey()` returns the custom message pattern instead of a key. Check `isCustomMessage()` and use `getKeyword()` in that case, as in the example above.
+When a schema supplies a custom message through the configured error message keyword, `getMessage()` returns the custom message and `getMessageKey()` still returns the key, so the same code works for both. Use `isCustomMessage()` to tell them apart.
 
 ## Message keys
 
@@ -146,14 +145,16 @@ These are only reported by the OpenAPI 3.0 and 3.1 dialects.
 
 Problems in the schema itself are not returned from `validate`. They are thrown as a `SchemaException` or one of its subclasses when the schema is loaded or first used, and `getError()` on the exception returns the `Error`.
 
-| Exception | Keyword | Reported when | Message |
-|---|---|---|---|
-| `InvalidSchemaRefException` | `$ref`, `$dynamicRef` or `$recursiveRef` | A reference cannot be resolved. | `Reference {0} cannot be resolved` |
-| `InvalidSchemaException` | `id` or `$id` | The configured `SchemaIdValidator` rejects an identifier. | `'{0}' is not a valid {1}` (message key `id`) |
-| `InvalidSchemaException` | | An unknown keyword is used and the dialect uses `DisallowUnknownKeywordFactory`. | `Keyword '{0}' is unknown and must be configured on the meta-schema or vocabulary` |
-| `SchemaException` | `allOf`, `anyOf` or `oneOf` | The keyword's value is not an array. | `{0} found, {1} expected` (message key `type`) |
+| Exception | Keyword | Reported when | Message key | Message |
+|---|---|---|---|---|
+| `InvalidSchemaRefException` | `$ref`, `$dynamicRef` or `$recursiveRef` | A reference cannot be resolved. | `internal.unresolvedRef` | `Reference {0} cannot be resolved` |
+| `SchemaException` | `$recursiveRef` | The value is not `#`. | `internal.invalidRecursiveRef` | `The value of a $recursiveRef must be '#' but is '{0}'` |
+| `SchemaException` | `$recursiveAnchor` | The value is not a boolean. | `internal.invalidRecursiveAnchor` | `The value of a $recursiveAnchor must be a Boolean literal but is {0}` |
+| `InvalidSchemaException` | `id` or `$id` | The configured `SchemaIdValidator` rejects an identifier. | `id` | `'{0}' is not a valid {1}` |
+| `InvalidSchemaException` | | An unknown keyword is used and the dialect uses `DisallowUnknownKeywordFactory`. | the message pattern | `Keyword '{0}' is unknown and must be configured on the meta-schema or vocabulary` |
+| `SchemaException` | `allOf`, `anyOf` or `oneOf` | The keyword's value is not an array. | `type` | `{0} found, {1} expected` |
 
-Except for `id` and `type`, these errors give the message pattern directly, so `getMessageKey()` returns the pattern rather than a key.
+The `internal.*` keys are not in the resource bundle, so these messages are always in English. An error created without a message key, such as the unknown keyword error, uses its message pattern as the key.
 
 ## Messages in other languages
 
