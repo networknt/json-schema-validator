@@ -678,6 +678,8 @@ These limits contain repeated expansion but do not eliminate exponential evaluat
 
 ## [Regular Expressions](doc/ecma-262.md)
 
+## [Error Reference](doc/error-reference.md)
+
 ## [Custom Error Messages](doc/error-message.md)
 
 ## [Multiple Language](doc/multiple-language.md)
