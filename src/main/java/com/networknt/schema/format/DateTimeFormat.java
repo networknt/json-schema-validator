@@ -28,13 +28,6 @@ public class DateTimeFormat implements Format {
      */
     public static class Ethlo {
         public static boolean isValid(String value) {
-            // ITU does not check for trailing text after a Z or z offset.
-            int upperZulu = value.indexOf('Z');
-            int lowerZulu = value.indexOf('z');
-            if ((upperZulu >= 0 && upperZulu != value.length() - 1)
-                    || (lowerZulu >= 0 && lowerZulu != value.length() - 1)) {
-                return false;
-            }
             try {
                 ITU.parseDateTime(value);
             } catch (LeapSecondException ex) {

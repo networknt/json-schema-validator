@@ -36,6 +36,9 @@ class DateTimeFormatTest {
             "2020-01-01T12:00:00zjunk",
             "2020-01-01T12:00:00ZjunkZ",
             "2020-01-01T12:00:00+01:00junk",
+            "2020-01-01T12:00:00+01x00",
+            "2020-01-01T12:00:00+0100",
+            "2020-01-01T12:00:00+01:0",
             "2016-12-31T23:59:60Zjunk"
     })
     void rejectsTrailingTextAfterOffset(String value) {
@@ -48,7 +51,8 @@ class DateTimeFormatTest {
             "2020-01-01T12:00:00Z",
             "2020-01-01T12:00:00z",
             "2020-01-01T12:00:00+01:00",
-            "2016-12-31T23:59:60Z"
+            "2016-12-31T23:59:60Z",
+            "2017-01-01T00:59:60+01:00"
     })
     void acceptsValidOffsetsAndLeapSecond(String value) {
         assertTrue(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
