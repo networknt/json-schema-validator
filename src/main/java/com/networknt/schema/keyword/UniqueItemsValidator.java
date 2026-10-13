@@ -131,9 +131,11 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
                 return NON_FINITE;
             }
             // 0x1p63 is 2^63, the first double above Long.MAX_VALUE. Every double
-            // at or above 2^53 is whole, and its shortest form is a whole number
-            // that still fits in a long below 2^63.
-            return value == Math.rint(value) && value >= -0x1p63 && value < 0x1p63 ? WHOLE : DOUBLE;
+            // at or above 2^53 in magnitude is whole, and strictly between -2^63
+            // and 2^63 its shortest form is a whole number that fits in a long.
+            // -2^63 itself is left out: its shortest form can be
+            // -9223372036854776000, which is below Long.MIN_VALUE.
+            return value == Math.rint(value) && value > -0x1p63 && value < 0x1p63 ? WHOLE : DOUBLE;
         case BIG_INTEGER:
             return node.canConvertToLong() ? WHOLE : BIG;
         default:
@@ -148,7 +150,7 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
         if (node.isDouble() || node.isFloat()) {
             double value = node.doubleValue();
             // 0x1p53 is 2^53. Below it a whole double's shortest form is its exact
-            // value; above it the two can differ (2^60 is 1.15292150460684698E18).
+            // value; above it the two can differ (2^60 is not its shortest form).
             return Math.abs(value) < 0x1p53 ? (long) value : node.decimalValue().longValue();
         }
         return node.longValue();
