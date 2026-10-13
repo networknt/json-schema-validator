@@ -50,10 +50,27 @@ public class TimeFormat implements Format {
             int pos = value.indexOf('Z');
             if (-1 != pos && pos != value.length() - 1) return false;
 
+            String parsedValue = value;
+            int decimalPoint = value.indexOf('.');
+            if (decimalPoint >= 0) {
+                int fractionStart = decimalPoint + 1;
+                int fractionEnd = fractionStart;
+                while (fractionEnd < value.length()) {
+                    char digit = value.charAt(fractionEnd);
+                    if (digit < '0' || digit > '9') break;
+                    fractionEnd++;
+                }
+                if (fractionEnd == fractionStart) return false;
+                // ISO_LOCAL_TIME parses at most nine digits, but RFC 3339 permits more.
+                if (fractionEnd - fractionStart > 9) {
+                    parsedValue = value.substring(0, fractionStart + 9) + value.substring(fractionEnd);
+                }
+            }
+
             ParsePosition position = new ParsePosition(0);
-            TemporalAccessor accessor = formatter.parseUnresolved(value, position);
+            TemporalAccessor accessor = formatter.parseUnresolved(parsedValue, position);
             // parseUnresolved stops at the end of the pattern, so trailing text must be rejected here
-            if (null == accessor || position.getIndex() != value.length()) return false;
+            if (null == accessor || position.getIndex() != parsedValue.length()) return false;
 
             char last = value.charAt(value.length() - 1);
             if (last != 'Z' && last != 'z') {
