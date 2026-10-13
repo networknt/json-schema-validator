@@ -213,6 +213,8 @@ public class SchemaRegistry {
     private final String defaultDialectId;
     private final SchemaLoader schemaLoader;
     private final ConcurrentMap<SchemaLocation, Schema> schemaCache = new ConcurrentHashMap<>();
+    // Container loads and direct schema loads have different unknown-keyword handling.
+    private final ConcurrentMap<SchemaLocation, Schema> documentCache = new ConcurrentHashMap<>();
     private final boolean schemaCacheEnabled;
     private final DialectRegistry dialectRegistry;
     private final SchemaRegistryConfig schemaRegistryConfig;
@@ -781,18 +783,19 @@ public class SchemaRegistry {
      */
     public Schema loadSchema(final SchemaLocation schemaUri, boolean validateLoadedSchema) {
         if (schemaCacheEnabled) {
+            ConcurrentMap<SchemaLocation, Schema> cache = validateLoadedSchema ? schemaCache : documentCache;
             // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
             // recursive update to the map.
             // The getMapperSchema potentially recurses to call back to getSchema again
-            Schema cachedUriSchema = schemaCache.get(schemaUri);
+            Schema cachedUriSchema = cache.get(schemaUri);
             if (cachedUriSchema == null) {
                 synchronized (this) { // acquire lock on shared registry object to prevent deadlock
-                    cachedUriSchema = schemaCache.get(schemaUri);
+                    cachedUriSchema = cache.get(schemaUri);
                     if (cachedUriSchema == null) {
                         cachedUriSchema = validateLoadedSchema ? getMappedSchema(schemaUri)
                                 : getMappedSchema(schemaUri, false);
                         if (cachedUriSchema != null) {
-                            schemaCache.put(schemaUri, cachedUriSchema);
+                            cache.put(schemaUri, cachedUriSchema);
                         }
                     }
                 }
@@ -828,6 +831,9 @@ public class SchemaRegistry {
                 if (schemaUri.getFragment() == null || schemaUri.getFragment().getNameCount() == 0) {
                     // Schema without fragment
                     SchemaContext schemaContext = new SchemaContext(dialect, this);
+                    if (!validateLoadedSchema) {
+                        schemaContext.setDocumentContainer(schemaNode);
+                    }
                     return doCreate(schemaContext, schemaUri, schemaNode, null,
                             true /* retrieved via id, resolving will not change anything */, validateLoadedSchema);
                 } else {
