@@ -12,6 +12,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Changed
 - Unlimited validation/walking bypasses execution counters and keeps the original recursion frame structure. During an active limited execution, reentrant convenience calls share the budget and the caller's evaluation path; unlimited calls retain their legacy root-path initialization.
 - Exhausted contexts reject public errors/annotation access. Walk listeners can inspect `ExecutionContext.isEvaluationAborted()` and `getEvaluationAbort()` during cleanup; an empty error slice after abort is not a validity verdict. Subclass builders supporting limits must use the protected builder constructor or forward both limits explicitly, since the legacy seven-argument constructor remains unlimited.
+- `Error.getMessageKey()` now returns the message key when the schema supplies a custom message, such as `type` or `required`, instead of the custom message text. Unresolved `$ref`, `$dynamicRef` and `$recursiveRef` errors return `internal.unresolvedRef` instead of `Reference {0} cannot be resolved`. Use `getMessage()` for the text and `isCustomMessage()` to detect custom messages. Errors created without a key still use their message pattern as the key. (#1319)
 
 
 ## 3.0.8- 2026-09-30
