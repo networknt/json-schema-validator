@@ -139,4 +139,46 @@ class ErrorHandlerTest {
         assertTrue(messages.stream().noneMatch(Error::isCustomMessage));
     }
 
+    @Test
+    void customMessageKeepsTheMessageKey() {
+        String schemaData = "{\"type\":\"string\",\"required\":[\"a\"],"
+                + "\"errorMessage\":{\"type\":\"must be text\",\"required\":{\"a\":\"{0}: a is needed\"}}}";
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("errorMessage").build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
+
+        List<Error> typeErrors = schema.validate("1", InputFormat.JSON);
+        assertEquals(1, typeErrors.size());
+        assertTrue(typeErrors.get(0).isCustomMessage());
+        assertEquals("must be text", typeErrors.get(0).getMessage());
+        assertEquals("type", typeErrors.get(0).getMessageKey());
+
+        // required only applies to objects, so the type error is reported as well
+        List<Error> requiredErrors = schema.validate("{}", InputFormat.JSON).stream()
+                .filter(error -> "required".equals(error.getKeyword())).collect(Collectors.toList());
+        assertEquals(1, requiredErrors.size());
+        assertTrue(requiredErrors.get(0).isCustomMessage());
+        assertEquals("a: a is needed", requiredErrors.get(0).getMessage());
+        assertEquals("required", requiredErrors.get(0).getMessageKey());
+    }
+
+    @Test
+    void unresolvedRefKeepsTheMessageKey() {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"$ref\":\"#/$defs/missing\"}");
+        InvalidSchemaRefException ex = assertThrows(InvalidSchemaRefException.class,
+                () -> schema.validate("1", InputFormat.JSON));
+        assertEquals("Reference /$defs/missing cannot be resolved", ex.getError().getMessage());
+        assertEquals("internal.unresolvedRef", ex.getError().getMessageKey());
+    }
+
+    @Test
+    void messageIsTheKeyWhenNoKeyIsSet() {
+        Error error = Error.builder().message("Schema from ''{0}'' is not allowed to be loaded.")
+                .arguments("https://example.com").build();
+        assertEquals("Schema from 'https://example.com' is not allowed to be loaded.", error.getMessage());
+        assertEquals("Schema from ''{0}'' is not allowed to be loaded.", error.getMessageKey());
+    }
+
 }
