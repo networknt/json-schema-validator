@@ -10,6 +10,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Added
 
 ### Changed
+- `Error.getMessageKey()` now returns the message key when the schema supplies a custom message, such as `type` or `required`, instead of the custom message text. Unresolved `$ref`, `$dynamicRef` and `$recursiveRef` errors return `internal.unresolvedRef` instead of `Reference {0} cannot be resolved`. Use `getMessage()` for the text and `isCustomMessage()` to detect custom messages. Errors created without a key still use their message pattern as the key. (#1319)
 
 
 ## 2.0.8- 2026-10-01
