@@ -323,6 +323,26 @@ class MultipleOfValidatorTest {
         assertEquals("must be multiple of " + value, context.getErrors().get(0).getMessage());
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"1e400", "-1e400"})
+    void ignoresDivisorThatOverflowsDouble(String divisor) {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":" + divisor + "}");
+        assertTrue(schema.validate("1", InputFormat.JSON).isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY})
+    void ignoresNonFiniteDivisors(double value) {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        for (JsonNode divisor : new JsonNode[] {DoubleNode.valueOf(value), FloatNode.valueOf((float) value)}) {
+            ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+            schemaNode.set("multipleOf", divisor);
+            Schema schema = registry.getSchema(schemaNode);
+            assertTrue(schema.validate("1", InputFormat.JSON).isEmpty());
+        }
+    }
+
     @Test
     void divisorMessageAtMinimumScale() {
         BigDecimal divisor = new BigDecimal(BigInteger.TEN, Integer.MIN_VALUE);
@@ -877,8 +897,6 @@ class MultipleOfValidatorTest {
                 .getSchema("{\"multipleOf\":2}");
         for (JsonNode node : Arrays.asList(DoubleNode.valueOf(Double.NaN),
                 DoubleNode.valueOf(Double.POSITIVE_INFINITY), FloatNode.valueOf(Float.NEGATIVE_INFINITY))) {
-            assertThrows(NumberFormatException.class, () -> new MultipleOfValidator(
-                    SchemaLocation.of("#/multipleOf"), node, parent, parent.getSchemaContext()));
             assertThrows(NumberFormatException.class, () -> parent.validate(node));
             MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
                     node, parent, parent.getSchemaContext()) {

@@ -145,7 +145,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                 return value.signum() == 0 ? null : normalizeDivisor(value);
             }
             double divisor = schemaNode.doubleValue();
-            if (divisor != 0) {
+            if (divisor != 0 && Double.isFinite(divisor)) {
                 // convert to BigDecimal since double type is not accurate enough to do the
                 // division and multiple
                 return BigDecimal.valueOf(divisor).stripTrailingZeros();
