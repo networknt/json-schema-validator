@@ -31,6 +31,8 @@ import java.math.BigInteger;
  * {@link KeywordValidator} for multipleOf.
  */
 public class MultipleOfValidator extends BaseKeywordValidator implements KeywordValidator {
+    private static final int MAX_PLAIN_DIVISOR_LENGTH = 32;
+
     private final BigDecimal divisor;
     private final BigInteger denominator;
     private final long longDivisor;
@@ -42,7 +44,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         this.divisor = getDivisor(schemaNode);
         this.denominator = this.divisor == null ? null : this.divisor.unscaledValue().abs();
         this.longDivisor = integralDivisor(this.divisor);
-        this.divisorMessage = this.divisor == null ? null : this.divisor.toString();
+        this.divisorMessage = formatDivisorMessage(this.divisor);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
@@ -70,6 +72,22 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                     .arguments(this.divisorMessage) // Avoid MessageFormat NumberFormat rounding
                     .build());
         }
+    }
+
+    private static String formatDivisorMessage(BigDecimal value) {
+        if (value == null) {
+            return null;
+        }
+        if (value.signum() == 0 && value.scale() < 0) {
+            return "0";
+        }
+        long precision = value.precision();
+        long scale = value.scale();
+        long length = scale <= 0 ? precision - scale : Math.max(precision + 1, scale + 2);
+        if (value.signum() < 0) {
+            length++;
+        }
+        return length <= MAX_PLAIN_DIVISOR_LENGTH ? value.toPlainString() : value.toString();
     }
 
     private static long integralDivisor(BigDecimal value) {
@@ -133,7 +151,9 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      * Validation uses the returned value without further rounding, including when
      * this method is overridden.
      * The default conversion removes trailing zeros unless doing so would overflow the scale.
-     * Error messages preserve the string representation of the returned value.
+     * Error messages use the returned value's plain notation when it fits within
+     * 32 characters, otherwise its {@link BigDecimal#toString()} representation.
+     * This also applies to values returned by overrides.
      * 
      * @param schemaNode the schema node
      * @return the divisor or null if the input is not correct
