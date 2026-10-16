@@ -28,6 +28,10 @@ public class DateTimeFormat implements Format {
      */
     public static class Ethlo {
         public static boolean isValid(String value) {
+            // RFC 3339 date-time has a four-digit year and requires T or t after full-date.
+            if (value.length() < 11 || (value.charAt(10) != 'T' && value.charAt(10) != 't')) {
+                return false;
+            }
             try {
                 ITU.parseDateTime(value);
             } catch (LeapSecondException ex) {
