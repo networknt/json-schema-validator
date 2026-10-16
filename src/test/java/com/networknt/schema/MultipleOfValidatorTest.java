@@ -368,9 +368,25 @@ class MultipleOfValidatorTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"1e31, true", "1e32, false", "1e-30, true", "1e-31, false",
-            "-1e30, true", "-1e31, false", "-1e-29, true", "-1e-30, false", "1e400, false"})
-    void divisorMessageBoundsPlainNotation(String text, boolean plain) {
+    @CsvSource({
+            "1e31, 10000000000000000000000000000000",
+            "1e32, 1E+32",
+            "1e-30, 0.000000000000000000000000000001",
+            "1e-31, 1E-31",
+            "-1e30, -1000000000000000000000000000000",
+            "-1e31, -1E+31",
+            "-1e-29, -0.00000000000000000000000000001",
+            "-1e-30, -1E-30",
+            "1e400, 1E+400",
+            "1.5e31, 15000000000000000000000000000000",
+            "1.5e32, 1.5E+32",
+            "1.5e-29, 0.000000000000000000000000000015",
+            "1.5e-30, 1.5E-30",
+            "-1.5e30, -1500000000000000000000000000000",
+            "-1.5e31, -1.5E+31",
+            "-1.5e-28, -0.00000000000000000000000000015",
+            "-1.5e-29, -1.5E-29"})
+    void divisorMessageBoundsPlainNotation(String text, String expectedDivisor) {
         BigDecimal divisor = new BigDecimal(text);
         ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
         schemaNode.set("multipleOf", DecimalNode.valueOf(divisor));
@@ -379,8 +395,7 @@ class MultipleOfValidatorTest {
         BigDecimal dividend = divisor.multiply(new BigDecimal("1.5"));
         List<Error> errors = schema.validate(DecimalNode.valueOf(dividend));
         assertEquals(1, errors.size());
-        assertEquals("must be multiple of " + (plain ? divisor.toPlainString() : divisor.toString()),
-                errors.get(0).getMessage());
+        assertEquals("must be multiple of " + expectedDivisor, errors.get(0).getMessage());
     }
 
     @ParameterizedTest
