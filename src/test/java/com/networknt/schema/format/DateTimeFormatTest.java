@@ -58,6 +58,11 @@ class DateTimeFormatTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "2020-01-01T12:00:00Z",
+            "2020-01-01t12:00:00Z",
+            "2020-01-01t12:00:00z",
+            "2020-01-01T12:00:00.123456789+01:00",
+            "2020-01-01t12:00:00-05:30",
+            "2016-12-31t23:59:60Z",
             "2020-01-01T12:00:00z",
             "2020-01-01T12:00:00+01:00",
             "2016-12-31T23:59:60Z",
@@ -66,6 +71,23 @@ class DateTimeFormatTest {
     void acceptsValidOffsetsAndLeapSecond(String value) {
         assertTrue(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
                 ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "",
+            "2020-01-01",
+            "2020-01-01 12:00:00Z",
+            "2020-01-01 12:00:00+01:00",
+            "2020-01-01 12:00:00.123456789Z",
+            "2016-12-31 23:59:60Z",
+            "2020-01-01_12:00:00Z",
+            "2020-01-01  12:00:00Z"
+    })
+    void rejectsNonTSeparators(String value) {
+        assertFalse(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
+                ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
+        assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
     }
 
     /**
@@ -86,9 +108,14 @@ class DateTimeFormatTest {
     }
 
     @Test
-    void ethloAcceptsSpaceSeparatorButFallbackRequiresT() {
+    void formatAnnotationDoesNotRejectSpaceSeparator() {
+        assertTrue(SCHEMA.validate("\"2020-01-01 12:00:00Z\"", InputFormat.JSON,
+                ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(false))).isEmpty());
+    }
+
+    void bothPathsRejectSpaceSeparator() {
         String value = "2020-01-01 12:00:00Z";
-        assertTrue(DateTimeFormat.Ethlo.isValid(value));
+        assertFalse(DateTimeFormat.Ethlo.isValid(value));
         assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value));
     }
 
