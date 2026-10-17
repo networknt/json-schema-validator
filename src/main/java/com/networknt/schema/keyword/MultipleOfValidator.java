@@ -41,7 +41,8 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     public MultipleOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.divisor = getDivisor(schemaNode);
+        BigDecimal divisor = getDivisor(schemaNode);
+        this.divisor = divisor == null || divisor.signum() == 0 ? null : divisor;
         this.denominator = this.divisor == null ? null : this.divisor.unscaledValue().abs();
         this.longDivisor = integralDivisor(this.divisor);
         this.divisorMessage = formatDivisorMessage(this.divisor);
@@ -77,9 +78,6 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     private static String formatDivisorMessage(BigDecimal value) {
         if (value == null) {
             return null;
-        }
-        if (value.signum() == 0 && value.scale() < 0) {
-            return "0";
         }
         long precision = value.precision();
         long scale = value.scale();
@@ -154,6 +152,8 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      * {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
      * Validation uses the returned value without further rounding, including when
      * this method is overridden.
+     * A null or zero return value causes this constraint to be ignored, including
+     * when this method is overridden.
      * The default conversion removes trailing zeros unless doing so would overflow the scale.
      * Error messages use the returned value's plain notation when it fits within
      * 32 characters or is no longer than its {@link BigDecimal#toString()}

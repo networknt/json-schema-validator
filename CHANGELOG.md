@@ -10,6 +10,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Added
 
 ### Changed
+- Ignore zero `multipleOf` divisors returned by custom validators, regardless of scale, matching the default conversion. (#1328)
 - Display `multipleOf` divisors in error messages using plain notation when it fits within 32 characters or is no longer than `BigDecimal.toString()`, including values returned by custom validators. Check the length before expanding to plain notation to avoid excessive padding for extreme scales. (#1328)
 - Ignore non-finite `multipleOf` divisors on 2.x, matching master, instead of throwing while loading the schema. This includes decimal literals such as `1e400` rounded to infinity by the default reader; exact decimal reading remains tracked in #1293. (#1328)
 - `MultipleOfValidator.getDivisor` and `getDividend` now preserve exact integral and BigDecimal values. Custom validators, including overrides calling `super`, receive these exact values; validation uses hook results without further rounding. Integral dividend scales can change (for example, `2.0` becomes `2`), which affects scale-sensitive comparisons in overrides. Mixed integral/Double or Float inputs above 2^53 can produce different results. Precision already lost when parsing floating-point values is tracked separately in #1293. (#1286)
