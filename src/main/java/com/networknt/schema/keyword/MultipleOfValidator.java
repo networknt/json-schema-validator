@@ -156,7 +156,8 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      * this method is overridden.
      * The default conversion removes trailing zeros unless doing so would overflow the scale.
      * Error messages use the returned value's plain notation when it fits within
-     * 32 characters, otherwise its {@link BigDecimal#toString()} representation.
+     * 32 characters or is no longer than its {@link BigDecimal#toString()}
+     * representation. Otherwise, that representation is used.
      * This also applies to values returned by overrides.
      * 
      * @param schemaNode the schema node
