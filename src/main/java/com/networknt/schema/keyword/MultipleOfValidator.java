@@ -87,7 +87,11 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
         if (value.signum() < 0) {
             length++;
         }
-        return length <= MAX_PLAIN_DIVISOR_LENGTH ? value.toPlainString() : value.toString();
+        if (length <= MAX_PLAIN_DIVISOR_LENGTH) {
+            return value.toPlainString();
+        }
+        String text = value.toString();
+        return length <= text.length() ? value.toPlainString() : text;
     }
 
     private static long integralDivisor(BigDecimal value) {
