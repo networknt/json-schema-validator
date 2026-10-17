@@ -31,6 +31,8 @@ import java.math.BigInteger;
  * {@link KeywordValidator} for multipleOf.
  */
 public class MultipleOfValidator extends BaseKeywordValidator implements KeywordValidator {
+    private static final int MAX_PLAIN_DIVISOR_LENGTH = 32;
+
     private final BigDecimal divisor;
     private final BigInteger denominator;
     private final long longDivisor;
@@ -39,10 +41,11 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     public MultipleOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.divisor = getDivisor(schemaNode);
+        BigDecimal divisor = getDivisor(schemaNode);
+        this.divisor = divisor == null || divisor.signum() == 0 ? null : divisor;
         this.denominator = this.divisor == null ? null : this.divisor.unscaledValue().abs();
         this.longDivisor = integralDivisor(this.divisor);
-        this.divisorMessage = this.divisor == null ? null : this.divisor.toString();
+        this.divisorMessage = formatDivisorMessage(this.divisor);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
@@ -70,6 +73,23 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                     .arguments(this.divisorMessage) // Avoid MessageFormat NumberFormat rounding
                     .build());
         }
+    }
+
+    private static String formatDivisorMessage(BigDecimal value) {
+        if (value == null) {
+            return null;
+        }
+        long precision = value.precision();
+        long scale = value.scale();
+        long length = scale <= 0 ? precision - scale : Math.max(precision + 1, scale + 2);
+        if (value.signum() < 0) {
+            length++;
+        }
+        if (length <= MAX_PLAIN_DIVISOR_LENGTH) {
+            return value.toPlainString();
+        }
+        String text = value.toString();
+        return length <= text.length() ? value.toPlainString() : text;
     }
 
     private static long integralDivisor(BigDecimal value) {
@@ -132,8 +152,13 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      * {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
      * Validation uses the returned value without further rounding, including when
      * this method is overridden.
+     * A null or zero return value causes this constraint to be ignored, including
+     * when this method is overridden.
      * The default conversion removes trailing zeros unless doing so would overflow the scale.
-     * Error messages preserve the string representation of the returned value.
+     * Error messages use the returned value's plain notation when it fits within
+     * 32 characters or is no longer than its {@link BigDecimal#toString()}
+     * representation. Otherwise, that representation is used.
+     * This also applies to values returned by overrides.
      * 
      * @param schemaNode the schema node
      * @return the divisor or null if the input is not correct

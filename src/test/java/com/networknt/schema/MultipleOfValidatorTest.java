@@ -302,9 +302,11 @@ class MultipleOfValidatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "100, 3, must be multiple of 1E+2",
-            "100.0, 3, must be multiple of 1E+2",
-            "100.00, 3, must be multiple of 1E+2",
+            "100, 3, must be multiple of 100",
+            "100.0, 3, must be multiple of 100",
+            "100.00, 3, must be multiple of 100",
+            "1000, 3, must be multiple of 1000",
+            "2.50E+3, 3, must be multiple of 2500",
             "2.0, 3, must be multiple of 2",
             "9007199254740993, 2, must be multiple of 9007199254740993"
     })
@@ -315,7 +317,7 @@ class MultipleOfValidatorTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"2.0, 2", "100.00, 1E+2", "0.0000100, 0.00001",
+    @CsvSource({"2.0, 2", "100.00, 100", "0.0000100, 0.00001",
             "9007199254740993.0, 9007199254740993", "1e400, 1E+400"})
     void exactDecimalDivisorMessage(String divisor, String expectedDivisor) {
         ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
@@ -344,8 +346,13 @@ class MultipleOfValidatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"3.0", "100.00"})
-    void overriddenDivisorRetainsMessageRepresentation(String value) {
+    @CsvSource({"3.0, 3.0", "100.00, 100.00", "1E+2, 100", "1E-7, 0.0000001", "1E+400, 1E+400",
+            "123456789012345678901234567890000, 123456789012345678901234567890000",
+            "1.2345678901234567890123456789E+32, 123456789012345678901234567890000",
+            "1.2345678901234567890123456789E+33, 1234567890123456789012345678900000",
+            "1.2345678901234567890123456789E+34, 1.2345678901234567890123456789E+34",
+            "1234567890123456789012345678901234, 1234567890123456789012345678901234"})
+    void overriddenDivisorMessage(String value, String expectedDivisor) {
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":2}");
         MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
@@ -356,11 +363,90 @@ class MultipleOfValidatorTest {
             }
         };
         ExecutionContext context = parent.createExecutionContext();
+        JsonNode node = DecimalNode.valueOf(new BigDecimal("0.00000015"));
+        validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
+        assertEquals(1, context.getErrors().size());
+        assertEquals(expectedDivisor, context.getErrors().get(0).getArguments()[0]);
+        assertEquals("must be multiple of " + expectedDivisor, context.getErrors().get(0).getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 2, -100, 100, 30, Integer.MIN_VALUE, Integer.MAX_VALUE})
+    void ignoresZeroDivisorFromOverride(int scale) {
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":2}");
+        MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                IntNode.valueOf(2), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDivisor(JsonNode node) {
+                return new BigDecimal(BigInteger.ZERO, scale);
+            }
+        };
+        for (String value : new String[] {"1", "1.5", "0.00000015", "0"}) {
+            ExecutionContext context = parent.createExecutionContext();
+            JsonNode node = DecimalNode.valueOf(new BigDecimal(value));
+            validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
+            assertTrue(context.getErrors().isEmpty(), "scale=" + scale + ", dividend=" + value);
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1e31, 10000000000000000000000000000000",
+            "1e32, 1E+32",
+            "1e-30, 0.000000000000000000000000000001",
+            "1e-31, 1E-31",
+            "-1e30, -1000000000000000000000000000000",
+            "-1e31, -1E+31",
+            "-1e-29, -0.00000000000000000000000000001",
+            "-1e-30, -1E-30",
+            "1e400, 1E+400",
+            "1.5e31, 15000000000000000000000000000000",
+            "1.5e32, 1.5E+32",
+            "1.5e-29, 0.000000000000000000000000000015",
+            "1.5e-30, 1.5E-30",
+            "-1.5e30, -1500000000000000000000000000000",
+            "-1.5e31, -1.5E+31",
+            "-1.5e-28, -0.00000000000000000000000000015",
+            "-1.5e-29, -1.5E-29",
+            "123456789012345678901234567890000, 123456789012345678901234567890000",
+            "1.2345678901234567890123456789E+33, 1234567890123456789012345678900000",
+            "1.2345678901234567890123456789E+34, 1.2345678901234567890123456789E+34",
+            "-123456789012345678901234567890000, -123456789012345678901234567890000",
+            "-1.2345678901234567890123456789E+33, -1234567890123456789012345678900000",
+            "-1.2345678901234567890123456789E+34, -1.2345678901234567890123456789E+34"})
+    void divisorMessageBoundsPlainNotation(String text, String expectedDivisor) {
+        BigDecimal divisor = new BigDecimal(text);
+        ObjectNode schemaNode = JsonNodeFactory.instance.objectNode();
+        schemaNode.set("multipleOf", DecimalNode.valueOf(divisor));
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema(schemaNode);
+        BigDecimal dividend = divisor.multiply(new BigDecimal("1.5"));
+        List<Error> errors = schema.validate(DecimalNode.valueOf(dividend));
+        assertEquals(1, errors.size());
+        assertEquals("must be multiple of " + expectedDivisor, errors.get(0).getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void inheritedDivisorUsesPlainNotation(boolean delegate) {
+        Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":100}");
+        MultipleOfValidator validator = delegate
+                ? new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                        IntNode.valueOf(100), parent, parent.getSchemaContext()) {
+                    @Override
+                    protected BigDecimal getDivisor(JsonNode node) {
+                        return super.getDivisor(node);
+                    }
+                }
+                : new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                        IntNode.valueOf(100), parent, parent.getSchemaContext()) { };
+        ExecutionContext context = parent.createExecutionContext();
         JsonNode node = IntNode.valueOf(1);
         validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
         assertEquals(1, context.getErrors().size());
-        assertEquals(value, context.getErrors().get(0).getArguments()[0]);
-        assertEquals("must be multiple of " + value, context.getErrors().get(0).getMessage());
+        assertEquals("must be multiple of 100", context.getErrors().get(0).getMessage());
     }
 
     @Test
