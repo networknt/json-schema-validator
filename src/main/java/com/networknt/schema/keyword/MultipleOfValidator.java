@@ -181,15 +181,17 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
 
     /**
      * Gets the dividend to use. The default implementation preserves exact values
-     * for integral and BigDecimal nodes. Double and Float nodes are converted with
-     * {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
+     * for integral and BigDecimal nodes. Finite Double and Float nodes are converted
+     * with {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
+     * Non-finite floating-point nodes return null, so this constraint is ignored
+     * for those inputs.
      * Validation uses the returned value without further rounding, including when
      * this method is overridden.
      * Integral inputs can have a different scale than with the former
      * double-based conversion, for example {@code 2} instead of {@code 2.0}.
      * 
      * @param node the node
-     * @return the dividend or null if the type is incorrect
+     * @return the dividend or null if the type is incorrect or the floating-point value is non-finite
      */
     protected BigDecimal getDividend(JsonNode node) {
         if (node.isNumber()) {
@@ -198,7 +200,8 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             if (node.isIntegralNumber() || node.isBigDecimal()) {
                 return node.decimalValue();
             }
-            return BigDecimal.valueOf(node.doubleValue());
+            double dividend = node.doubleValue();
+            return Double.isFinite(dividend) ? BigDecimal.valueOf(dividend) : null;
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
                 && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose

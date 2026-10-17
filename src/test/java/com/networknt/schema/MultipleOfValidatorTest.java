@@ -211,6 +211,8 @@ class MultipleOfValidatorTest {
             "1e-400, 1.5e-400, 1",
             "1e-400, 2e-400, 0",
             "1e400, 1, 1",
+            "3, 1e400, 1",
+            "3, -1e400, 1",
             "1e400, 2e400, 0",
             "2, 1e400, 0"
     })
@@ -249,6 +251,8 @@ class MultipleOfValidatorTest {
             "1e-400, 1.5e-400, 1",
             "1e-400, 2e-400, 0",
             "1e400, 1, 1",
+            "3, 1e400, 1",
+            "3, -1e400, 1",
             "1e400, 2e400, 0"
     })
     void exactDecimalsFromReader(String divisor, String dividend, int expectedErrors) {
@@ -977,24 +981,41 @@ class MultipleOfValidatorTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"1e400", "-1e400"})
+    void ignoresDividendThatOverflowsDouble(String dividend) {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":2}");
+        assertTrue(schema.validate(dividend, InputFormat.JSON).isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY})
+    void ignoresNonFiniteDividends(double value) {
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"multipleOf\":2}");
+        for (JsonNode node : new JsonNode[] {DoubleNode.valueOf(value), FloatNode.valueOf((float) value)}) {
+            assertTrue(schema.validate(node).isEmpty());
+        }
+    }
+
     @Test
-    void preservesNonFiniteConversionBehaviorOnJackson2() {
+    void nonFiniteDividendOverrideIsStillUsed() {
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":2}");
-        for (JsonNode node : Arrays.asList(DoubleNode.valueOf(Double.NaN),
-                DoubleNode.valueOf(Double.POSITIVE_INFINITY), FloatNode.valueOf(Float.NEGATIVE_INFINITY))) {
-            assertThrows(NumberFormatException.class, () -> parent.validate(node));
-            MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
-                    node, parent, parent.getSchemaContext()) {
-                @Override
-                protected BigDecimal getDivisor(JsonNode schemaNode) {
-                    return BigDecimal.valueOf(2);
-                }
-            };
+        MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                IntNode.valueOf(2), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDividend(JsonNode node) {
+                return BigDecimal.valueOf(3);
+            }
+        };
+        for (JsonNode node : new JsonNode[] {DoubleNode.valueOf(Double.POSITIVE_INFINITY),
+                FloatNode.valueOf(Float.NaN)}) {
             ExecutionContext context = parent.createExecutionContext();
-            JsonNode input = IntNode.valueOf(6);
-            validator.validate(context, input, input, new NodePath(PathType.JSON_POINTER));
-            assertTrue(context.getErrors().isEmpty());
+            validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
+            assertEquals(1, context.getErrors().size());
+            assertEquals("must be multiple of 2", context.getErrors().get(0).getMessage());
         }
     }
 
