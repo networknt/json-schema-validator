@@ -89,7 +89,10 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             return value.toPlainString();
         }
         String text = value.toString();
-        return length <= text.length() ? value.toPlainString() : text;
+        if (length > text.length()) {
+            return text;
+        }
+        return text.indexOf('E') < 0 ? text : value.toPlainString();
     }
 
     private static long integralDivisor(BigDecimal value) {
