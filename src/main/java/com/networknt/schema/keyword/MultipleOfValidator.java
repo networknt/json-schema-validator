@@ -200,13 +200,15 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
      */
     protected BigDecimal getDividend(JsonNode node) {
         if (node.isNumber()) {
+            if (JsonNodeTypes.isNonFiniteNumber(node)) {
+                return null;
+            }
             // convert to BigDecimal since double type is not accurate enough to do the
             // division and multiple
             if (node.isIntegralNumber() || node.isBigDecimal()) {
                 return node.decimalValue();
             }
-            double dividend = node.doubleValue();
-            return Double.isFinite(dividend) ? BigDecimal.valueOf(dividend) : null;
+            return BigDecimal.valueOf(node.doubleValue());
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
                 && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose
