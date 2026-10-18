@@ -391,21 +391,17 @@ class MultipleOfValidatorTest {
         assertEquals("must be multiple of " + expectedDivisor, errors.get(0).getMessage());
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {false, true})
-    void inheritedDivisorUsesPlainNotation(boolean delegate) {
+    @Test
+    void inheritedDivisorUsesPlainNotation() {
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":100}");
-        MultipleOfValidator validator = delegate
-                ? new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
-                        IntNode.valueOf(100), parent, parent.getSchemaContext()) {
-                    @Override
-                    protected BigDecimal getDivisor(JsonNode node) {
-                        return super.getDivisor(node);
-                    }
-                }
-                : new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
-                        IntNode.valueOf(100), parent, parent.getSchemaContext()) { };
+        MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                IntNode.valueOf(100), parent, parent.getSchemaContext()) {
+            @Override
+            protected BigDecimal getDivisor(JsonNode node) {
+                return super.getDivisor(node);
+            }
+        };
         ExecutionContext context = parent.createExecutionContext();
         JsonNode node = IntNode.valueOf(1);
         validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
