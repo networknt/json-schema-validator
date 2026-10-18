@@ -961,23 +961,27 @@ class MultipleOfValidatorTest {
         }
     }
 
-    @Test
-    void convertedNonFiniteInputDoesNotRoundTheDivisor() {
-        long value = 9007199254740993L;
+    @ParameterizedTest
+    @CsvSource({"9007199254740993, 0", "9007199254740992, 1"})
+    void convertedNonFiniteInputDoesNotRoundTheDivisor(long dividend, int expectedErrors) {
+        long divisor = 9007199254740993L;
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
-                .getSchema("{\"multipleOf\":" + value + "}");
+                .getSchema("{\"multipleOf\":" + divisor + "}");
         MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
-                LongNode.valueOf(value), parent, parent.getSchemaContext()) {
+                LongNode.valueOf(divisor), parent, parent.getSchemaContext()) {
             @Override
             protected BigDecimal getDividend(JsonNode node) {
-                return BigDecimal.valueOf(value);
+                return BigDecimal.valueOf(dividend);
             }
         };
         for (JsonNode node : Arrays.asList(DoubleNode.valueOf(Double.NaN), DoubleNode.valueOf(Double.POSITIVE_INFINITY),
                 FloatNode.valueOf(Float.NaN), FloatNode.valueOf(Float.NEGATIVE_INFINITY))) {
             ExecutionContext context = parent.createExecutionContext();
             validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
-            assertTrue(context.getErrors().isEmpty());
+            assertEquals(expectedErrors, context.getErrors().size());
+            if (expectedErrors != 0) {
+                assertEquals("must be multiple of 9007199254740993", context.getErrors().get(0).getMessage());
+            }
         }
     }
 
@@ -985,7 +989,7 @@ class MultipleOfValidatorTest {
     @ValueSource(strings = {"1e400", "-1e400"})
     void ignoresDividendThatOverflowsDouble(String dividend) {
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
-                .getSchema("{\"multipleOf\":2}");
+                .getSchema("{\"multipleOf\":3}");
         assertTrue(schema.validate(dividend, InputFormat.JSON).isEmpty());
     }
 
@@ -999,21 +1003,22 @@ class MultipleOfValidatorTest {
         }
     }
 
-    @Test
-    void nonFiniteDividendOverrideIsStillUsed() {
+    @ParameterizedTest
+    @ValueSource(doubles = {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY})
+    void nonFiniteDivisorOverrideIsStillUsed(double value) {
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":2}");
-        MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
-                IntNode.valueOf(2), parent, parent.getSchemaContext()) {
-            @Override
-            protected BigDecimal getDividend(JsonNode node) {
-                return BigDecimal.valueOf(3);
-            }
-        };
-        for (JsonNode node : new JsonNode[] {DoubleNode.valueOf(Double.POSITIVE_INFINITY),
-                FloatNode.valueOf(Float.NaN)}) {
+        for (JsonNode schemaNode : new JsonNode[] {DoubleNode.valueOf(value), FloatNode.valueOf((float) value)}) {
+            MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
+                    schemaNode, parent, parent.getSchemaContext()) {
+                @Override
+                protected BigDecimal getDivisor(JsonNode node) {
+                    return BigDecimal.valueOf(2);
+                }
+            };
             ExecutionContext context = parent.createExecutionContext();
-            validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
+            JsonNode input = IntNode.valueOf(3);
+            validator.validate(context, input, input, new NodePath(PathType.JSON_POINTER));
             assertEquals(1, context.getErrors().size());
             assertEquals("must be multiple of 2", context.getErrors().get(0).getMessage());
         }
