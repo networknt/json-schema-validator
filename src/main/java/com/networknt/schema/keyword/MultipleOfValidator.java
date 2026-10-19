@@ -31,6 +31,8 @@ import java.math.BigInteger;
  * {@link KeywordValidator} for multipleOf.
  */
 public class MultipleOfValidator extends BaseKeywordValidator implements KeywordValidator {
+    private static final int MAX_PLAIN_DIVISOR_LENGTH = 32;
+
     private final BigDecimal divisor;
     private final BigInteger denominator;
     private final long longDivisor;
@@ -39,10 +41,11 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     public MultipleOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.divisor = getDivisor(schemaNode);
+        BigDecimal divisor = getDivisor(schemaNode);
+        this.divisor = divisor == null || divisor.signum() == 0 ? null : divisor;
         this.denominator = this.divisor == null ? null : this.divisor.unscaledValue().abs();
         this.longDivisor = integralDivisor(this.divisor);
-        this.divisorMessage = this.divisor == null ? null : this.divisor.toString();
+        this.divisorMessage = formatDivisorMessage(this.divisor);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
@@ -70,6 +73,26 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                     .arguments(this.divisorMessage) // Avoid MessageFormat NumberFormat rounding
                     .build());
         }
+    }
+
+    private static String formatDivisorMessage(BigDecimal value) {
+        if (value == null) {
+            return null;
+        }
+        long precision = value.precision();
+        long scale = value.scale();
+        long length = scale <= 0 ? precision - scale : Math.max(precision + 1, scale + 2);
+        if (value.signum() < 0) {
+            length++;
+        }
+        if (length <= MAX_PLAIN_DIVISOR_LENGTH) {
+            return value.toPlainString();
+        }
+        String text = value.toString();
+        if (length > text.length()) {
+            return text;
+        }
+        return text.indexOf('E') < 0 ? text : value.toPlainString();
     }
 
     private static long integralDivisor(BigDecimal value) {
@@ -128,12 +151,19 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
 
     /**
      * Gets the divisor to use. The default implementation preserves exact values
-     * for integral and BigDecimal nodes. Double and Float nodes are converted with
-     * {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
+     * for integral and BigDecimal nodes. Finite Double and Float nodes are converted
+     * with {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
+     * Non-finite floating-point nodes return null, so this constraint is ignored
+     * for those inputs.
      * Validation uses the returned value without further rounding, including when
      * this method is overridden.
+     * A null or zero return value causes this constraint to be ignored, including
+     * when this method is overridden.
      * The default conversion removes trailing zeros unless doing so would overflow the scale.
-     * Error messages preserve the string representation of the returned value.
+     * Error messages use the returned value's plain notation when it fits within
+     * 32 characters or is no longer than its {@link BigDecimal#toString()}
+     * representation. Otherwise, that representation is used.
+     * This also applies to values returned by overrides.
      * 
      * @param schemaNode the schema node
      * @return the divisor or null if the input is not correct
@@ -145,7 +175,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                 return value.signum() == 0 ? null : normalizeDivisor(value);
             }
             double divisor = schemaNode.doubleValue();
-            if (divisor != 0) {
+            if (divisor != 0 && Double.isFinite(divisor)) {
                 // convert to BigDecimal since double type is not accurate enough to do the
                 // division and multiple
                 return BigDecimal.valueOf(divisor).stripTrailingZeros();
@@ -156,18 +186,23 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
 
     /**
      * Gets the dividend to use. The default implementation preserves exact values
-     * for integral and BigDecimal nodes. Double and Float nodes are converted with
-     * {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
+     * for integral and BigDecimal nodes. Finite Double and Float nodes are converted
+     * with {@link BigDecimal#valueOf(double)} using their {@code doubleValue()}.
+     * Non-finite floating-point nodes return null, so this constraint is ignored
+     * for those inputs.
      * Validation uses the returned value without further rounding, including when
      * this method is overridden.
      * Integral inputs can have a different scale than with the former
      * double-based conversion, for example {@code 2} instead of {@code 2.0}.
      * 
      * @param node the node
-     * @return the dividend or null if the type is incorrect
+     * @return the dividend or null if the type is incorrect or the floating-point value is non-finite
      */
     protected BigDecimal getDividend(JsonNode node) {
         if (node.isNumber()) {
+            if (JsonNodeTypes.isNonFiniteNumber(node)) {
+                return null;
+            }
             // convert to BigDecimal since double type is not accurate enough to do the
             // division and multiple
             if (node.isIntegralNumber() || node.isBigDecimal()) {
