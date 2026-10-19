@@ -973,23 +973,27 @@ class MultipleOfValidatorTest {
         }
     }
 
-    @Test
-    void convertedNonFiniteInputDoesNotRoundTheDivisor() {
-        long value = 9007199254740993L;
+    @ParameterizedTest
+    @CsvSource({"9007199254740993, 0", "9007199254740992, 1"})
+    void convertedNonFiniteInputDoesNotRoundTheDivisor(long dividend, int expectedErrors) {
+        long divisor = 9007199254740993L;
         Schema parent = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
-                .getSchema("{\"multipleOf\":" + value + "}");
+                .getSchema("{\"multipleOf\":" + divisor + "}");
         MultipleOfValidator validator = new MultipleOfValidator(SchemaLocation.of("#/multipleOf"),
-                LongNode.valueOf(value), parent, parent.getSchemaContext()) {
+                LongNode.valueOf(divisor), parent, parent.getSchemaContext()) {
             @Override
             protected BigDecimal getDividend(JsonNode node) {
-                return BigDecimal.valueOf(value);
+                return BigDecimal.valueOf(dividend);
             }
         };
         for (JsonNode node : List.of(DoubleNode.valueOf(Double.NaN), DoubleNode.valueOf(Double.POSITIVE_INFINITY),
                 FloatNode.valueOf(Float.NaN), FloatNode.valueOf(Float.NEGATIVE_INFINITY))) {
             ExecutionContext context = parent.createExecutionContext();
             validator.validate(context, node, node, new NodePath(PathType.JSON_POINTER));
-            assertTrue(context.getErrors().isEmpty());
+            assertEquals(expectedErrors, context.getErrors().size());
+            if (expectedErrors != 0) {
+                assertEquals("must be multiple of 9007199254740993", context.getErrors().get(0).getMessage());
+            }
         }
     }
 
