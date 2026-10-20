@@ -44,11 +44,52 @@ public class TimeFormat implements Format {
 
     @Override
     public boolean matches(ExecutionContext executionContext, String value) {
+        if (null == value) return true;
+        return isValid(value);
+    }
+
+    /**
+     * Checks a value against the RFC 3339 full-time grammar (partial-time time-offset),
+     * including a leap second and an offset up to 23:59.
+     *
+     * @param value the time
+     * @return true if the value is a valid full-time
+     */
+    static boolean isValid(String value) {
+        return parse(value) != null;
+    }
+
+    /**
+     * The fields of a valid full-time, as written, before the normalization to UTC.
+     */
+    static final class FullTime {
+        final int hour;
+        final int minute;
+        final int second;
+        final int offsetMinutes;
+
+        FullTime(int hour, int minute, int second, int offsetMinutes) {
+            this.hour = hour;
+            this.minute = minute;
+            this.second = second;
+            this.offsetMinutes = offsetMinutes;
+        }
+    }
+
+    /**
+     * Parses a value with the RFC 3339 full-time grammar. A leap second is accepted when it is
+     * 23:59:60 in UTC.
+     *
+     * @param value the time
+     * @return its fields, or null if the value is not a valid full-time
+     */
+    static FullTime parse(String value) {
         try {
-            if (null == value) return true;
+            // partial-time is HH:MM:SS. ISO_LOCAL_TIME alone would also take HH:MM
+            if (value.length() < 8 || value.charAt(2) != ':' || value.charAt(5) != ':') return null;
 
             int pos = value.indexOf('Z');
-            if (-1 != pos && pos != value.length() - 1) return false;
+            if (-1 != pos && pos != value.length() - 1) return null;
 
             String parsedValue = value;
             int decimalPoint = value.indexOf('.');
@@ -60,7 +101,7 @@ public class TimeFormat implements Format {
                     if (digit < '0' || digit > '9') break;
                     fractionEnd++;
                 }
-                if (fractionEnd == fractionStart) return false;
+                if (fractionEnd == fractionStart) return null;
                 // ISO_LOCAL_TIME parses at most nine digits, but RFC 3339 permits more.
                 if (fractionEnd - fractionStart > 9) {
                     parsedValue = value.substring(0, fractionStart + 9) + value.substring(fractionEnd);
@@ -70,25 +111,26 @@ public class TimeFormat implements Format {
             ParsePosition position = new ParsePosition(0);
             TemporalAccessor accessor = formatter.parseUnresolved(parsedValue, position);
             // parseUnresolved stops at the end of the pattern, so trailing text must be rejected here
-            if (null == accessor || position.getIndex() != parsedValue.length()) return false;
+            if (null == accessor || position.getIndex() != parsedValue.length()) return null;
 
             char last = value.charAt(value.length() - 1);
             if (last != 'Z' && last != 'z') {
                 // A numeric offset is exactly +HH:MM or -HH:MM. Java 8 also accepts +HH:MM:SS.
                 char sign = value.charAt(value.length() - 6);
-                if (sign != '+' && sign != '-') return false;
+                if (sign != '+' && sign != '-') return null;
             }
 
             long offset = accessor.getLong(OFFSET_SECONDS) / 60;
-            if (MAX_OFFSET_MIN < offset || MIN_OFFSET_MIN > offset) return false;
+            if (MAX_OFFSET_MIN < offset || MIN_OFFSET_MIN > offset) return null;
 
             long hr = accessor.getLong(HOUR_OF_DAY);
             long min = accessor.getLong(MINUTE_OF_HOUR);
             long sec = accessor.getLong(SECOND_OF_MINUTE);
 
-            boolean isStandardTimeRange = (sec <= 59 && min <= 59 && hr <= 23);
-            if (isStandardTimeRange) {
-                return true;
+            if (hr > 23 || min > 59 || sec > 60) return null;
+            FullTime time = new FullTime((int) hr, (int) min, (int) sec, (int) offset);
+            if (sec <= 59) {
+                return time;
             }
             // Leap second check normalize to UTC to check if 23:59:60Z
             hr = hr - offset / 60;
@@ -101,10 +143,10 @@ public class TimeFormat implements Format {
             if (hr < 0) {
                 hr += 24;
             }
-            return isSpecialCaseLeapSecond(sec, min, hr);
+            return isSpecialCaseLeapSecond(sec, min, hr) ? time : null;
 
         } catch (DateTimeException e) {
-            return false;
+            return null;
         }
     }
 
@@ -118,7 +160,7 @@ public class TimeFormat implements Format {
      * @param hr  hour
      * @return true if it is a valid leap second
      */
-    private boolean isSpecialCaseLeapSecond(long sec, long min, long hr) {
+    private static boolean isSpecialCaseLeapSecond(long sec, long min, long hr) {
         return (sec == 60 && min == 59 && hr == 23);
     }
 
