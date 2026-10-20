@@ -60,17 +60,17 @@ public class DateTimeFormat implements Format {
             if (separator != 'T' && separator != 't') {
                 return false;
             }
-            String date = value.substring(0, DATE_LENGTH);
+            LocalDate date = DateFormat.parse(value.substring(0, DATE_LENGTH));
             TimeFormat.FullTime time = TimeFormat.parse(value.substring(DATE_LENGTH + 1));
-            if (time == null || !DateFormat.isValid(date)) {
+            if (time == null || date == null) {
                 return false;
             }
             // TimeFormat.parse has checked that a leap second is at 23:59:60 UTC, so only the date is left
-            return time.second != 60 || isLastDayOfJuneOrDecemberInUtc(LocalDate.parse(date), time);
+            return time.second != 60 || isLastDayOfJuneOrDecemberInUtc(date, time);
         }
 
         private static boolean isLastDayOfJuneOrDecemberInUtc(LocalDate date, TimeFormat.FullTime time) {
-            LocalDate utc = date.atTime(time.hour, time.minute).minusMinutes(time.offsetMinutes).toLocalDate();
+            LocalDate utc = date.plusDays(Math.floorDiv(time.minutesInUtc(), 24 * 60));
             return utc.getMonth() == Month.JUNE && utc.getDayOfMonth() == 30
                     || utc.getMonth() == Month.DECEMBER && utc.getDayOfMonth() == 31;
         }
