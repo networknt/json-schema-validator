@@ -15,7 +15,6 @@
  */
 package com.networknt.schema.format;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,6 +25,7 @@ import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.utils.Classes;
 
 class DateTimeFormatTest {
     private static final Schema SCHEMA = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
@@ -71,7 +71,7 @@ class DateTimeFormatTest {
     })
     void bothPathsRejectValuesThatAreNotRfc3339(String value) {
         // The schema takes the Ethlo path, as long as Ethlo is on the test classpath
-        assertDoesNotThrow(() -> Class.forName("com.ethlo.time.ITU"), "Ethlo is expected on the test classpath");
+        assertTrue(Classes.isPresent("com.ethlo.time.ITU", DateTimeFormatTest.class.getClassLoader()), "Ethlo is expected on the test classpath");
         assertFalse(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
                 ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
         assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
@@ -99,6 +99,9 @@ class DateTimeFormatTest {
             "2021-03-15T23:59:60Z",
             "2016-12-30T23:59:60Z",
             "2016-12-31T23:59:60+01:00",
+            "1998-12-31T15:59:60.123-07:00",
+            "-001-01-01T00:00:00Z",
+            "10000-01-01T00:00:00Z",
             "2020-01-01T12:00:00+24:00",
             "2020-01-01T12:00:00+0100",
             "2020-01-01T12:00:00+01:0",
@@ -123,7 +126,10 @@ class DateTimeFormatTest {
             "2017-01-01T00:59:60+01:00",
             "2017-01-01T01:59:60+02:00",
             "2016-12-31T18:59:60-05:00",
+            "1998-12-31T15:59:60.123-08:00",
             "2015-07-01T08:59:60+09:00",
+            "0000-01-01T00:00:00Z",
+            "9999-12-31T23:59:59Z",
             "2020-01-01T12:00:00.1234567890Z",
             "2020-01-01T12:00:00+23:59",
             "2020-01-01T12:00:00-00:00"
