@@ -69,7 +69,7 @@ class DateTimeFormatTest {
     }
 
     /**
-     * OffsetDateTime.parse(..) accepts these, Ethlo doesn't. The two paths have to agree.
+     * OffsetDateTime.parse(..) accepts these three non-RFC 3339 values; both validation paths reject them.
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -83,6 +83,13 @@ class DateTimeFormatTest {
         assertFalse(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
                 ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
         assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
+    }
+
+    @Test
+    void ethloAcceptsSpaceSeparatorButFallbackRequiresT() {
+        String value = "2020-01-01 12:00:00Z";
+        assertTrue(DateTimeFormat.Ethlo.isValid(value));
+        assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value));
     }
 
     @ParameterizedTest
@@ -106,6 +113,8 @@ class DateTimeFormatTest {
             "2020-01-01T45:59:60+22:00",
             "2021-03-15T23:59:60Z",
             "2016-12-30T23:59:60Z",
+            "2017-01-02T23:58:60+23:59",
+            "2016-12-30T00:00:60-23:59",
             "2016-12-31T23:59:60+01:00",
             "1998-12-31T15:59:60.123-07:00",
             "-001-01-01T00:00:00Z",
@@ -133,6 +142,8 @@ class DateTimeFormatTest {
             "2015-06-30T23:59:60Z",
             "2017-01-01T00:59:60+01:00",
             "2017-01-01T01:59:60+02:00",
+            "2017-01-01T23:58:60+23:59",
+            "2016-12-31T00:00:60-23:59",
             "2016-12-31T18:59:60-05:00",
             "1998-12-31T15:59:60.123-08:00",
             "2015-07-01T08:59:60+09:00",
@@ -202,7 +213,9 @@ class DateTimeFormatTest {
 
         // An offset beyond 18:00 is where the fallback and Ethlo differ: Ethlo rejects it
         assertTrue(((List<?>) validate.invoke(schema, "\"2020-01-01T12:00:00+23:59\"", json)).isEmpty());
+        assertTrue(((List<?>) validate.invoke(schema, "\"2017-01-01T00:59:60+01:00\"", json)).isEmpty());
         assertFalse(((List<?>) validate.invoke(schema, "\"2020-01-01T12:00Z\"", json)).isEmpty());
         assertFalse(((List<?>) validate.invoke(schema, "\"2020-01-01T24:59:60+01:00\"", json)).isEmpty());
+        assertFalse(((List<?>) validate.invoke(schema, "\"2016-12-30T23:59:60Z\"", json)).isEmpty());
     }
 }

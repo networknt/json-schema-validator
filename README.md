@@ -192,7 +192,7 @@ The YAML dependency can be excluded if this is not required. Attempting to proce
 </dependency>
 ```
 
-The Ethlo Time dependency can be excluded if accurate validation of the `date-time` format is not required. The `date-time` format will then use `java.time.OffsetDateTime` to determine if the `date-time` is valid .
+The Ethlo Time dependency can be excluded. The `date-time` format then uses an RFC 3339 fallback that validates `full-date "T" full-time` (also accepting lowercase `t` and `z`), requires seconds and an offset, and accepts numeric offsets up to ±23:59. Leap seconds are accepted only at the end of June 30 or December 31 in UTC; unlike Ethlo, the fallback does not check whether a leap second was actually inserted on that date. Ethlo also accepts a space between the date and time, while the fallback requires `T` or `t`.
 
 ```xml
 <dependency>
