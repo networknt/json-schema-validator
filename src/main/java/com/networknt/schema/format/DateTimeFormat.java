@@ -1,6 +1,6 @@
 package com.networknt.schema.format;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.function.Predicate;
 
@@ -40,16 +40,32 @@ public class DateTimeFormat implements Format {
     }
 
     /**
-     * Uses java time. 
+     * Uses java time.
+     * <p>
+     * RFC 3339 date-time is full-date "T" full-time. OffsetDateTime.parse(..) is
+     * not strict enough for it: it accepts a time without seconds, an offset
+     * without minutes and an empty fraction, and it rejects a leap second and an
+     * offset beyond 18:00. So the date is parsed on its own and the time is
+     * checked with the same rules as the time format.
      */
     public static class JavaTimeOffsetDateTime {
+        private static final int DATE_LENGTH = "2020-01-01".length();
+
         public static boolean isValid(String value) {
+            if (value.length() <= DATE_LENGTH) {
+                return false;
+            }
+            char separator = value.charAt(DATE_LENGTH);
+            if (separator != 'T' && separator != 't') {
+                return false;
+            }
             try {
-                OffsetDateTime.parse(value);
-                return true;
+                // ISO_LOCAL_DATE is strict: four-digit year, two-digit month and day, and a date that exists
+                LocalDate.parse(value.substring(0, DATE_LENGTH));
             } catch (DateTimeParseException e) {
                 return false;
             }
+            return TimeFormat.isValid(value.substring(DATE_LENGTH + 1));
         }
     }
     
