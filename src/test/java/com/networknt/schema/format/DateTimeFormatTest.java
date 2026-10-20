@@ -58,4 +58,60 @@ class DateTimeFormatTest {
         assertTrue(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
                 ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
     }
+
+    /**
+     * OffsetDateTime.parse(..) accepts these, Ethlo doesn't. The two paths have to agree.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "2020-01-01T12:00Z",
+            "2020-01-01T12:00:00+01",
+            "2020-01-01T12:00:00.Z"
+    })
+    void bothPathsRejectValuesThatAreNotRfc3339(String value) {
+        // Ethlo is on the test classpath, so the schema takes the Ethlo path
+        assertFalse(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
+                ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
+        assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "2020-01-01T12:00:00.+01:00",
+            "2020-01-01T12:00:00+01:00:00",
+            "2020-01-01 12:00:00Z",
+            "2020-01-01T12:00:00",
+            "2020-01-01T",
+            "2020-01-01",
+            "2020-1-01T12:00:00Z",
+            "+2020-01-01T12:00:00Z",
+            "2020-02-30T12:00:00Z",
+            "2020-01-01T24:00:00Z",
+            "2020-01-01T12:59:60Z",
+            "2020-01-01T12:00:00+24:00",
+            "2020-01-01T12:00:00+0100",
+            "2020-01-01T12:00:00+01:0",
+            "2020-01-01T12:00:00Zjunk"
+    })
+    void fallbackRejectsValuesThatAreNotRfc3339(String value) {
+        assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
+    }
+
+    /**
+     * Valid RFC 3339 date-times that OffsetDateTime.parse(..) rejects.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "2020-01-01T12:00:00Z",
+            "2020-01-01t12:00:00z",
+            "2020-01-01T12:00:00.5+01:00",
+            "2016-12-31T23:59:60Z",
+            "2017-01-01T00:59:60+01:00",
+            "2020-01-01T12:00:00.1234567890Z",
+            "2020-01-01T12:00:00+23:59",
+            "2020-01-01T12:00:00-00:00"
+    })
+    void fallbackAcceptsRfc3339DateTimes(String value) {
+        assertTrue(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
+    }
 }

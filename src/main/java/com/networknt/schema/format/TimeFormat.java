@@ -44,9 +44,19 @@ public class TimeFormat implements Format {
 
     @Override
     public boolean matches(ExecutionContext executionContext, String value) {
-        try {
-            if (null == value) return true;
+        if (null == value) return true;
+        return isValid(value);
+    }
 
+    /**
+     * Checks a value against the RFC 3339 full-time grammar (partial-time time-offset),
+     * including a leap second and an offset up to 23:59.
+     *
+     * @param value the time
+     * @return true if the value is a valid full-time
+     */
+    static boolean isValid(String value) {
+        try {
             int pos = value.indexOf('Z');
             if (-1 != pos && pos != value.length() - 1) return false;
 
@@ -118,7 +128,7 @@ public class TimeFormat implements Format {
      * @param hr  hour
      * @return true if it is a valid leap second
      */
-    private boolean isSpecialCaseLeapSecond(long sec, long min, long hr) {
+    private static boolean isSpecialCaseLeapSecond(long sec, long min, long hr) {
         return (sec == 60 && min == 59 && hr == 23);
     }
 
