@@ -57,6 +57,9 @@ public class TimeFormat implements Format {
      */
     static boolean isValid(String value) {
         try {
+            // partial-time is HH:MM:SS. ISO_LOCAL_TIME alone would also take HH:MM
+            if (value.length() < 8 || value.charAt(2) != ':' || value.charAt(5) != ':') return false;
+
             int pos = value.indexOf('Z');
             if (-1 != pos && pos != value.length() - 1) return false;
 
@@ -96,8 +99,8 @@ public class TimeFormat implements Format {
             long min = accessor.getLong(MINUTE_OF_HOUR);
             long sec = accessor.getLong(SECOND_OF_MINUTE);
 
-            boolean isStandardTimeRange = (sec <= 59 && min <= 59 && hr <= 23);
-            if (isStandardTimeRange) {
+            if (hr > 23 || min > 59 || sec > 60) return false;
+            if (sec <= 59) {
                 return true;
             }
             // Leap second check normalize to UTC to check if 23:59:60Z
@@ -116,6 +119,14 @@ public class TimeFormat implements Format {
         } catch (DateTimeException e) {
             return false;
         }
+    }
+
+    /**
+     * @param value a valid full-time
+     * @return true if its second is 60
+     */
+    static boolean isLeapSecond(String value) {
+        return value.startsWith("60", 6);
     }
 
     /**
