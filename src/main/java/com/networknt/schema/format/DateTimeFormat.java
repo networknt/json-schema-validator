@@ -1,7 +1,6 @@
 package com.networknt.schema.format;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.function.Predicate;
 
@@ -62,33 +61,18 @@ public class DateTimeFormat implements Format {
                 return false;
             }
             String date = value.substring(0, DATE_LENGTH);
-            String time = value.substring(DATE_LENGTH + 1);
-            if (!DateFormat.isValid(date) || !TimeFormat.isValid(time)) {
+            TimeFormat.FullTime time = TimeFormat.parse(value.substring(DATE_LENGTH + 1));
+            if (time == null || !DateFormat.isValid(date)) {
                 return false;
             }
-            return !TimeFormat.isLeapSecond(time) || endsJuneOrDecemberInUtc(LocalDate.parse(date), time);
+            // TimeFormat.parse has checked that a leap second is at 23:59:60 UTC, so only the date is left
+            return time.second != 60 || isLastDayOfJuneOrDecemberInUtc(LocalDate.parse(date), time);
         }
 
-        private static boolean endsJuneOrDecemberInUtc(LocalDate date, String time) {
-            int hour = Integer.parseInt(time.substring(0, 2));
-            int minute = Integer.parseInt(time.substring(3, 5));
-            LocalDateTime utc = date.atTime(hour, minute).minusMinutes(offsetMinutes(time));
-            boolean lastDayOfJuneOrDecember = utc.getMonth() == Month.JUNE && utc.getDayOfMonth() == 30
+        private static boolean isLastDayOfJuneOrDecemberInUtc(LocalDate date, TimeFormat.FullTime time) {
+            LocalDate utc = date.atTime(time.hour, time.minute).minusMinutes(time.offsetMinutes).toLocalDate();
+            return utc.getMonth() == Month.JUNE && utc.getDayOfMonth() == 30
                     || utc.getMonth() == Month.DECEMBER && utc.getDayOfMonth() == 31;
-            return lastDayOfJuneOrDecember && utc.getHour() == 23 && utc.getMinute() == 59;
-        }
-
-        /**
-         * @param time a valid full-time, so it ends in Z, z, +HH:MM or -HH:MM
-         */
-        private static int offsetMinutes(String time) {
-            int end = time.length();
-            char last = time.charAt(end - 1);
-            if (last == 'Z' || last == 'z') {
-                return 0;
-            }
-            int minutes = Integer.parseInt(time.substring(end - 5, end - 3)) * 60 + Integer.parseInt(time.substring(end - 2));
-            return time.charAt(end - 6) == '-' ? -minutes : minutes;
         }
     }
     

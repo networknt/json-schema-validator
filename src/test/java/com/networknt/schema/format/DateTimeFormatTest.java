@@ -16,10 +16,18 @@
 package com.networknt.schema.format;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.List;
 
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
@@ -136,5 +144,65 @@ class DateTimeFormatTest {
     })
     void fallbackAcceptsRfc3339DateTimes(String value) {
         assertTrue(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
+    }
+
+    /**
+     * Loads the library a second time through a class loader without Ethlo, so that the date-time
+     * format is wired to the java.time fallback, and validates through a schema like a user would.
+     * Draft 7 asserts formats by default.
+     */
+    @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void validatesWithTheJavaTimeFallbackWhenEthloIsAbsent() throws Exception {
+        ClassLoader withoutEthlo = new ClassLoader(DateTimeFormatTest.class.getClassLoader()) {
+            @Override
+            protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+                if (name.startsWith("com.ethlo.")) {
+                    throw new ClassNotFoundException(name);
+                }
+                if (!name.startsWith("com.networknt.")) {
+                    return super.loadClass(name, resolve);
+                }
+                synchronized (getClassLoadingLock(name)) {
+                    Class<?> loaded = findLoadedClass(name);
+                    if (loaded == null) {
+                        byte[] bytes = read(name);
+                        loaded = defineClass(name, bytes, 0, bytes.length);
+                    }
+                    return loaded;
+                }
+            }
+
+            private byte[] read(String name) throws ClassNotFoundException {
+                try (InputStream in = getParent().getResourceAsStream(name.replace('.', '/') + ".class")) {
+                    if (in == null) {
+                        throw new ClassNotFoundException(name);
+                    }
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[8192];
+                    for (int n = in.read(buffer); n != -1; n = in.read(buffer)) {
+                        out.write(buffer, 0, n);
+                    }
+                    return out.toByteArray();
+                } catch (IOException e) {
+                    throw new ClassNotFoundException(name, e);
+                }
+            }
+        };
+        assertThrows(ClassNotFoundException.class, () -> Class.forName("com.ethlo.time.ITU", false, withoutEthlo));
+
+        Class<?> registry = withoutEthlo.loadClass("com.networknt.schema.SchemaRegistry");
+        Class<?> version = withoutEthlo.loadClass("com.networknt.schema.SpecificationVersion");
+        Class<?> inputFormat = withoutEthlo.loadClass("com.networknt.schema.InputFormat");
+        Object draft7 = Enum.valueOf((Class) version, "DRAFT_7");
+        Object json = Enum.valueOf((Class) inputFormat, "JSON");
+        Object schema = registry.getMethod("getSchema", String.class)
+                .invoke(registry.getMethod("withDefaultDialect", version).invoke(null, draft7), "{\"type\":\"string\",\"format\":\"date-time\"}");
+        Method validate = schema.getClass().getMethod("validate", String.class, inputFormat);
+
+        // An offset beyond 18:00 is where the fallback and Ethlo differ: Ethlo rejects it
+        assertTrue(((List<?>) validate.invoke(schema, "\"2020-01-01T12:00:00+23:59\"", json)).isEmpty());
+        assertFalse(((List<?>) validate.invoke(schema, "\"2020-01-01T12:00Z\"", json)).isEmpty());
+        assertFalse(((List<?>) validate.invoke(schema, "\"2020-01-01T24:59:60+01:00\"", json)).isEmpty());
     }
 }
