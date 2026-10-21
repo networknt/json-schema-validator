@@ -21,7 +21,6 @@ import java.time.temporal.TemporalAccessor;
 
 import com.networknt.schema.ExecutionContext;
 
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_TIME;
 import static java.time.temporal.ChronoField.*;
 
 /**
@@ -37,7 +36,12 @@ public class TimeFormat implements Format {
 
     private static final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
             .parseCaseInsensitive()
-            .append(ISO_LOCAL_TIME)
+            .appendValue(HOUR_OF_DAY, 2)
+            .appendLiteral(':')
+            .appendValue(MINUTE_OF_HOUR, 2)
+            .appendLiteral(':')
+            .appendValue(SECOND_OF_MINUTE, 2)
+            .appendFraction(NANO_OF_SECOND, 0, 9, true)
             .appendOffset("+HH:MM", "Z")
             .parseLenient()
             .toFormatter();
@@ -74,6 +78,14 @@ public class TimeFormat implements Format {
             this.second = second;
             this.offsetMinutes = offsetMinutes;
         }
+
+        /**
+         * Minutes from the start of the written date to this time in UTC. The result
+         * can fall outside the written date when the offset crosses midnight.
+         */
+        int minutesInUtc() {
+            return hour * 60 + minute - offsetMinutes;
+        }
     }
 
     /**
@@ -85,9 +97,6 @@ public class TimeFormat implements Format {
      */
     static FullTime parse(String value) {
         try {
-            // partial-time is HH:MM:SS. ISO_LOCAL_TIME alone would also take HH:MM
-            if (value.length() < 8 || value.charAt(2) != ':' || value.charAt(5) != ':') return null;
-
             int pos = value.indexOf('Z');
             if (-1 != pos && pos != value.length() - 1) return null;
 
@@ -102,7 +111,7 @@ public class TimeFormat implements Format {
                     fractionEnd++;
                 }
                 if (fractionEnd == fractionStart) return null;
-                // ISO_LOCAL_TIME parses at most nine digits, but RFC 3339 permits more.
+                // The formatter parses at most nine digits, but RFC 3339 permits more.
                 if (fractionEnd - fractionStart > 9) {
                     parsedValue = value.substring(0, fractionStart + 9) + value.substring(fractionEnd);
                 }
@@ -132,36 +141,12 @@ public class TimeFormat implements Format {
             if (sec <= 59) {
                 return time;
             }
-            // Leap second check normalize to UTC to check if 23:59:60Z
-            hr = hr - offset / 60;
-            min = min - offset % 60;
-
-            if (min < 0) {
-                --hr;
-                min += 60;
-            }
-            if (hr < 0) {
-                hr += 24;
-            }
-            return isSpecialCaseLeapSecond(sec, min, hr) ? time : null;
+            // The remaining second is 60; it must be at 23:59 in UTC.
+            return Math.floorMod(time.minutesInUtc(), 24 * 60) == 23 * 60 + 59 ? time : null;
 
         } catch (DateTimeException e) {
             return null;
         }
-    }
-
-    /**
-     * Determines if it is a valid leap second.
-     *
-     * See https://datatracker.ietf.org/doc/html/rfc3339#appendix-D
-     *
-     * @param sec second
-     * @param min minute
-     * @param hr  hour
-     * @return true if it is a valid leap second
-     */
-    private static boolean isSpecialCaseLeapSecond(long sec, long min, long hr) {
-        return (sec == 60 && min == 59 && hr == 23);
     }
 
     @Override
