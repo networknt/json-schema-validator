@@ -22,12 +22,19 @@ public class DateFormat implements Format {
      * @return true if the value is a valid full-date
      */
     static boolean isValid(String value) {
+        return parse(value) != null;
+    }
+
+    /**
+     * @return the full-date, or null if the value is not a valid full-date
+     */
+    static LocalDate parse(String value) {
         try {
             LocalDate date = LocalDate.parse(value);
             int year = date.getYear();
-            return 0 <= year && year <= 9999;
+            return 0 <= year && year <= 9999 ? date : null;
         } catch (DateTimeParseException e) {
-            return false;
+            return null;
         }
     }
 
