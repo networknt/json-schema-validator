@@ -111,6 +111,22 @@ class ExclusiveMinimumValidatorTest {
     }
 
     @Test
+    void integerBeyondLongRange() {
+        final String schemaString = """
+        {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "integer",
+            "exclusiveMinimum": 10
+        }
+        """;
+        final SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft7());
+        final List<Error> errors = schemaRegistry.getSchema(schemaString).validate("-1e20", InputFormat.JSON);
+        assertEquals(1, errors.stream().filter(e -> "exclusiveMinimum".equals(e.getKeyword())).count());
+        final List<Error> otherSide = schemaRegistry.getSchema(schemaString).validate("1e20", InputFormat.JSON);
+        assertEquals(0, otherSide.stream().filter(e -> "exclusiveMinimum".equals(e.getKeyword())).count());
+    }
+
+    @Test
     void nonFinite() {
         String schemaData = "{\r\n"
                 + "  \"exclusiveMinimum\": 10\r\n"

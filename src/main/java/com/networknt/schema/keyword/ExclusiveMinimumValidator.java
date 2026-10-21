@@ -63,6 +63,10 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
                         return compare < 0 || compare == 0;
 
                     }
+                    if (node.asLongOpt().isEmpty()) {
+                        // not a long (out of its range, or not finite): a positive value is above every long bound, a negative value is below every long bound, and NaN is neither
+                        return node.isBigDecimal() ? node.decimalValue().signum() < 0 : node.doubleValue() < 0;
+                    }
                     long val = node.asLong();
                     return lmin > val || lmin == val;
                 }
