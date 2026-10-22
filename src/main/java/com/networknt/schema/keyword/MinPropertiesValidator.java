@@ -27,26 +27,25 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for minProperties.
  */
 public class MinPropertiesValidator extends BaseKeywordValidator implements KeywordValidator {
+    /** Legacy int view, saturated for limits outside the int range. */
     protected final int min;
+    private final CountLimit minimum;
 
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
         super(KeywordType.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        if (schemaNode.canConvertToExactIntegral()) {
-            min = schemaNode.intValue();
-        } else {
-            min = 0;
-        }
+        this.minimum = schemaNode.canConvertToExactIntegral() ? CountLimit.of(schemaNode) : CountLimit.of(0);
+        this.min = this.minimum.intValue();
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (node.isObject()) {
-            if (node.size() < min) {
+            if (this.minimum.compareTo(node.size()) > 0) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(min).build());
+                        .arguments(this.minimum.messageArgument()).build());
             }
         }
     }
