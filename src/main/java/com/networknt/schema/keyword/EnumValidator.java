@@ -37,7 +37,7 @@ import java.util.Set;
  * {@link KeywordValidator} for enum.
  */
 public class EnumValidator extends BaseKeywordValidator implements KeywordValidator {
-    private final Set<JsonNode> nodes;
+    private final Set<JsonNodeValue> nodes;
     private final String error;
 
     static String asString(JsonNode node) {
@@ -60,12 +60,12 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
             for (JsonNode n : schemaNode) {
                 if (n.isNumber()) {
                     // convert to DecimalNode for number comparison
-                    nodes.add(processNumberNode(n));
+                    nodes.add(JsonNodeValue.of(processNumberNode(n)));
                 } else if (n.isArray()) {
                     ArrayNode a = processArrayNode((ArrayNode) n);
-                    nodes.add(a);
+                    nodes.add(JsonNodeValue.of(a));
                 } else {
-                    nodes.add(n);
+                    nodes.add(JsonNodeValue.of(n));
                 }
 
                 sb.append(separator);
@@ -101,7 +101,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         } else if (node.isArray()) {
             node = processArrayNode((ArrayNode) node);
         }
-        if (!nodes.contains(node) && !( this.schemaContext.getSchemaRegistryConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
+        if (!nodes.contains(JsonNodeValue.of(node)) && !( this.schemaContext.getSchemaRegistryConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(error).build());
@@ -116,8 +116,8 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
     private boolean isTypeLooseContainsInEnum(JsonNode node) {
         if (TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig()) == JsonType.STRING) {
             String nodeText = node.asString();
-            for (JsonNode n : nodes) {
-                String value = n.asString();
+            for (JsonNodeValue key : nodes) {
+                String value = key.node.asString();
                 if (value != null && value.equals(nodeText)) {
                     return true;
                 }
@@ -139,7 +139,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
             }
             return DoubleNode.valueOf(n.doubleValue());
         }
-        return DecimalNode.valueOf(n.decimalValue().stripTrailingZeros());
+        return DecimalNode.valueOf(JsonNodeValue.normalize(JsonNodeValue.decimalValue(n)));
     }
 
     /**
