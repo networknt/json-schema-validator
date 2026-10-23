@@ -31,7 +31,7 @@ public class MinItemsValidator extends BaseKeywordValidator implements KeywordVa
 
     public MinItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MIN_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.min = CountLimit.of(schemaNode, 0, parentSchema.getSchemaNode(), getKeyword());
+        this.min = CountLimit.of(schemaNode, 0);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {

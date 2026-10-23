@@ -33,7 +33,7 @@ public class MaxLengthValidator extends BaseKeywordValidator implements KeywordV
 
     public MaxLengthValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.maxLength = CountLimit.of(schemaNode, Integer.MAX_VALUE, parentSchema.getSchemaNode(), getKeyword());
+        this.maxLength = CountLimit.of(schemaNode, Integer.MAX_VALUE);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
