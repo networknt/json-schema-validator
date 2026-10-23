@@ -51,7 +51,7 @@ class Issue1350Test {
     }
 
     @Test
-    void onlyLossyCountNamedFloatsArePromoted() throws Exception {
+    void lossyFiniteFloatsArePromotedRegardlessOfFieldName() throws Exception {
         NodeReader reader = NodeReader.builder().build();
         for (InputFormat format : new InputFormat[] { InputFormat.JSON, InputFormat.YAML }) {
             String content = "{\"minItems\":0.99999999999999999999,\"maxItems\":3000000000.0,"
@@ -61,7 +61,7 @@ class Issue1350Test {
                     new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), format) }) {
                 assertTrue(tree.get("minItems").isBigDecimal());
                 assertTrue(tree.get("maxItems").isDouble());
-                assertTrue(tree.get("other").isDouble());
+                assertTrue(tree.get("other").isBigDecimal());
                 assertTrue(tree.get("default").get("minItems").isBigDecimal());
                 assertTrue(tree.get("minLength").isDouble());
                 assertTrue(tree.get("maxLength").isDouble());

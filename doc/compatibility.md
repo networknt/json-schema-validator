@@ -199,7 +199,7 @@ Only top-level numeric enum members receive this conversion. A literal string me
 
 The comparison uses each numeric enum node's existing decimal value, consistent with numeric value equality. It does not recover digits already rounded by a caller's mapper or the configured schema reader. Protected enum conversion hooks remain in use.
 
-For example, a default reader rounds `{"enum":[9007199254740993.0]}` to a double-valued member. Loose matching therefore accepts `"9007199254740992"`, not `"9007199254740993"`. Configure the schema reader's mapper with `USE_BIG_DECIMAL_FOR_FLOATS`, or supply an exact DecimalNode, to preserve the written value; then those verdicts reverse. This enum change does not alter schema-reader precision policy.
+For example, a schema tree supplied by an external plain mapper can already have rounded `{"enum":[9007199254740993.0]}` to a double-valued member. Loose matching then accepts `"9007199254740992"`, not `"9007199254740993"`. Built-in readers and the public mapper factories now preserve this finite decimal spelling, so they match the written value. Use those readers, configure an external mapper with `USE_BIG_DECIMAL_FOR_FLOATS`, or supply an exact DecimalNode when the original digits matter.
 
 
 ## RFC 3339 date-time boundaries
@@ -223,7 +223,20 @@ The specification requires `multipleOf` to be a number strictly greater than 0. 
 
 Divisors and bounds outside the range of a double depend on how the schema numbers are represented:
 
-- With the default readers, which parse decimal numbers as doubles, a divisor too small or too large for a double (such as `1e-400` or `1e400`) becomes zero or infinite and is ignored. A bound beyond the double range compares as an infinite bound: `minimum: 1e400` rejects `5`, and `maximum: 1e400` accepts it.
+- With the default readers, a divisor that overflows a double (such as `1e400`) becomes infinite and is ignored. A bound beyond the double range compares as an infinite bound: `minimum: 1e400` rejects `5`, and `maximum: 1e400` accepts it. Finite underflow such as `1e-400` is preserved by selective decimal reading, so `multipleOf: 1e-400` rejects `5e-401`. A tree supplied by an external plain double-parsing mapper can still have rounded that divisor to zero, in which case it is ignored.
 - With exact decimals, that is nodes supplied as `BigDecimal` or a reader configured with `USE_BIG_DECIMAL_FOR_FLOATS`, the value keeps its exact size. `multipleOf: 1e400` then rejects `1`, `multipleOf: 1e-400` rejects `5e-401`, and bounds such as `1e400` compare as finite decimals.
 
 `minimum` and `maximum`, and the numeric `exclusiveMinimum` and `exclusiveMaximum` of draft 6 and later, accept any number. The invalid schemas above are reported by validating the schema against its meta-schema, for example the `$schema` URI of the dialect. Rejecting them while loading a schema, or defining an exact policy for non-finite divisors and bounds, would be a behavior change that needs its own decision.
+
+
+## Selective exact decimal tree reading
+
+Built-in JSON/YAML readers and `JsonMapperFactory`/`YamlMapperFactory` tree reads preserve finite floating-point literals whose written decimal differs from `BigDecimal.valueOf(parsedDouble)`. This is the library's shortest-decimal interpretation of a double, not its exact binary expansion. Common lossless values such as `0.1` and `1.5` remain DoubleNodes; `9007199254740993.0`, `0.99999999999999999999` and finite underflow such as `1e-400` become DecimalNodes. Integers keep their native reader policy.
+
+The policy is uniform across schemas, instances, `const`/`enum` literal data, defaults, examples and numeric fields regardless of name. Thus identical text compares equally, while finite values that used to collapse to the same double can now compare differently. This intentionally changes validation of decimal-spelled bounds and `multipleOf` operands to their written values. `getSchemaNode()`, annotations, applied defaults and JSON output can expose exact decimals; DecimalNode scale and printing can differ between Jackson 2 and 3.
+
+Lossless `0.0` and `-0.0` retain their DoubleNode type, sign and serialization. They still compare equally for `const` and bounds. Explicit `USE_BIG_DECIMAL_FOR_FLOATS` settings keep their existing all-decimal policy, including their existing zero representation. Native tree updates/null handling and custom node factories are delegated to Jackson. A factory deliberately rebuilding decimals as doubles can discard precision. Typed scalar/POJO binding (for example a `Double` property) retains Jackson's native behavior.
+
+To preserve the existing divisor/bound policy, tokens that overflow double range (such as `1e400`) retain ordinary Infinity behavior outside the eight count names. Count-named values retain their prior exact promotion behavior, including `1e400`. Explicit NaN/Infinity handling is unchanged. Tokens outside BigDecimal's parsing range retain ordinary parsing; native Jackson input-size constraints still apply. This change does not recover digits from an externally supplied, already-rounded JsonNode or alter invalid-divisor/bound policy.
+
+The public mapper factories install this behavior for JsonNode/ObjectNode/ArrayNode tree binding, not for raw streaming numeric getters or typed scalar values. Caller-supplied mappers used through NodeReader receive selective tree parsing while their explicit features and node factories are respected. Public factory readers and updates retain their native contextual, null and merge behavior.
