@@ -1,98 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792788867970,
+  "lastUpdate": 1792790309649,
   "repoUrl": "https://github.com/networknt/json-schema-validator",
   "entries": {
     "JSON Schema Validator Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "el.psy.kongroo.d@gmail.com",
-            "name": "el-psy-kongroo-d",
-            "username": "el-psy-kongroo-d"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "d97a3680b2863874241c4a569fe9e4bfad4d7935",
-          "message": "Reject non-ASCII whitespace in email format (#1267)\n\nThe email format accepted values containing a non-breaking space (U+00A0)\nor other non-ASCII whitespace because the underlying validator's regex only\nexcludes ASCII whitespace. As a result an email with a leading U+00A0 was\ntreated as valid, while the same address with a regular leading space was\ncorrectly rejected.\n\nEmailFormat now rejects any value containing a non-ASCII whitespace character\nbefore delegating to the validator. Character.isWhitespace deliberately\nexcludes U+00A0, so Character.isSpaceChar is also checked. All-ASCII emails\n(including quoted local parts with spaces such as \"joe bloggs\"@example.com)\nare unaffected.\n\nAdds EmailFormatTest, following the existing per-format test convention.\n\nCloses #1164\n\nCo-authored-by: el-psy-kongroo-d <307969302+el-psy-kongroo-d@users.noreply.github.com>",
-          "timestamp": "2026-07-22T21:26:50-04:00",
-          "tree_id": "9595c9232671543043dbbe9010edcef600329ab1",
-          "url": "https://github.com/networknt/json-schema-validator/commit/d97a3680b2863874241c4a569fe9e4bfad4d7935"
-        },
-        "date": 1784770412861,
-        "tool": "jmh",
-        "benches": [
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
-            "value": 4839.968461976971,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 1135.2630467426766,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 1175.9069767382505,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 1261.4192224533706,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 2986.246369499873,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 3750.514026860861,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 916.7866098758528,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 1012.8486953297867,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 2736.3124525242915,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 3012.0179522816675,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 4464.82168510471,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -4786,6 +4696,144 @@ window.BENCHMARK_DATA = {
           {
             "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"nestedDecimal\"} )",
             "value": 6394.488458991916,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stevehu@gmail.com",
+            "name": "Steve Hu",
+            "username": "stevehu"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c83e4ebb3e9de439af0d697e3a24ab0f9cc98265",
+          "message": "Document invalid multipleOf divisor and bound behavior (#1358)\n\n* Document invalid multipleOf divisor and bound behavior\n\nRecord that zero, negative and out-of-double-range multipleOf divisors\nare accepted when a schema is loaded, how each is treated during\nvalidation, and that numeric bounds beyond the double range compare as\ninfinite bounds. Strict checking is left to meta-schema validation.\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\n\n* Qualify invalid multipleOf notes by number representation\n\nDistinguish the default double-parsing outcomes from the exact-decimal\npath (BigDecimal nodes and USE_BIG_DECIMAL_FOR_FLOATS), where out-of-range\ndivisors and bounds keep their exact size.\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\n\n* Restore the $schema reference in the multipleOf notes\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-23T17:03:59-04:00",
+          "tree_id": "6effc45300df5ffe8d9582b3111293d7c9c57221",
+          "url": "https://github.com/networknt/json-schema-validator/commit/c83e4ebb3e9de439af0d697e3a24ab0f9cc98265"
+        },
+        "date": 1792790309094,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
+            "value": 5137.177436599104,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1309.95694131384,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1351.3015510604534,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 1405.3159331417974,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3475.391988759846,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 4690.687283157133,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1047.3374892377333,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1116.9571106211354,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 2961.061297712798,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3123.3541160191635,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 4565.222883403207,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"decimal\"} )",
+            "value": 6899.707224835091,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"bigInteger\"} )",
+            "value": 3587.541440236431,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"double\"} )",
+            "value": 23213.391835473114,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"nestedDecimal\"} )",
+            "value": 6285.783528885117,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"decimal\"} )",
+            "value": 7402.264574214082,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"bigInteger\"} )",
+            "value": 3359.5080697220055,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"double\"} )",
+            "value": 23493.06227135692,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"nestedDecimal\"} )",
+            "value": 6381.042443251467,
             "unit": "ops/s",
             "extra": "iterations: 3\nforks: 1\nthreads: 1"
           }
