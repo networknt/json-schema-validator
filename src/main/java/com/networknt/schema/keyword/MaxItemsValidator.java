@@ -16,6 +16,8 @@
 
 package com.networknt.schema.keyword;
 
+import com.networknt.schema.utils.JsonNodes;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
@@ -31,7 +33,7 @@ public class MaxItemsValidator extends BaseKeywordValidator implements KeywordVa
 
     public MaxItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MAX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.max = schemaNode.canConvertToExactIntegral()
+        this.max = JsonNodes.isIntegralCountLimit(schemaNode)
                 ? CountLimit.of(schemaNode) : CountLimit.of(Integer.MAX_VALUE);
     }
 

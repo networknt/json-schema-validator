@@ -16,6 +16,8 @@
 
 package com.networknt.schema.keyword;
 
+import com.networknt.schema.utils.JsonNodes;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
@@ -27,25 +29,25 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for minProperties.
  */
 public class MinPropertiesValidator extends BaseKeywordValidator implements KeywordValidator {
-    /** Legacy int view, saturated for limits outside the int range. */
+    /** Saturated compatibility view, derived from the immutable minimum at construction. */
     protected final int min;
+    private final CountLimit minimum;
 
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
         super(KeywordType.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.min = schemaNode.canConvertToExactIntegral() ? CountLimit.of(schemaNode).intValue() : 0;
+        this.minimum = JsonNodes.isIntegralCountLimit(schemaNode) ? CountLimit.of(schemaNode) : CountLimit.of(0);
+        this.min = this.minimum.intValue();
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (node.isObject()) {
-            if (node.size() < this.min || (this.min == Integer.MAX_VALUE
-                    && !CountLimit.of(this.schemaNode).isMinimumSatisfiedBy(node.size()))) {
+            if (node.size() < this.min || !this.minimum.isMinimumSatisfiedBy(node.size())) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(this.schemaNode.canConvertToExactIntegral()
-                                ? CountLimit.of(this.schemaNode).messageArgument() : "0").build());
+                        .arguments(this.minimum.messageArgument()).build());
             }
         }
     }
