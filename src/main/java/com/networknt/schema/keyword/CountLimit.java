@@ -18,7 +18,6 @@ package com.networknt.schema.keyword;
 
 import java.math.BigDecimal;
 import tools.jackson.databind.JsonNode;
-import com.networknt.schema.internal.CountTokens;
 
 /** Immutable count comparison, annotation value and preformatted error argument. */
 final class CountLimit {
@@ -40,38 +39,30 @@ final class CountLimit {
         return new CountLimit(Integer.valueOf(value), value, 0, Integer.toString(value));
     }
 
-    static CountLimit of(JsonNode node, int fallback, JsonNode owner, String keyword) {
-        CountLimit parsed = parse(node, owner, keyword);
+    static CountLimit of(JsonNode node, int fallback) {
+        CountLimit parsed = parse(node);
         return parsed == null ? of(fallback) : parsed;
     }
 
     /** Parses once, returning null for an absent, nonnumeric or fractional bound. */
-    static CountLimit parse(JsonNode node, JsonNode owner, String keyword) {
+    static CountLimit parse(JsonNode node) {
         if (node == null || !node.isNumber()) {
             return null;
         }
         BigDecimal decimal;
         Number annotation = node.numberValue();
-        String exact = CountTokens.get(owner, keyword, node);
-        if (exact != null) {
-            // YAML parsers can expose accepted numeric scalars with underscore separators.
-            // JSON still rejects such syntax before this point.
-            decimal = new BigDecimal(exact.replace("_", ""));
-        } else {
-            if (node.isDouble() || node.isFloat()) {
-                double number = node.doubleValue();
-                if (Double.isInfinite(number)) {
-                    return new CountLimit(annotation, number > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE,
-                            number > 0 ? 1 : -1, number > 0 ? "Infinity" : "-Infinity");
-                }
-                if (number != Math.rint(number)) {
-                    return null; // Includes NaN.
-                }
-                // No source token survives programmatic or legacy-reader input.
-                decimal = node.isFloat() ? new BigDecimal(Float.toString(node.floatValue())) : BigDecimal.valueOf(number);
-            } else {
-                decimal = node.decimalValue();
+        if (node.isDouble() || node.isFloat()) {
+            double number = node.doubleValue();
+            if (Double.isInfinite(number)) {
+                return new CountLimit(annotation, number > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE,
+                        number > 0 ? 1 : -1, number > 0 ? "Infinity" : "-Infinity");
             }
+            if (number != Math.rint(number)) {
+                return null; // Includes NaN.
+            }
+            decimal = node.isFloat() ? new BigDecimal(Float.toString(node.floatValue())) : BigDecimal.valueOf(number);
+        } else {
+            decimal = node.decimalValue();
         }
         BigDecimal normalized;
         try {
@@ -87,7 +78,22 @@ final class CountLimit {
         int integer = range > 0 ? Integer.MAX_VALUE : range < 0 ? Integer.MIN_VALUE : decimal.intValue();
         return new CountLimit(annotation, integer, range,
                 range == 0 ? Integer.toString(integer)
-                        : decimal.scale() >= 0 ? normalized.toPlainString() : normalized.toString());
+                        : format(node, normalized));
+    }
+
+    private static String format(JsonNode node, BigDecimal value) {
+        // Bound zero expansion for decimal/float inputs independently of node scale.
+        // Integer nodes already contain their full digits and preserve that contract.
+        long digits = (long) value.precision() - value.scale();
+        if (node.isIntegralNumber() || digits <= 100) {
+            return value.toPlainString();
+        }
+        if (value.scale() < 0) {
+            return value.toString();
+        }
+        // Scientific notation without expanding an extreme exponent or losing digits.
+        return new BigDecimal(value.unscaledValue(), value.precision() - 1).toPlainString()
+                + "E+" + (digits - 1);
     }
 
     boolean isMinimumSatisfiedBy(int actual) {

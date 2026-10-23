@@ -51,7 +51,7 @@ class Issue1346MutationTest {
         Schema original = ordinary.getSchema("{\"maxItems\":0.99999999999999999999}");
         assertTrue(original.validate("[1,2]", InputFormat.JSON).isEmpty());
         JsonNode copied = original.getSchemaNode().deepCopy();
-        assertEquals(1, ordinary.getSchema(copied).validate("[1,2]", InputFormat.JSON).size());
+        assertTrue(ordinary.getSchema(copied).validate("[1,2]", InputFormat.JSON).isEmpty());
         NodeReader exactReader = NodeReader.builder().jsonMapper(JsonMapper.builder()
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build()).build();
         SchemaRegistry exact = registry(exactReader);
@@ -69,9 +69,9 @@ class Issue1346MutationTest {
     }
 
     @Test
-    void activeCountsKeepTheBaseBigDecimalRangeBoundary() {
-        assertThrows(RuntimeException.class, () -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
-                .getSchema("{\"minItems\":1e999999999999}").validate("[]", InputFormat.JSON));
+    void activeCountsBeyondBigDecimalRangeSaturate() {
+        assertEquals(1, SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema("{\"minItems\":1e999999999999}").validate("[]", InputFormat.JSON).size());
     }
 
     @Test

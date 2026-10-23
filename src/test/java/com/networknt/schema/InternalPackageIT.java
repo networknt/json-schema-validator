@@ -28,11 +28,11 @@ import org.junit.jupiter.api.Test;
 /** Runs after packaging in Maven verify, including the normal CI verify command. */
 class InternalPackageIT {
     @Test
-    void packagedArtifactKeepsMetadataInternal() throws Exception {
+    void packagedArtifactHasNoCountMetadata() throws Exception {
         File artifact = new File(System.getProperty("countArtifact"));
         assertTrue(artifact.isFile(), "packaged jar is missing");
         try (JarFile jar = new JarFile(artifact)) {
-            assertNotNull(jar.getJarEntry("com/networknt/schema/internal/CountTokens.class"));
+            assertNull(jar.getJarEntry("com/networknt/schema/internal/CountTokens.class"));
             assertNull(jar.getJarEntry("com/networknt/schema/serialization/CountTokenNode.class"));
             String exports = jar.getManifest().getMainAttributes().getValue("Export-Package");
             if (exports != null) {
@@ -52,7 +52,7 @@ class InternalPackageIT {
         Class<?> descriptorType = Class.forName("java.lang.module.ModuleDescriptor");
         assertFalse((Boolean) descriptorType.getMethod("isAutomatic").invoke(descriptor), "explicit module descriptor missing");
         Set<?> packages = (Set<?>) descriptorType.getMethod("packages").invoke(descriptor);
-        assertTrue(packages.contains("com.networknt.schema.internal"), "internal package has no module owner");
+        assertFalse(packages.contains("com.networknt.schema.internal"), "obsolete metadata package remains");
         Method source = Class.forName("java.lang.module.ModuleDescriptor$Exports").getMethod("source");
         for (Object exported : (Set<?>) descriptorType.getMethod("exports").invoke(descriptor)) {
             assertFalse("com.networknt.schema.internal".equals(source.invoke(exported)), "internal JPMS export");

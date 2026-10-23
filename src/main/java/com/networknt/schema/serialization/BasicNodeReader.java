@@ -49,12 +49,12 @@ public class BasicNodeReader implements NodeReader {
 
     @Override
     public JsonNode readTree(String content, InputFormat inputFormat) {
-        return getObjectMapper(inputFormat).readTree(content);
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, null);
     }
 
     @Override
     public JsonNode readTree(InputStream content, InputFormat inputFormat) {
-        return getObjectMapper(inputFormat).readTree(content);
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, null);
     }
 
     /**
