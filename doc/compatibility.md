@@ -213,3 +213,13 @@ Leap-second accuracy remains dependency-specific: Ethlo checks the historical in
 These include **breaking validation changes with Ethlo present**: space-separated strings such as `2020-01-01 12:00:00Z` and offset-less leap seconds such as `2016-12-31T23:59:60` were accepted before and are now rejected. Supply `T`/`t` and an explicit `Z`/`z` or signed `HH:MM` offset. The no-Ethlo fallback already rejected both forms.
 
 The historical calendars are intentionally not made identical. Ethlo's current table rejects the real leap seconds on 1979-12-31 and 1987-12-31 and accepts 1971-12-31 and 1988-12-31, which did not have insertions. The fallback accepts all four as possible December-end leap seconds. These inherited differences are retained and pinned by tests; the change aligns syntax and offset/range handling, not historical leap-table data.
+
+## Invalid `multipleOf` divisors
+
+The specification requires `multipleOf` to be a number strictly greater than 0. Schemas that break this are not rejected when they are loaded, and the library keeps the following behavior in all supported drafts:
+
+- A zero divisor (`0`, `0.0`, `-0.0`), and a divisor that is too small for a double to represent (such as `1e-400`), is ignored, so every number is valid.
+- A negative divisor uses its absolute value: with `"multipleOf": -2`, `4` and `-4` are valid and `5` is not.
+- A divisor too large for a double to represent (such as `1e400`) is ignored.
+
+The invalid schemas above are reported by validating the schema against its meta-schema, for example the `$schema` URI of the dialect. Rejecting them while loading a schema, or defining an exact policy for non-finite divisors and bounds, would be a behavior change that needs its own decision. `minimum` and `maximum`, and the numeric `exclusiveMinimum` and `exclusiveMaximum` of draft 6 and later, accept any number; a bound beyond the double range (such as `minimum: 1e400`) is valid and compares as an infinite bound.
