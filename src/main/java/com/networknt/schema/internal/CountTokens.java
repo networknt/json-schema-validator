@@ -78,6 +78,7 @@ public final class CountTokens {
         Token(JsonNode number, String text) {
             this.number = new WeakReference<>(number);
             String snapshot = number.numberValue().toString();
+            // Share the captured String when equal, avoiding a second retained String per entry.
             this.value = snapshot.equals(text) ? text : snapshot;
             this.text = text;
         }
