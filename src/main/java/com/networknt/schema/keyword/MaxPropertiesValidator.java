@@ -40,7 +40,7 @@ public class MaxPropertiesValidator extends BaseKeywordValidator implements Keyw
         
 
         if (node.isObject()) {
-            if (this.max.compareTo(node.size()) < 0) {
+            if (!this.max.isMaximumSatisfiedBy(node.size())) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.max.messageArgument()).build());

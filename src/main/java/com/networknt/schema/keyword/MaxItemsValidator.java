@@ -32,20 +32,20 @@ public class MaxItemsValidator extends BaseKeywordValidator implements KeywordVa
     public MaxItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MAX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
         this.max = schemaNode.canConvertToExactIntegral()
-                ? CountLimit.of(schemaNode) : CountLimit.of(0);
+                ? CountLimit.of(schemaNode) : CountLimit.of(Integer.MAX_VALUE);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (node.isArray()) {
-            if (this.max.compareTo(node.size()) < 0) {
+            if (!this.max.isMaximumSatisfiedBy(node.size())) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.max.messageArgument(), node.size()).build());
             }
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
-            if (this.max.compareTo(1) < 0) {
+            if (!this.max.isMaximumSatisfiedBy(1)) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.max.messageArgument(), 1).build());

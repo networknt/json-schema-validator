@@ -39,14 +39,14 @@ public class MinItemsValidator extends BaseKeywordValidator implements KeywordVa
         
 
         if (node.isArray()) {
-            if (this.min.compareTo(node.size()) > 0) {
+            if (!this.min.isMinimumSatisfiedBy(node.size())) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.min.messageArgument(), node.size())
                         .build());
             }
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
-            if (this.min.compareTo(1) > 0) {
+            if (!this.min.isMinimumSatisfiedBy(1)) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.min.messageArgument(), 1).build());

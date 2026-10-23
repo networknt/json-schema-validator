@@ -45,7 +45,7 @@ public class MaxLengthValidator extends BaseKeywordValidator implements KeywordV
             // ignore no-string typs
             return;
         }
-        if (this.maxLength.compareTo(node.asString().codePointCount(0, node.asString().length())) < 0) {
+        if (!this.maxLength.isMaximumSatisfiedBy(node.asString().codePointCount(0, node.asString().length()))) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.maxLength.messageArgument()).build());

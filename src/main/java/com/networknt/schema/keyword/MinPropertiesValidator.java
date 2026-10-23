@@ -29,23 +29,23 @@ import com.networknt.schema.SchemaContext;
 public class MinPropertiesValidator extends BaseKeywordValidator implements KeywordValidator {
     /** Legacy int view, saturated for limits outside the int range. */
     protected final int min;
-    private final CountLimit minimum;
 
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
         super(KeywordType.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.minimum = schemaNode.canConvertToExactIntegral() ? CountLimit.of(schemaNode) : CountLimit.of(0);
-        this.min = this.minimum.intValue();
+        this.min = schemaNode.canConvertToExactIntegral() ? CountLimit.of(schemaNode).intValue() : 0;
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (node.isObject()) {
-            if (this.minimum.compareTo(node.size()) > 0) {
+            if (node.size() < this.min || (this.min == Integer.MAX_VALUE
+                    && !CountLimit.of(this.schemaNode).isMinimumSatisfiedBy(node.size()))) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(this.minimum.messageArgument()).build());
+                        .arguments(this.schemaNode.canConvertToExactIntegral()
+                                ? CountLimit.of(this.schemaNode).messageArgument() : "0").build());
             }
         }
     }
