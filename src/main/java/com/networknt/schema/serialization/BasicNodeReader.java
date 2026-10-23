@@ -22,7 +22,6 @@ import java.io.InputStream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.utils.JsonNodes;
 
 /**
  * Basic implementation of {@link NodeReader}.
@@ -40,13 +39,13 @@ public class BasicNodeReader implements NodeReader {
     }
 
     @Override
-    public JsonNode readSchema(String content, InputFormat inputFormat) {
-        return JsonNodes.readSchemaTree(getObjectMapper(inputFormat), content, null);
+    public JsonNode readSchema(String content, InputFormat inputFormat) throws java.io.IOException {
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, null);
     }
 
     @Override
-    public JsonNode readSchema(InputStream content, InputFormat inputFormat) {
-        return JsonNodes.readSchemaTree(getObjectMapper(inputFormat), content, null);
+    public JsonNode readSchema(InputStream content, InputFormat inputFormat) throws java.io.IOException {
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, null);
     }
 
     @Override

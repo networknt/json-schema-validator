@@ -324,6 +324,20 @@
             <usePhrasedClassNameInTestCaseSummary>true</usePhrasedClassNameInTestCaseSummary>
           </statelessTestsetInfoReporter>
         </configuration>
+        <executions>
+          <execution>
+            <id>verify-packaged-boundary</id>
+            <phase>verify</phase>
+            <goals><goal>test</goal></goals>
+            <configuration>
+              <test>InternalPackageIT</test>
+              <reportsDirectory>${project.build.directory}/artifact-boundary-reports</reportsDirectory>
+              <systemPropertyVariables>
+                <countArtifact>${project.build.directory}/${project.build.finalName}.jar</countArtifact>
+              </systemPropertyVariables>
+            </configuration>
+          </execution>
+        </executions>
         <dependencies>
           <dependency>
             <groupId>me.fabriciorby</groupId>
@@ -452,9 +466,10 @@
                   <module>
                     <moduleInfo>
                       <name>com.networknt.schema</name>
-                      <!-- export everything except embedded Apache code -->
+                      <!-- export everything except embedded Apache code and internal implementation packages -->
                       <exports>
                         !com.networknt.org*;
+                        !com.networknt.schema.internal*;
                         *;
                       </exports>
                       <requires>

@@ -54,13 +54,21 @@ public interface NodeReader {
     static DefaultNodeReader.Builder builder() {
         return DefaultNodeReader.builder();
     }
-    /** Reads a schema, allowing readers to preserve keyword-specific numeric precision. */
-    default JsonNode readSchema(String content, InputFormat inputFormat) throws IOException {
+    /**
+     * Reads a schema. Built-in readers retain exact decimal count tokens while
+     * keeping ordinary node behavior. Custom readers retain their parsing policy;
+     * values already rounded by a custom reader or JsonNode input cannot be recovered.
+     * Lexical metadata belongs to the original parsed tree; deepCopy does not transfer
+     * it. Use an exact-decimal reader when copied trees must retain count precision.
+     * Active count tokens must fit BigDecimal's parsing range; opaque literal data
+     * retains the configured reader's ordinary behavior outside that range.
+     */
+    default JsonNode readSchema(String content, InputFormat inputFormat) throws java.io.IOException {
         return readTree(content, inputFormat);
     }
 
-    /** Reads a schema stream. Existing custom readers retain their parsing policy. */
-    default JsonNode readSchema(InputStream content, InputFormat inputFormat) throws IOException {
+    /** Stream counterpart of {@link #readSchema(String, InputFormat)}. */
+    default JsonNode readSchema(InputStream content, InputFormat inputFormat) throws java.io.IOException {
         return readTree(content, inputFormat);
     }
 }
