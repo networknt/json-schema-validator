@@ -101,14 +101,13 @@ class KeywordNumericEqualityTest {
     }
 
     @Test
-    // Compatibility with the branch baseline; Jackson 3 normalizes, Jackson 2 uses plain text.
-    void enumTypeLooseRetainsJackson3NormalizedDecimalCompatibility() {
+    void enumTypeLooseMatchesEquivalentNumericStrings() {
         SchemaRegistry loose = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()));
         Schema schema = loose.getSchema("{\"enum\":[100]}");
         assertTrue(schema.validate("\"1E+2\"", InputFormat.JSON).isEmpty());
-        assertFalse(schema.validate("\"100\"", InputFormat.JSON).isEmpty());
-        assertFalse(schema.validate("\"100.0\"", InputFormat.JSON).isEmpty());
+        assertTrue(schema.validate("\"100\"", InputFormat.JSON).isEmpty());
+        assertTrue(schema.validate("\"100.0\"", InputFormat.JSON).isEmpty());
         ObjectNode exactSchema = NODES.objectNode();
         exactSchema.set("enum", NODES.arrayNode().add(new BigDecimal("1E+2")));
         assertTrue(loose.getSchema(exactSchema).validate("\"1E+2\"", InputFormat.JSON).isEmpty());
@@ -134,22 +133,22 @@ class KeywordNumericEqualityTest {
     }
 
     @Test
-    void enumTypeLooseUsesFirstOfEquivalentNumericMembers() {
+    void enumTypeLooseIgnoresScaleOfEquivalentNumericMembers() {
         ObjectNode schemaNode = NODES.objectNode();
         schemaNode.set("enum", NODES.arrayNode().add(new BigDecimal("1")).add(new BigDecimal("1.00")));
         Schema schema = looseRegistry().getSchema(schemaNode);
         assertTrue(schema.validate(NODES.stringNode("1")).isEmpty());
-        assertFalse(schema.validate(NODES.stringNode("1.00")).isEmpty());
+        assertTrue(schema.validate(NODES.stringNode("1.00")).isEmpty());
     }
 
     static Stream<Arguments> looseDecimals() {
         return Stream.of(
-                Arguments.of(new BigDecimal("100"), "1E+2", "100.0"),
+                Arguments.of(new BigDecimal("100"), "1E+2", "100.1"),
                 Arguments.of(new BigDecimal("-1E+3"), "-1E+3", "-100.0"),
                 Arguments.of(new BigDecimal("12E+3"), "1.2E+4", "12001"),
-                Arguments.of(new BigDecimal("1.20"), "1.2", "1.200"),
+                Arguments.of(new BigDecimal("1.20"), "1.2", "1.201"),
                 Arguments.of(new BigDecimal("0E+3"), "0", "000"),
-                Arguments.of(new BigDecimal("0.00"), "0", "0.000"));
+                Arguments.of(new BigDecimal("0.00"), "0", "0.001"));
     }
 
     @ParameterizedTest
