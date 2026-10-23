@@ -21,7 +21,7 @@ Both dependency paths use the existing full-date/full-time grammar checks. Ordin
 
 Ethlo's historical table remains authoritative when the dependency is present. The no-Ethlo fallback still accepts possible June/December UTC leap seconds without checking actual insertion history. That existing accuracy distinction is retained and documented. Ordinary timestamps with four-digit written years remain valid even when their UTC date crosses into year -1 or 10000. No instance string is rewritten.
 
-No public APIs, dependencies, TimeFormat or DateFormat semantics were changed. The public JavaTimeOffsetDateTime entry point remains available; its private parse helper returns already validated time fields for reuse.
+No public APIs, dependencies, TimeFormat or DateFormat semantics were changed. The public JavaTimeOffsetDateTime entry point remains available; a shared private validator parses the date/time and computes the UTC leap date once, passing that date to Ethlo for the optional table check.
 
 ## Full local JDK matrix
 
@@ -29,9 +29,9 @@ Command: `mvn -B clean verify`, selecting JAVA_HOME and PATH for each SDKMAN JDK
 
 | JDK | Unit cases | Existing skips | Artifact checks | Result |
 | --- | ---: | ---: | ---: | --- |
-| 17.0.13-amzn | 10,484 | 30 | 1 | PASS |
-| 21.0.5-amzn | 10,484 | 30 | 1 | PASS |
-| 25.0.3-amzn | 10,484 | 30 | 1 | PASS |
+| 17.0.13-amzn | 10,490 | 30 | 1 | PASS |
+| 21.0.5-amzn | 10,490 | 30 | 1 | PASS |
+| 25.0.3-amzn | 10,490 | 30 | 1 | PASS |
 
 All runs passed with zero failures/errors. No tests were excluded or waived.
 
@@ -55,3 +55,15 @@ An initial comparison against a separate historical-date list exposed existing r
 `git diff --check` passed. GitNexus reported LOW as a lower-bound estimate for DateTimeFormat (one direct indexed caller, zero processes, one module) but could not scan the unindexed worktrees. Source review, regression coverage and complete JDK matrices provide local verification. No performance claim is made; remote CI remains a separate gate.
 
 Open #1331 overlaps the separator portion of this implementation. Its branch and PR are untouched; maintainers should reconcile that overlap when merging the complete fix.
+
+## Review follow-up
+
+The changelog now separates breaking validation changes: with Ethlo present, both space separators and offset-less leap-second strings such as `2016-12-31T23:59:60` change from accepted to rejected. Migration guidance requires `T`/`t` and an explicit offset. Two new cases pin offset-less leap-second rejection.
+
+The existing Ethlo table differences are now explicit in compatibility documentation and four regression cases: 1979-12-31 and 1987-12-31 are real insertions rejected by the table, while 1971-12-31 and 1988-12-31 are accepted despite not having insertions. The fallback accepts all four as possible December-end leap seconds, including through actual no-Ethlo class loading. These inherited calendar discrepancies are not fixed by this syntax/offset change.
+
+Shared private validation now parses the date once and computes its UTC leap date once. Ethlo receives the already computed date; it no longer re-substrings or re-parses the original date or reads a sibling class's private constant. The public entry points, historical table policy and optional dependency loading remain unchanged.
+
+The PR titles are narrowed to syntax and offset handling rather than general consistency. The separator fix was originally proposed by [curforever](https://github.com/curforever) in #1331. Preferred maintainer integration is to merge that contribution first and then rebase the broader PRs, preserving original authorship. If maintainers instead combine the work, contributor credit must be preserved explicitly. The PRs reference #1316 without automatic closure. The merge-order/credit decision remains a maintainer action; #1331 has not been modified or closed.
+
+The local JDK matrix and 253,216-case probe were rerun after the cleanup. The probe still uses the unchanged Ethlo resource for historical-calendar expectations and found zero mismatches on both branches.
