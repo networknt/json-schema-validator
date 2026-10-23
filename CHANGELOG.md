@@ -6,6 +6,8 @@ This format is based on [Keep a Changelog](http://keepachangelog.com/).
 This project does not adhere to [Semantic Versioning](https://semver.org/) and minor version changes can have incompatible API changes. These incompatible API changes will largely affect those who have custom validator or walker implementations. Those who just use the library to validate using the standard JSON Schema Draft specifications may not need changes.
 ## [Unreleased]
 
+- Reduce decimal-preserving tree parser overhead by caching per token and avoiding text and decimal allocations for lossless floats. [#1362](https://github.com/networknt/json-schema-validator/issues/1362)
+
 ### Breaking changes
 - With Ethlo present, `date-time` now rejects space-separated values such as `2020-01-01 12:00:00Z` and leap-second strings without an offset such as `2016-12-31T23:59:60`. Ethlo previously accepted these forms. RFC 3339 requires `T`/`t` and an explicit `Z`/`z` or signed `HH:MM` offset; callers relying on those spellings must supply the required separator/offset. The fallback already rejected both forms. (#1316)
 
