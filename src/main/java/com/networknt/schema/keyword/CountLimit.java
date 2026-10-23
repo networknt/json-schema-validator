@@ -52,9 +52,11 @@ final class CountLimit {
         }
         BigDecimal decimal;
         Number annotation = node.numberValue();
-        String exact = owner != null && owner.get(keyword) == node ? CountTokens.get(owner, keyword) : null;
+        String exact = CountTokens.get(owner, keyword, node);
         if (exact != null) {
-            decimal = new BigDecimal(exact); // Only active count keywords require decimal representability.
+            // YAML parsers can expose accepted numeric scalars with underscore separators.
+            // JSON still rejects such syntax before this point.
+            decimal = new BigDecimal(exact.replace("_", ""));
         } else {
             if (node.isDouble() || node.isFloat()) {
                 double number = node.doubleValue();

@@ -58,6 +58,10 @@ public interface NodeReader {
      * Reads a schema. Built-in readers retain exact decimal count tokens while
      * keeping ordinary node behavior. Custom readers retain their parsing policy;
      * values already rounded by a custom reader or JsonNode input cannot be recovered.
+     * Lexical metadata belongs to the original parsed tree; deepCopy does not transfer
+     * it. Use an exact-decimal reader when copied trees must retain count precision.
+     * Active count tokens must fit BigDecimal's parsing range; opaque literal data
+     * retains the configured reader's ordinary behavior outside that range.
      */
     default JsonNode readSchema(String content, InputFormat inputFormat) throws java.io.IOException {
         return readTree(content, inputFormat);

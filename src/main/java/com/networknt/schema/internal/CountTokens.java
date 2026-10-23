@@ -25,11 +25,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * Internal count lexemes, owned by schema-object identity, not numeric-node value.
  * Weak keys keep this read/compile-time sidecar from retaining schema documents.
- * Values contain only strings, never references back to the owning nodes.
+ * Values retain only strings and weak numeric-node references, never their owners.
  */
 public final class CountTokens {
     private static final ReferenceQueue<JsonNode> QUEUE = new ReferenceQueue<>();
-    private static final Map<Identity, Map<String, String>> TOKENS = new HashMap<>();
+    private static final Map<Identity, Map<String, Token>> TOKENS = new HashMap<>();
 
     private CountTokens() {
     }
@@ -41,24 +41,46 @@ public final class CountTokens {
         }
     }
 
-    public static synchronized void put(JsonNode owner, String keyword, String token) {
+    public static synchronized void put(JsonNode owner, String keyword, JsonNode number, String token) {
         clean();
         Identity lookup = new Identity(owner, null);
-        Map<String, String> fields = TOKENS.get(lookup);
+        Map<String, Token> fields = TOKENS.get(lookup);
         if (fields == null) {
             fields = new HashMap<>();
             TOKENS.put(new Identity(owner, QUEUE), fields);
         }
-        fields.put(keyword, token);
+        fields.put(keyword, new Token(number, token));
     }
 
-    public static synchronized String get(JsonNode owner, String keyword) {
-        if (owner == null) {
+    public static synchronized String get(JsonNode owner, String keyword, JsonNode number) {
+        if (owner == null || number == null || !number.isNumber()) {
             return null;
         }
         clean();
-        Map<String, String> fields = TOKENS.get(new Identity(owner, null));
-        return fields == null ? null : fields.get(keyword);
+        Map<String, Token> fields = TOKENS.get(new Identity(owner, null));
+        Token captured = fields == null ? null : fields.get(keyword);
+        if (captured == null) {
+            return null;
+        }
+        if (owner.get(keyword) != number || captured.number.get() != number
+                || !captured.value.equals(number.numberValue().toString())) {
+            fields.remove(keyword); // Replaced or mutated numbers invalidate their old provenance.
+            return null;
+        }
+        return captured.text;
+    }
+
+    private static final class Token {
+        private final WeakReference<JsonNode> number;
+        private final String value;
+        private final String text;
+
+        Token(JsonNode number, String text) {
+            this.number = new WeakReference<>(number);
+            String snapshot = number.numberValue().toString();
+            this.value = snapshot.equals(text) ? text : snapshot;
+            this.text = text;
+        }
     }
 
     private static final class Identity extends WeakReference<JsonNode> {
