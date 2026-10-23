@@ -19,7 +19,10 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Json Mapper Factory.
+ * JSON mapper factory with selective exact decimal tree reading.
+ * Finite lossy decimals become decimal nodes; lossless doubles and signed zero
+ * retain their representation. Scalar/POJO binding keeps Jackson's native policy.
+ * Explicit mapper features and custom node factories retain their own policies.
  */
 public class JsonMapperFactory {
 
@@ -27,7 +30,7 @@ public class JsonMapperFactory {
      * The holder defers the classloading until it is used.
      */
     private static class Holder {
-        private static final ObjectMapper INSTANCE = JsonMapper.shared();
+        private static final ObjectMapper INSTANCE = JsonMapper.builder().addModule(SelectiveTreeDeserializer.module()).build();
     }
 
     /**

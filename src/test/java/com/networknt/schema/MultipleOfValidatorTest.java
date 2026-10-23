@@ -198,14 +198,14 @@ class MultipleOfValidatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "9007199254740993, 9007199254740993.0, 1",
-            "9007199254740993.0, 9007199254740993, 1",
-            "9007199254740993, 18014398509481986.0, 1",
-            "9007199254740993.0, 18014398509481986, 1",
-            "9007199254740993, -9007199254740993.0, 1",
-            "9007199254740993.0, -9007199254740993, 1",
-            "-9007199254740993, 9007199254740993.0, 1",
-            "-9007199254740993.0, 9007199254740993, 1",
+            "9007199254740993, 9007199254740993.0, 0",
+            "9007199254740993.0, 9007199254740993, 0",
+            "9007199254740993, 18014398509481986.0, 0",
+            "9007199254740993.0, 18014398509481986, 0",
+            "9007199254740993, -9007199254740993.0, 0",
+            "9007199254740993.0, -9007199254740993, 0",
+            "-9007199254740993, 9007199254740993.0, 0",
+            "-9007199254740993.0, 9007199254740993, 0",
             "9007199254740993, 9007199254740996.0, 1",
             "9007199254740993.0, 9007199254740996, 1",
             "9007199254740993, 0.0, 0",
@@ -900,8 +900,9 @@ class MultipleOfValidatorTest {
     void mixedInputMessageUsesTheDivisorUsedForValidation() {
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema("{\"multipleOf\":9007199254740993}");
+        assertTrue(schema.validate("27021597764222979.0", InputFormat.JSON).isEmpty());
         assertEquals("must be multiple of 9007199254740993",
-                schema.validate("27021597764222979.0", InputFormat.JSON).get(0).getMessage());
+                schema.validate("27021597764222979.1", InputFormat.JSON).get(0).getMessage());
         assertEquals("must be multiple of 9007199254740993",
                 schema.validate("2", InputFormat.JSON).get(0).getMessage());
     }
