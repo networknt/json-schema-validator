@@ -33,12 +33,12 @@ public class DefaultNodeReader implements NodeReader {
 
     @Override
     public JsonNode readSchema(String content, InputFormat inputFormat) {
-        return JsonNodes.readSchemaTree(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
     }
 
     @Override
     public JsonNode readSchema(InputStream content, InputFormat inputFormat) {
-        return JsonNodes.readSchemaTree(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
     }
 
     @Override

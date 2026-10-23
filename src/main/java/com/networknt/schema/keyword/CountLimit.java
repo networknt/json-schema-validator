@@ -17,47 +17,89 @@
 package com.networknt.schema.keyword;
 
 import java.math.BigDecimal;
-
 import tools.jackson.databind.JsonNode;
+import com.networknt.schema.internal.CountTokens;
 
-/**
- * A count limit compared with int-sized instances without narrowing the schema
- * value. Large exponents stay in decimal form rather than expanding to integers.
- */
+/** Immutable count comparison, annotation value and preformatted error argument. */
 final class CountLimit {
+    private static final BigDecimal INT_MIN = BigDecimal.valueOf(Integer.MIN_VALUE);
+    private static final BigDecimal INT_MAX = BigDecimal.valueOf(Integer.MAX_VALUE);
     private final Number value;
     private final int intValue;
     private final int outsideIntRange;
+    private final String messageArgument;
 
-    private CountLimit(Number value, int intValue, int outsideIntRange) {
+    private CountLimit(Number value, int intValue, int outsideIntRange, String messageArgument) {
         this.value = value;
         this.intValue = intValue;
         this.outsideIntRange = outsideIntRange;
+        this.messageArgument = messageArgument;
     }
 
     static CountLimit of(int value) {
-        return new CountLimit(Integer.valueOf(value), value, 0);
+        return new CountLimit(Integer.valueOf(value), value, 0, Integer.toString(value));
     }
 
-    static CountLimit of(JsonNode node) {
-        BigDecimal value = node.decimalValue();
-        if (value.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) > 0) {
-            return new CountLimit(value, Integer.MAX_VALUE, 1);
-        }
-        if (value.compareTo(BigDecimal.valueOf(Integer.MIN_VALUE)) < 0) {
-            return new CountLimit(value, Integer.MIN_VALUE, -1);
-        }
-        return of(value.intValue());
+    static CountLimit of(JsonNode node, int fallback, JsonNode owner, String keyword) {
+        CountLimit parsed = parse(node, owner, keyword);
+        return parsed == null ? of(fallback) : parsed;
     }
 
-    /** Whether the actual count meets this minimum. */
+    /** Parses once, returning null for an absent, nonnumeric or fractional bound. */
+    static CountLimit parse(JsonNode node, JsonNode owner, String keyword) {
+        if (node == null || !node.isNumber()) {
+            return null;
+        }
+        BigDecimal decimal;
+        Number annotation = node.numberValue();
+        String exact = CountTokens.get(owner, keyword, node);
+        if (exact != null) {
+            // YAML parsers can expose accepted numeric scalars with underscore separators.
+            // JSON still rejects such syntax before this point.
+            decimal = new BigDecimal(exact.replace("_", ""));
+        } else {
+            if (node.isDouble() || node.isFloat()) {
+                double number = node.doubleValue();
+                if (Double.isInfinite(number)) {
+                    return new CountLimit(annotation, number > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE,
+                            number > 0 ? 1 : -1, number > 0 ? "Infinity" : "-Infinity");
+                }
+                if (number != Math.rint(number)) {
+                    return null; // Includes NaN.
+                }
+                // No source token survives programmatic or legacy-reader input.
+                decimal = node.isFloat() ? new BigDecimal(Float.toString(node.floatValue())) : BigDecimal.valueOf(number);
+            } else {
+                decimal = node.decimalValue();
+            }
+        }
+        BigDecimal normalized;
+        try {
+            normalized = decimal.stripTrailingZeros();
+        } catch (ArithmeticException e) {
+            // Already integral: stripping zeros at the minimum scale underflows.
+            normalized = decimal;
+        }
+        if (normalized.scale() > 0) {
+            return null;
+        }
+        int range = decimal.compareTo(INT_MAX) > 0 ? 1 : decimal.compareTo(INT_MIN) < 0 ? -1 : 0;
+        int integer = range > 0 ? Integer.MAX_VALUE : range < 0 ? Integer.MIN_VALUE : decimal.intValue();
+        return new CountLimit(annotation, integer, range,
+                range == 0 ? Integer.toString(integer)
+                        : decimal.scale() >= 0 ? normalized.toPlainString() : normalized.toString());
+    }
+
     boolean isMinimumSatisfiedBy(int actual) {
         return this.outsideIntRange < 0 || (this.outsideIntRange == 0 && actual >= this.intValue);
     }
 
-    /** Whether the actual count meets this maximum. */
     boolean isMaximumSatisfiedBy(int actual) {
         return this.outsideIntRange > 0 || (this.outsideIntRange == 0 && actual <= this.intValue);
+    }
+
+    boolean isNegative() {
+        return this.outsideIntRange < 0 || (this.outsideIntRange == 0 && this.intValue < 0);
     }
 
     Number value() {
@@ -65,11 +107,9 @@ final class CountLimit {
     }
 
     String messageArgument() {
-        // Strings prevent locale grouping and expansion of exponent-sized numbers.
-        return this.value.toString();
+        return this.messageArgument;
     }
 
-    /** Saturated view for the legacy protected int field. */
     int intValue() {
         return this.intValue;
     }

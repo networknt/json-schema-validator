@@ -19,7 +19,6 @@ import java.io.InputStream;
 
 import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.JsonParser;
-import tools.jackson.core.util.JsonParserDelegate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
@@ -32,55 +31,6 @@ import com.networknt.schema.serialization.node.JsonNodeFactoryFactory;
  * Utility methods for JsonNode.
  */
 public class JsonNodes {
-    /** Reads schema count limits as decimals without changing other numbers or node factories. */
-    public static JsonNode readSchemaTree(ObjectMapper objectMapper, String content,
-            JsonNodeFactoryFactory jsonNodeFactoryFactory) {
-        try (JsonParser parser = new CountLimitParser(objectMapper.createParser(content))) {
-            JsonNodeFactory nodeFactory = jsonNodeFactoryFactory == null ? objectMapper.getNodeFactory()
-                    : jsonNodeFactoryFactory.getJsonNodeFactory(parser);
-            JsonNode result = objectMapper.reader(nodeFactory).readTree(parser);
-            return result != null ? result : nodeFactory.missingNode();
-        }
-    }
-
-    /** Reads schema count limits as decimals without changing other numbers or node factories. */
-    public static JsonNode readSchemaTree(ObjectMapper objectMapper, InputStream content,
-            JsonNodeFactoryFactory jsonNodeFactoryFactory) {
-        try (JsonParser parser = new CountLimitParser(objectMapper.createParser(content))) {
-            JsonNodeFactory nodeFactory = jsonNodeFactoryFactory == null ? objectMapper.getNodeFactory()
-                    : jsonNodeFactoryFactory.getJsonNodeFactory(parser);
-            JsonNode result = objectMapper.reader(nodeFactory).readTree(parser);
-            return result != null ? result : nodeFactory.missingNode();
-        }
-    }
-
-    /** Preserves the token's decimal value only for count keywords in schemas. */
-    private static final class CountLimitParser extends JsonParserDelegate {
-        CountLimitParser(JsonParser parser) {
-            super(parser);
-        }
-
-        private boolean isCountLimit() {
-            String name = currentName();
-            return "minItems".equals(name) || "maxItems".equals(name)
-                    || "minProperties".equals(name) || "maxProperties".equals(name)
-                    || "minLength".equals(name) || "maxLength".equals(name)
-                    || "minContains".equals(name) || "maxContains".equals(name);
-        }
-
-        @Override
-        public NumberType getNumberType() {
-            return currentToken() == tools.jackson.core.JsonToken.VALUE_NUMBER_FLOAT
-                    && isCountLimit() && !isNaN() ? NumberType.BIG_DECIMAL : super.getNumberType();
-        }
-
-        @Override
-        public NumberTypeFP getNumberTypeFP() {
-            return isCountLimit() && !isNaN() ? NumberTypeFP.BIG_DECIMAL : super.getNumberTypeFP();
-        }
-    }
-
-
     /**
      * Gets the node found at the path.
      *
