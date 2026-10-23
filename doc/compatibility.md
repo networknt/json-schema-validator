@@ -15,6 +15,13 @@ This implements the Flag, List and Hierarchical output formats defined in the [S
 
 The implementation supports the use of custom keywords, formats, vocabularies and meta-schemas.
 
+### Date-time Format
+
+When format assertions are enabled, `date-time` requires `T` or `t` between the date and time,
+as defined by the [RFC 3339 date-time grammar](https://www.rfc-editor.org/rfc/rfc3339.html#section-5.6).
+A space separator is not valid for this JSON Schema format. For Draft 2019-09 and later,
+`format` is an annotation by default; set `formatAssertionsEnabled` to `true` to validate it.
+
 ### Known Issues
 
 There are currently no known issues with the required functionality from the specification.
