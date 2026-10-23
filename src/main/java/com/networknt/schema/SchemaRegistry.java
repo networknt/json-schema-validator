@@ -629,6 +629,14 @@ public class SchemaRegistry {
         return dialectRegistry.getDialect(key, this);
     }
 
+    private JsonNode readSchema(String content, InputFormat inputFormat) {
+        return this.nodeReader.readSchema(content, inputFormat);
+    }
+
+    private JsonNode readSchema(InputStream content, InputFormat inputFormat) {
+        return this.nodeReader.readSchema(content, inputFormat);
+    }
+
     JsonNode readTree(String content, InputFormat inputFormat) {
         return this.nodeReader.readTree(content, inputFormat);
     }
@@ -661,7 +669,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final String schema, InputFormat inputFormat) {
-        final JsonNode schemaNode = readTree(schema, inputFormat);
+        final JsonNode schemaNode = readSchema(schema, inputFormat);
         return newSchema(null, schemaNode);
     }
 
@@ -689,7 +697,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final InputStream schemaStream, InputFormat inputFormat) {
-        final JsonNode schemaNode = readTree(schemaStream, inputFormat);
+        final JsonNode schemaNode = readSchema(schemaStream, inputFormat);
         return newSchema(null, schemaNode);
     }
 
@@ -727,7 +735,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri, final String schema, InputFormat inputFormat) {
-        final JsonNode schemaNode = readTree(schema, inputFormat);
+        final JsonNode schemaNode = readSchema(schema, inputFormat);
         return newSchema(schemaUri, schemaNode);
     }
 
@@ -740,7 +748,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri, final InputStream schemaStream, InputFormat inputFormat) {
-        final JsonNode schemaNode = readTree(schemaStream, inputFormat);
+        final JsonNode schemaNode = readSchema(schemaStream, inputFormat);
         return newSchema(schemaUri, schemaNode);
     }
 
@@ -822,9 +830,9 @@ public class SchemaRegistry {
                 }
                 final JsonNode schemaNode;
                 if (isYaml(schemaUri)) {
-                    schemaNode = readTree(inputStream, InputFormat.YAML);
+                    schemaNode = readSchema(inputStream, InputFormat.YAML);
                 } else {
-                    schemaNode = readTree(inputStream, InputFormat.JSON);
+                    schemaNode = readSchema(inputStream, InputFormat.JSON);
                 }
 
                 final Dialect dialect = getDialectOrDefault(schemaNode);
