@@ -472,9 +472,10 @@
                   <module>
                     <moduleInfo>
                       <name>com.networknt.schema</name>
-                      <!-- export everything except embedded Apache code -->
+                      <!-- export everything except embedded Apache code and internal implementation packages -->
                       <exports>
                         !com.networknt.org*;
+                        !com.networknt.schema.internal*;
                         *;
                       </exports>
                       <requires>

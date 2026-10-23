@@ -246,15 +246,15 @@ class Issue1346Test {
     @MethodSource("inputPaths")
     void overflowedContainsBoundsKeepTheirOwnValue(InputPath path) throws Exception {
         for (String keyword : new String[] { "minContains", "maxContains" }) {
-            Result result = annotated(schema(SpecificationVersion.DRAFT_2020_12, path,
-                    "{\"contains\":true,\"" + keyword + "\":1e400}", false));
+            Schema boundSchema = schema(SpecificationVersion.DRAFT_2020_12, path,
+                    "{\"contains\":true,\"" + keyword + "\":1e400}", false);
+            Result result = annotated(boundSchema);
             assertEquals("minContains".equals(keyword) ? 1 : 0, result.getErrors().size());
             if (!result.getErrors().isEmpty()) {
                 assertEquals(path == InputPath.DEFAULT_READER ? "1E+400" : "Infinity",
                         result.getErrors().get(0).getArguments()[0]);
             }
-            assertEquals(path == InputPath.DEFAULT_READER ? new BigDecimal("1e400")
-                    : Double.valueOf(Double.POSITIVE_INFINITY), annotation(result, keyword));
+            assertEquals(boundSchema.getSchemaNode().get(keyword).numberValue(), annotation(result, keyword));
         }
     }
 
@@ -318,7 +318,7 @@ class Issue1346Test {
 
     @ParameterizedTest
     @MethodSource("inputPaths")
-    void integerLimitsUseCanonicalExactMessages(InputPath path) throws Exception {
+    void plainIntegerLimitsKeepTheirFullMessage(InputPath path) throws Exception {
         for (String limit : new String[] { "3000000000", "12345678901234567890", "10000000000" }) {
             for (String kind : new String[] { "Items", "Properties", "Length", "Contains" }) {
                 String contains = "Contains".equals(kind) ? "\"contains\":true," : "";
@@ -326,15 +326,14 @@ class Issue1346Test {
                         "{" + contains + "\"min" + kind + "\":" + limit + "}", false);
                 List<Error> errors = schema.validate(instance(kind, true), InputFormat.JSON);
                 assertEquals(1, errors.size());
-                String expected = new BigDecimal(limit).stripTrailingZeros().toString();
-                assertEquals(expected, errors.get(0).getArguments()[0]);
-                assertTrue(errors.get(0).getMessage().contains(expected));
+                assertEquals(limit, errors.get(0).getArguments()[0]);
+                assertTrue(errors.get(0).getMessage().contains(limit));
             }
         }
     }
 
     @Test
-    void programmaticBigDecimalLimitsUseCanonicalExactMessages() {
+    void programmaticPlainBigDecimalLimitsKeepTheirFullMessage() {
         SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         for (String limit : new String[] { "3000000000", "12345678901234567890", "10000000000" }) {
             for (String kind : new String[] { "Items", "Properties", "Length", "Contains" }) {
@@ -345,9 +344,8 @@ class Issue1346Test {
                 }
                 List<Error> errors = registry.getSchema(node).validate(instance(kind, true), InputFormat.JSON);
                 assertEquals(1, errors.size());
-                String expected = new BigDecimal(limit).stripTrailingZeros().toString();
-                assertEquals(expected, errors.get(0).getArguments()[0]);
-                assertTrue(errors.get(0).getMessage().contains(expected));
+                assertEquals(limit, errors.get(0).getArguments()[0]);
+                assertTrue(errors.get(0).getMessage().contains(limit));
             }
         }
     }

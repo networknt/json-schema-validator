@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import java.math.BigDecimal;
 import tools.jackson.databind.JsonNode;
-import com.networknt.schema.serialization.CountTokenNode;
+import com.networknt.schema.internal.CountTokens;
 
 /** Immutable count comparison, annotation value and preformatted error argument. */
 final class CountLimit {
@@ -40,23 +40,22 @@ final class CountLimit {
         return new CountLimit(Integer.valueOf(value), value, 0, Integer.toString(value));
     }
 
-    static CountLimit of(JsonNode node, int fallback) {
-        CountLimit parsed = parse(node);
+    static CountLimit of(JsonNode node, int fallback, JsonNode owner, String keyword) {
+        CountLimit parsed = parse(node, owner, keyword);
         return parsed == null ? of(fallback) : parsed;
     }
 
     /** Parses once, returning null for an absent, nonnumeric or fractional bound. */
-    static CountLimit parse(JsonNode node) {
+    static CountLimit parse(JsonNode node, JsonNode owner, String keyword) {
         if (node == null || !node.isNumber()) {
             return null;
         }
         BigDecimal decimal;
-        Number annotation;
-        if (node instanceof CountTokenNode) {
-            decimal = ((CountTokenNode) node).countValue();
-            annotation = decimal;
+        Number annotation = node.numberValue();
+        String exact = owner != null && owner.get(keyword) == node ? CountTokens.get(owner, keyword) : null;
+        if (exact != null) {
+            decimal = new BigDecimal(exact); // Only active count keywords require decimal representability.
         } else {
-            annotation = node.numberValue();
             if (node.isDouble() || node.isFloat()) {
                 double number = node.doubleValue();
                 if (Double.isInfinite(number)) {
@@ -85,7 +84,8 @@ final class CountLimit {
         int range = decimal.compareTo(INT_MAX) > 0 ? 1 : decimal.compareTo(INT_MIN) < 0 ? -1 : 0;
         int integer = range > 0 ? Integer.MAX_VALUE : range < 0 ? Integer.MIN_VALUE : decimal.intValue();
         return new CountLimit(annotation, integer, range,
-                range == 0 ? Integer.toString(integer) : normalized.toString());
+                range == 0 ? Integer.toString(integer)
+                        : decimal.scale() >= 0 ? normalized.toPlainString() : normalized.toString());
     }
 
     boolean isMinimumSatisfiedBy(int actual) {
