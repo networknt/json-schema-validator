@@ -17,68 +17,81 @@
 package com.networknt.schema.keyword;
 
 import java.math.BigDecimal;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.serialization.CountTokenNode;
 
-/**
- * A count limit compared with int-sized instances without narrowing the schema
- * value. Large exponents stay in decimal form rather than expanding to integers.
- */
+/** Immutable count comparison, annotation value and preformatted error argument. */
 final class CountLimit {
+    private static final BigDecimal INT_MIN = BigDecimal.valueOf(Integer.MIN_VALUE);
+    private static final BigDecimal INT_MAX = BigDecimal.valueOf(Integer.MAX_VALUE);
     private final Number value;
     private final int intValue;
     private final int outsideIntRange;
+    private final String messageArgument;
 
-    private CountLimit(Number value, int intValue, int outsideIntRange) {
+    private CountLimit(Number value, int intValue, int outsideIntRange, String messageArgument) {
         this.value = value;
         this.intValue = intValue;
         this.outsideIntRange = outsideIntRange;
+        this.messageArgument = messageArgument;
     }
 
     static CountLimit of(int value) {
-        return new CountLimit(Integer.valueOf(value), value, 0);
+        return new CountLimit(Integer.valueOf(value), value, 0, Integer.toString(value));
     }
 
-    /** Infinite floating-point nodes represent limits outside any int-sized instance. */
-    static boolean isIntegral(JsonNode node) {
-        if (node.isDouble() || node.isFloat()) {
-            // Avoid FloatNode's narrowing integral check. This includes infinities
-            // for saturation and rejects NaN and fractional values by equality.
-            double number = node.doubleValue();
-            return number == Math.rint(number);
+    static CountLimit of(JsonNode node, int fallback) {
+        CountLimit parsed = parse(node);
+        return parsed == null ? of(fallback) : parsed;
+    }
+
+    /** Parses once, returning null for an absent, nonnumeric or fractional bound. */
+    static CountLimit parse(JsonNode node) {
+        if (node == null || !node.isNumber()) {
+            return null;
         }
-        return node.isNumber() && node.canConvertToExactIntegral();
-    }
-
-    static CountLimit of(JsonNode node) {
-        BigDecimal value;
-        if (node.isDouble() || node.isFloat()) {
-            double number = node.doubleValue();
-            if (Double.isInfinite(number)) {
-                return new CountLimit(node.numberValue(), number > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE,
-                        number > 0 ? 1 : -1);
-            }
-            // Use the floating-point value's short decimal spelling, not its binary expansion.
-            value = node.isFloat() ? new BigDecimal(Float.toString(node.floatValue())) : BigDecimal.valueOf(number);
-            value = value.stripTrailingZeros();
+        BigDecimal decimal;
+        Number annotation;
+        if (node instanceof CountTokenNode) {
+            decimal = ((CountTokenNode) node).countValue();
+            annotation = decimal;
         } else {
-            value = node.decimalValue();
+            annotation = node.numberValue();
+            if (node.isDouble() || node.isFloat()) {
+                double number = node.doubleValue();
+                if (Double.isInfinite(number)) {
+                    return new CountLimit(annotation, number > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE,
+                            number > 0 ? 1 : -1, number > 0 ? "Infinity" : "-Infinity");
+                }
+                if (number != Math.rint(number)) {
+                    return null; // Includes NaN.
+                }
+                // No source token survives programmatic or legacy-reader input.
+                decimal = node.isFloat() ? new BigDecimal(Float.toString(node.floatValue())) : BigDecimal.valueOf(number);
+            } else {
+                decimal = node.decimalValue();
+            }
         }
-        if (value.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) > 0) {
-            return new CountLimit(value, Integer.MAX_VALUE, 1);
+        BigDecimal normalized;
+        try {
+            normalized = decimal.stripTrailingZeros();
+        } catch (ArithmeticException e) {
+            // Already integral: stripping zeros at the minimum scale underflows.
+            normalized = decimal;
         }
-        if (value.compareTo(BigDecimal.valueOf(Integer.MIN_VALUE)) < 0) {
-            return new CountLimit(value, Integer.MIN_VALUE, -1);
+        if (normalized.scale() > 0) {
+            return null;
         }
-        return of(value.intValue());
+        int range = decimal.compareTo(INT_MAX) > 0 ? 1 : decimal.compareTo(INT_MIN) < 0 ? -1 : 0;
+        int integer = range > 0 ? Integer.MAX_VALUE : range < 0 ? Integer.MIN_VALUE : decimal.intValue();
+        return new CountLimit(annotation, integer, range,
+                range == 0 ? Integer.toString(integer) : normalized.toString());
     }
 
-    /** Whether the actual count meets this minimum. */
     boolean isMinimumSatisfiedBy(int actual) {
         return this.outsideIntRange < 0 || (this.outsideIntRange == 0 && actual >= this.intValue);
     }
 
-    /** Whether the actual count meets this maximum. */
     boolean isMaximumSatisfiedBy(int actual) {
         return this.outsideIntRange > 0 || (this.outsideIntRange == 0 && actual <= this.intValue);
     }
@@ -92,20 +105,9 @@ final class CountLimit {
     }
 
     String messageArgument() {
-        // Strings prevent locale grouping and expansion of exponent-sized numbers.
-        if (this.value instanceof BigDecimal && ((BigDecimal) this.value).scale() != 0) {
-            try {
-                return ((BigDecimal) this.value).stripTrailingZeros().toString();
-            } catch (ArithmeticException e) {
-                // Stripping zeros can underflow BigDecimal's scale. Its original
-                // scientific representation is still exact and bounded in size.
-                return this.value.toString();
-            }
-        }
-        return this.value.toString();
+        return this.messageArgument;
     }
 
-    /** Saturated view for the legacy protected int field. */
     int intValue() {
         return this.intValue;
     }

@@ -34,7 +34,7 @@ public class MinPropertiesValidator extends BaseKeywordValidator implements Keyw
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
         super(KeywordType.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.minimum = CountLimit.isIntegral(schemaNode) ? CountLimit.of(schemaNode) : CountLimit.of(0);
+        this.minimum = CountLimit.of(schemaNode, 0);
         this.min = this.minimum.intValue();
     }
 
@@ -42,7 +42,7 @@ public class MinPropertiesValidator extends BaseKeywordValidator implements Keyw
         
 
         if (node.isObject()) {
-            if (node.size() < this.min || !this.minimum.isMinimumSatisfiedBy(node.size())) {
+            if (!this.minimum.isMinimumSatisfiedBy(node.size())) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.minimum.messageArgument()).build());

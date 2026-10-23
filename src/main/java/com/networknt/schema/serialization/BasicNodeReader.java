@@ -39,6 +39,16 @@ public class BasicNodeReader implements NodeReader {
     }
 
     @Override
+    public JsonNode readSchema(String content, InputFormat inputFormat) throws java.io.IOException {
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, null);
+    }
+
+    @Override
+    public JsonNode readSchema(InputStream content, InputFormat inputFormat) throws java.io.IOException {
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, null);
+    }
+
+    @Override
     public JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
         return getObjectMapper(inputFormat).readTree(content);
     }

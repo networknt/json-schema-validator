@@ -54,4 +54,17 @@ public interface NodeReader {
     static DefaultNodeReader.Builder builder() {
         return DefaultNodeReader.builder();
     }
+    /**
+     * Reads a schema. Built-in readers retain exact decimal count tokens while
+     * keeping ordinary node behavior. Custom readers retain their parsing policy;
+     * values already rounded by a custom reader or JsonNode input cannot be recovered.
+     */
+    default JsonNode readSchema(String content, InputFormat inputFormat) throws java.io.IOException {
+        return readTree(content, inputFormat);
+    }
+
+    /** Stream counterpart of {@link #readSchema(String, InputFormat)}. */
+    default JsonNode readSchema(InputStream content, InputFormat inputFormat) throws java.io.IOException {
+        return readTree(content, inputFormat);
+    }
 }

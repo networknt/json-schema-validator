@@ -657,7 +657,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final String schema, InputFormat inputFormat) {
         try {
-            final JsonNode schemaNode = readTree(schema, inputFormat);
+            final JsonNode schemaNode = this.nodeReader.readSchema(schema, inputFormat);
             return newSchema(null, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -690,7 +690,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final InputStream schemaStream, InputFormat inputFormat) {
         try {
-            final JsonNode schemaNode = readTree(schemaStream, inputFormat);
+            final JsonNode schemaNode = this.nodeReader.readSchema(schemaStream, inputFormat);
             return newSchema(null, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -733,7 +733,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final SchemaLocation schemaUri, final String schema, InputFormat inputFormat) {
         try {
-            final JsonNode schemaNode = readTree(schema, inputFormat);
+            final JsonNode schemaNode = this.nodeReader.readSchema(schema, inputFormat);
             return newSchema(schemaUri, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -751,7 +751,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final SchemaLocation schemaUri, final InputStream schemaStream, InputFormat inputFormat) {
         try {
-            final JsonNode schemaNode = readTree(schemaStream, inputFormat);
+            final JsonNode schemaNode = this.nodeReader.readSchema(schemaStream, inputFormat);
             return newSchema(schemaUri, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -837,9 +837,9 @@ public class SchemaRegistry {
                 }
                 final JsonNode schemaNode;
                 if (isYaml(schemaUri)) {
-                    schemaNode = readTree(inputStream, InputFormat.YAML);
+                    schemaNode = this.nodeReader.readSchema(inputStream, InputFormat.YAML);
                 } else {
-                    schemaNode = readTree(inputStream, InputFormat.JSON);
+                    schemaNode = this.nodeReader.readSchema(inputStream, InputFormat.JSON);
                 }
 
                 final Dialect dialect = getDialectOrDefault(schemaNode);
