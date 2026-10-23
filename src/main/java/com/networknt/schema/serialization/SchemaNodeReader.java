@@ -52,7 +52,7 @@ final class SchemaNodeReader {
                 String keyword = token.getKey().substring(slash + 1);
                 JsonNode value = owner.get(keyword);
                 if (value != null && value.isNumber()) {
-                    CountTokens.put(owner, keyword, token.getValue());
+                    CountTokens.put(owner, keyword, value, token.getValue());
                 }
             }
             return result;

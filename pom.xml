@@ -344,6 +344,20 @@
             <usePhrasedClassNameInTestCaseSummary>true</usePhrasedClassNameInTestCaseSummary>
           </statelessTestsetInfoReporter>
         </configuration>
+        <executions>
+          <execution>
+            <id>verify-packaged-boundary</id>
+            <phase>verify</phase>
+            <goals><goal>test</goal></goals>
+            <configuration>
+              <test>InternalPackageIT</test>
+              <reportsDirectory>${project.build.directory}/artifact-boundary-reports</reportsDirectory>
+              <systemPropertyVariables>
+                <countArtifact>${project.build.directory}/${project.build.finalName}.jar</countArtifact>
+              </systemPropertyVariables>
+            </configuration>
+          </execution>
+        </executions>
         <dependencies>
           <dependency>
             <groupId>me.fabriciorby</groupId>
