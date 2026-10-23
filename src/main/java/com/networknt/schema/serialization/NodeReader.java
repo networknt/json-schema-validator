@@ -54,4 +54,13 @@ public interface NodeReader {
     static DefaultNodeReader.Builder builder() {
         return DefaultNodeReader.builder();
     }
+    /** Reads a schema, allowing readers to preserve keyword-specific numeric precision. */
+    default JsonNode readSchema(String content, InputFormat inputFormat) throws IOException {
+        return readTree(content, inputFormat);
+    }
+
+    /** Reads a schema stream. Existing custom readers retain their parsing policy. */
+    default JsonNode readSchema(InputStream content, InputFormat inputFormat) throws IOException {
+        return readTree(content, inputFormat);
+    }
 }

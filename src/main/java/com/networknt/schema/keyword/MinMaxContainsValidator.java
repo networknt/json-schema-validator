@@ -28,7 +28,7 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
         // checks its own value. The specification does not require minContains <=
         // maxContains. Contradictory bounds only mean that no array can satisfy contains,
         // which ContainsValidator already reports, so they are not a schema error.
-        if (!schemaNode.isNumber() || !schemaNode.canConvertToExactIntegral() || schemaNode.intValue() < 0) {
+        if (!schemaNode.isNumber() || !schemaNode.canConvertToExactIntegral() || schemaNode.decimalValue().signum() < 0) {
             this.malformedParentSchema = parentSchema.getSchemaNode().toString();
         } else {
             this.malformedParentSchema = null;
