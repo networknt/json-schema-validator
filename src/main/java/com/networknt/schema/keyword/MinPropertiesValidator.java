@@ -16,8 +16,6 @@
 
 package com.networknt.schema.keyword;
 
-import com.networknt.schema.utils.JsonNodes;
-
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
@@ -36,7 +34,7 @@ public class MinPropertiesValidator extends BaseKeywordValidator implements Keyw
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
         super(KeywordType.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.minimum = JsonNodes.isIntegralCountLimit(schemaNode) ? CountLimit.of(schemaNode) : CountLimit.of(0);
+        this.minimum = CountLimit.isIntegral(schemaNode) ? CountLimit.of(schemaNode) : CountLimit.of(0);
         this.min = this.minimum.intValue();
     }
 

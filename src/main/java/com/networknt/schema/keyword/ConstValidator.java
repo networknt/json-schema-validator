@@ -20,7 +20,6 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
-import com.networknt.schema.utils.JsonNodeTypes;
 import com.networknt.schema.SchemaContext;
 
 /**
@@ -33,30 +32,7 @@ public class ConstValidator extends BaseKeywordValidator implements KeywordValid
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-        if (schemaNode.isNumber() && node.isNumber()) {
-            boolean schemaIsNonFinite = JsonNodeTypes.isNonFiniteNumber(schemaNode);
-            boolean nodeIsNonFinite = JsonNodeTypes.isNonFiniteNumber(node);
-            if (schemaIsNonFinite != nodeIsNonFinite) {
-                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .evaluationPath(executionContext.getEvaluationPath())
-                        .locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(schemaNode.asString(schemaNode.toString()), node.asString()).build());                
-            } else if (schemaIsNonFinite || nodeIsNonFinite) {
-                // Handle the NaN, Infinity and -Infinity cases
-                // Note that Double.compare(NaN, NaN) == 0 as this is comparing constants and not the numeric operation 
-                if (Double.compare(schemaNode.doubleValue(), node.doubleValue()) != 0) {
-                    executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                            .evaluationPath(executionContext.getEvaluationPath())
-                            .locale(executionContext.getExecutionConfig().getLocale())
-                            .arguments(schemaNode.asString(schemaNode.toString()), node.asString()).build());
-                }
-            } else if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
-                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .evaluationPath(executionContext.getEvaluationPath())
-                        .locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(schemaNode.asString(schemaNode.toString()), node.asString()).build());
-            }
-        } else if (!schemaNode.equals(node)) {
+        if (!JsonNodeValue.same(schemaNode, node)) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath())
                     .locale(executionContext.getExecutionConfig().getLocale())

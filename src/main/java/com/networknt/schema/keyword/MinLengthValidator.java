@@ -16,8 +16,6 @@
 
 package com.networknt.schema.keyword;
 
-import com.networknt.schema.utils.JsonNodes;
-
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
@@ -35,7 +33,7 @@ public class MinLengthValidator extends BaseKeywordValidator implements KeywordV
 
     public MinLengthValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MIN_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.minLength = schemaNode != null && JsonNodes.isIntegralCountLimit(schemaNode)
+        this.minLength = schemaNode != null && CountLimit.isIntegral(schemaNode)
                 ? CountLimit.of(schemaNode) : CountLimit.of(Integer.MIN_VALUE);
     }
 

@@ -17,7 +17,6 @@
 package com.networknt.schema.keyword;
 
 import java.math.BigDecimal;
-import com.networknt.schema.utils.JsonNodes;
 
 import tools.jackson.databind.JsonNode;
 
@@ -40,8 +39,31 @@ final class CountLimit {
         return new CountLimit(Integer.valueOf(value), value, 0);
     }
 
+    /** Infinite floating-point nodes represent limits outside any int-sized instance. */
+    static boolean isIntegral(JsonNode node) {
+        if (node.isDouble() || node.isFloat()) {
+            // Avoid FloatNode's narrowing integral check. This includes infinities
+            // for saturation and rejects NaN and fractional values by equality.
+            double number = node.doubleValue();
+            return number == Math.rint(number);
+        }
+        return node.isNumber() && node.canConvertToExactIntegral();
+    }
+
     static CountLimit of(JsonNode node) {
-        BigDecimal value = JsonNodes.decimalValueForCountLimit(node);
+        BigDecimal value;
+        if (node.isDouble() || node.isFloat()) {
+            double number = node.doubleValue();
+            if (Double.isInfinite(number)) {
+                return new CountLimit(node.numberValue(), number > 0 ? Integer.MAX_VALUE : Integer.MIN_VALUE,
+                        number > 0 ? 1 : -1);
+            }
+            // Use the floating-point value's short decimal spelling, not its binary expansion.
+            value = node.isFloat() ? new BigDecimal(Float.toString(node.floatValue())) : BigDecimal.valueOf(number);
+            value = value.stripTrailingZeros();
+        } else {
+            value = node.decimalValue();
+        }
         if (value.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) > 0) {
             return new CountLimit(value, Integer.MAX_VALUE, 1);
         }
@@ -61,12 +83,25 @@ final class CountLimit {
         return this.outsideIntRange > 0 || (this.outsideIntRange == 0 && actual <= this.intValue);
     }
 
+    boolean isNegative() {
+        return this.outsideIntRange < 0 || (this.outsideIntRange == 0 && this.intValue < 0);
+    }
+
     Number value() {
         return this.value;
     }
 
     String messageArgument() {
         // Strings prevent locale grouping and expansion of exponent-sized numbers.
+        if (this.value instanceof BigDecimal && ((BigDecimal) this.value).scale() != 0) {
+            try {
+                return ((BigDecimal) this.value).stripTrailingZeros().toString();
+            } catch (ArithmeticException e) {
+                // Stripping zeros can underflow BigDecimal's scale. Its original
+                // scientific representation is still exact and bounded in size.
+                return this.value.toString();
+            }
+        }
         return this.value.toString();
     }
 
