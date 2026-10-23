@@ -34,7 +34,7 @@ public class MinPropertiesValidator extends BaseKeywordValidator implements Keyw
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
         super(KeywordType.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.minimum = CountLimit.of(schemaNode, 0, parentSchema.getSchemaNode(), getKeyword());
+        this.minimum = CountLimit.of(schemaNode, 0);
         this.min = this.minimum.intValue();
     }
 

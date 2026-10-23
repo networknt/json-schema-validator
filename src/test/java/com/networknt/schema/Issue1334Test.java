@@ -216,8 +216,8 @@ class Issue1334Test {
                     .getSchemaNode().get("minItems").isInt());
             assertTrue(registry.getSchema("{\"multipleOf\":1.1}")
                     .getSchemaNode().get("multipleOf").isDouble());
-            assertTrue(Double.isInfinite(reader.readTree("{\"minItems\":1e400}", InputFormat.JSON)
-                    .get("minItems").doubleValue()));
+            assertEquals(0, new BigDecimal("1e400").compareTo(reader.readTree("{\"minItems\":1e400}", InputFormat.JSON)
+                    .get("minItems").decimalValue()));
         }
     }
 }
