@@ -186,3 +186,17 @@ When the format assertion vocabularies are used in a meta schema, in accordance 
 ##### Footnotes
 1. Note that the validation are only optional for some of the keywords/formats.
 2. Refer to the corresponding JSON schema for more information on whether the keyword/format is optional or not.
+
+## Loose numeric enum strings
+
+With `SchemaRegistryConfig.typeLoose(true)`, finite numeric enum members match string instances by exact decimal value. For `{"enum":[100]}`, `"100"`, `"100.0"`, `"1e2"` and `"1E+2"` all match on both branches. With loose typing disabled, these strings do not match numeric `100`.
+
+This deliberately broadens the old behavior: master formerly used normalized decimal text (for example `"1E+2"`), while 2.x used plain text (`"100"`). Applications relying on rejection of equivalent spellings should disable loose typing or constrain the allowed strings explicitly.
+
+Strings must follow JSON number syntax: optional minus, an integer without leading zeros, an optional fraction with digits after the decimal point, and an optional exponent with digits. Whitespace, a leading plus, hexadecimal forms, underscores and incomplete fractions/exponents do not match a numeric member. Exponent signs and leading exponent zeros are allowed. Positive and negative zero compare equally, including zero with arbitrarily long exponents. Nonzero exponents outside any representable enum value simply do not match; parsing never expands exponent-form numbers or constructs an arbitrarily large exponent integer.
+
+Only top-level numeric enum members receive this conversion. A literal string member such as `"1E+2"` remains an exact string, and arrays/objects are not coerced from strings or traversed for loose numeric coercion. Existing scalar matching for booleans, null and explicitly supplied non-finite numbers is retained; non-finite numeric members keep their existing exact text spellings rather than accepting huge finite exponent strings.
+
+The comparison uses each numeric enum node's existing decimal value, consistent with numeric value equality. It does not recover digits already rounded by a caller's mapper or the configured schema reader. Protected enum conversion hooks remain in use.
+
+For example, a default reader rounds `{"enum":[9007199254740993.0]}` to a double-valued member. Loose matching therefore accepts `"9007199254740992"`, not `"9007199254740993"`. Configure the schema reader's mapper with `USE_BIG_DECIMAL_FOR_FLOATS`, or supply an exact DecimalNode, to preserve the written value; then those verdicts reverse. This enum change does not alter schema-reader precision policy.

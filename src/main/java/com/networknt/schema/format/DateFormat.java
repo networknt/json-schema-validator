@@ -11,12 +11,30 @@ import com.networknt.schema.ExecutionContext;
 public class DateFormat implements Format {
     @Override
     public boolean matches(ExecutionContext executionContext, String value) {
+        return isValid(value);
+    }
+
+    /**
+     * Checks a value against the RFC 3339 full-date grammar: a four-digit year, a two-digit
+     * month and day, and a date that exists.
+     *
+     * @param value the date
+     * @return true if the value is a valid full-date
+     */
+    static boolean isValid(String value) {
+        return parse(value) != null;
+    }
+
+    /**
+     * @return the full-date, or null if the value is not a valid full-date
+     */
+    static LocalDate parse(String value) {
         try {
             LocalDate date = LocalDate.parse(value);
             int year = date.getYear();
-            return 0 <= year && year <= 9999;
+            return 0 <= year && year <= 9999 ? date : null;
         } catch (DateTimeParseException e) {
-            return false;
+            return null;
         }
     }
 

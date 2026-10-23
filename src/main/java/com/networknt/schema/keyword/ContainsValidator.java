@@ -35,14 +35,15 @@ import java.util.Optional;
  * {@link KeywordValidator} for contains.
  */
 public class ContainsValidator extends BaseKeywordValidator {
+    private static final CountLimit DEFAULT_MINIMUM = CountLimit.of(1);
     private static final String CONTAINS_MAX = "contains.max";
     private static final String CONTAINS_MIN = "contains.min";
 
     private final Schema schema;
     private final boolean hasMinContains;
 
-    private final Integer min;
-    private final Integer max;
+    private final CountLimit min;
+    private final CountLimit max;
 
     public ContainsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext);
@@ -54,28 +55,17 @@ public class ContainsValidator extends BaseKeywordValidator {
         this.hasMinContains = keywords.containsKey(KeywordType.MIN_CONTAINS.getValue());
         boolean hasMaxContains = keywords.containsKey(KeywordType.MAX_CONTAINS.getValue());
 
-        Integer currentMax = null;
-        Integer currentMin = null;
+        CountLimit currentMax = null;
+        CountLimit currentMin = null;
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
             // Without these keywords, contains only needs one matching element.
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             if (hasMaxContains) {
-                Optional<JsonNode> maxNode = Optional
-                        .ofNullable(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()))
-                        .filter(JsonNode::canConvertToExactIntegral);
-                if (maxNode.isPresent()) {
-                    currentMax = maxNode.get().intValue();
-                }
+                currentMax = CountLimit.parse(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()));
             }
-
             if (this.hasMinContains) {
-                Optional<JsonNode> minNode = Optional
-                        .ofNullable(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()))
-                        .filter(JsonNode::canConvertToExactIntegral);
-                if (minNode.isPresent()) {
-                    currentMin = minNode.get().intValue();
-                }
+                currentMin = CountLimit.parse(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()));
             }
         } else {
             this.schema = null;
@@ -113,17 +103,17 @@ public class ContainsValidator extends BaseKeywordValidator {
                 executionContext.setFailFast(failFast);
                 executionContext.setErrors(existingErrors);
             }
-            int m = 1; // default to 1 if "min" not specified
+            CountLimit m = DEFAULT_MINIMUM; // default to 1 if "min" not specified
             if (this.min != null) {
                 m = this.min;
             }
-            if (actual < m) {
+            if (!m.isMinimumSatisfiedBy(actual)) {
                 boundsViolated(executionContext, this.hasMinContains ? KeywordType.MIN_CONTAINS : KeywordType.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         node, instanceLocation, m);
             }
 
-            if (this.max != null && actual > this.max) {
+            if (this.max != null && !this.max.isMaximumSatisfiedBy(actual)) {
                 boundsViolated(executionContext, KeywordType.MAX_CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         node, instanceLocation, this.max);
@@ -166,7 +156,7 @@ public class ContainsValidator extends BaseKeywordValidator {
                             .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(executionContext.getEvaluationPath())
                                     .schemaLocation(this.schemaLocation.append(minContainsKeyword))
-                                    .keyword(minContainsKeyword).value(this.min).build());
+                                    .keyword(minContainsKeyword).value(this.min.value()).build());
                     executionContext.evaluationPathRemoveLast();
                 }
             }
@@ -179,7 +169,7 @@ public class ContainsValidator extends BaseKeywordValidator {
                             .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(executionContext.getEvaluationPath())
                                     .schemaLocation(this.schemaLocation.append(maxContainsKeyword))
-                                    .keyword(maxContainsKeyword).value(this.max).build());
+                                    .keyword(maxContainsKeyword).value(this.max.value()).build());
                     executionContext.evaluationPathRemoveLast();
                 }
             }
@@ -192,7 +182,7 @@ public class ContainsValidator extends BaseKeywordValidator {
     }
 
     private void boundsViolated(ExecutionContext executionContext, KeywordType validatorTypeCode, Locale locale,
-            JsonNode instanceNode, NodePath instanceLocation, int bounds) {
+            JsonNode instanceNode, NodePath instanceLocation, CountLimit bounds) {
         String messageKey = "contains";
         if (KeywordType.MIN_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MIN;
@@ -200,7 +190,7 @@ public class ContainsValidator extends BaseKeywordValidator {
             messageKey = CONTAINS_MAX;
         }
         executionContext.addError(error().instanceNode(instanceNode).instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath()).messageKey(messageKey)
-                        .locale(locale).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
+                        .locale(locale).arguments(bounds.messageArgument(), this.schema.getSchemaNode().toString())
                         .keyword(validatorTypeCode.getValue()).build());
     }
     

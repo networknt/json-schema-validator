@@ -22,6 +22,11 @@ import com.networknt.schema.InputFormat;
 
 /**
  * Reader for reading content to {@link JsonNode}.
+ * Built-in readers use the same numeric policy for schemas and instances: lossy
+ * floating values under the eight count keyword names become decimal nodes.
+ * Other numbers keep the configured mapper/factory policy. Numeric values in
+ * externally supplied JsonNodes are not reparsed; a rounded double cannot recover
+ * the exact decimal text and may differ from a decimal literal in const or enum.
  */
 public interface NodeReader {
 
@@ -50,5 +55,21 @@ public interface NodeReader {
      */
     static DefaultNodeReader.Builder builder() {
         return DefaultNodeReader.builder();
+    }
+    /**
+     * Reads a schema. Built-in readers promote count-named floating values to
+     * decimal nodes when their shortest double decimal would lose precision.
+     * This includes count-named fields in literal data, since references may use
+     * those objects as schemas. Copies and moved nodes retain their precision.
+     * Values outside BigDecimal's range retain ordinary nonfinite parsing.
+     * Custom readers and node factories retain their own numeric policies.
+     */
+    default JsonNode readSchema(String content, InputFormat inputFormat) {
+        return readTree(content, inputFormat);
+    }
+
+    /** Stream counterpart of {@link #readSchema(String, InputFormat)}. */
+    default JsonNode readSchema(InputStream content, InputFormat inputFormat) {
+        return readTree(content, inputFormat);
     }
 }

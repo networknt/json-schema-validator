@@ -21,7 +21,6 @@ import java.time.temporal.TemporalAccessor;
 
 import com.networknt.schema.ExecutionContext;
 
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_TIME;
 import static java.time.temporal.ChronoField.*;
 
 /**
@@ -37,18 +36,69 @@ public class TimeFormat implements Format {
 
     private static final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
             .parseCaseInsensitive()
-            .append(ISO_LOCAL_TIME)
+            .appendValue(HOUR_OF_DAY, 2)
+            .appendLiteral(':')
+            .appendValue(MINUTE_OF_HOUR, 2)
+            .appendLiteral(':')
+            .appendValue(SECOND_OF_MINUTE, 2)
+            .appendFraction(NANO_OF_SECOND, 0, 9, true)
             .appendOffset("+HH:MM", "Z")
             .parseLenient()
             .toFormatter();
 
     @Override
     public boolean matches(ExecutionContext executionContext, String value) {
-        try {
-            if (null == value) return true;
+        if (null == value) return true;
+        return isValid(value);
+    }
 
+    /**
+     * Checks a value against the RFC 3339 full-time grammar (partial-time time-offset),
+     * including a leap second and an offset up to 23:59.
+     *
+     * @param value the time
+     * @return true if the value is a valid full-time
+     */
+    static boolean isValid(String value) {
+        return parse(value) != null;
+    }
+
+    /**
+     * The fields of a valid full-time, as written, before the normalization to UTC.
+     */
+    static final class FullTime {
+        final int hour;
+        final int minute;
+        final int second;
+        final int offsetMinutes;
+
+        FullTime(int hour, int minute, int second, int offsetMinutes) {
+            this.hour = hour;
+            this.minute = minute;
+            this.second = second;
+            this.offsetMinutes = offsetMinutes;
+        }
+
+        /**
+         * Minutes from the start of the written date to this time in UTC. The result
+         * can fall outside the written date when the offset crosses midnight.
+         */
+        int minutesInUtc() {
+            return hour * 60 + minute - offsetMinutes;
+        }
+    }
+
+    /**
+     * Parses a value with the RFC 3339 full-time grammar. A leap second is accepted when it is
+     * 23:59:60 in UTC.
+     *
+     * @param value the time
+     * @return its fields, or null if the value is not a valid full-time
+     */
+    static FullTime parse(String value) {
+        try {
             int pos = value.indexOf('Z');
-            if (-1 != pos && pos != value.length() - 1) return false;
+            if (-1 != pos && pos != value.length() - 1) return null;
 
             String parsedValue = value;
             int decimalPoint = value.indexOf('.');
@@ -60,8 +110,8 @@ public class TimeFormat implements Format {
                     if (digit < '0' || digit > '9') break;
                     fractionEnd++;
                 }
-                if (fractionEnd == fractionStart) return false;
-                // ISO_LOCAL_TIME parses at most nine digits, but RFC 3339 permits more.
+                if (fractionEnd == fractionStart) return null;
+                // The formatter parses at most nine digits, but RFC 3339 permits more.
                 if (fractionEnd - fractionStart > 9) {
                     parsedValue = value.substring(0, fractionStart + 9) + value.substring(fractionEnd);
                 }
@@ -70,56 +120,33 @@ public class TimeFormat implements Format {
             ParsePosition position = new ParsePosition(0);
             TemporalAccessor accessor = formatter.parseUnresolved(parsedValue, position);
             // parseUnresolved stops at the end of the pattern, so trailing text must be rejected here
-            if (null == accessor || position.getIndex() != parsedValue.length()) return false;
+            if (null == accessor || position.getIndex() != parsedValue.length()) return null;
 
             char last = value.charAt(value.length() - 1);
             if (last != 'Z' && last != 'z') {
                 // A numeric offset is exactly +HH:MM or -HH:MM. Java 8 also accepts +HH:MM:SS.
                 char sign = value.charAt(value.length() - 6);
-                if (sign != '+' && sign != '-') return false;
+                if (sign != '+' && sign != '-') return null;
             }
 
             long offset = accessor.getLong(OFFSET_SECONDS) / 60;
-            if (MAX_OFFSET_MIN < offset || MIN_OFFSET_MIN > offset) return false;
+            if (MAX_OFFSET_MIN < offset || MIN_OFFSET_MIN > offset) return null;
 
             long hr = accessor.getLong(HOUR_OF_DAY);
             long min = accessor.getLong(MINUTE_OF_HOUR);
             long sec = accessor.getLong(SECOND_OF_MINUTE);
 
-            boolean isStandardTimeRange = (sec <= 59 && min <= 59 && hr <= 23);
-            if (isStandardTimeRange) {
-                return true;
+            if (hr > 23 || min > 59 || sec > 60) return null;
+            FullTime time = new FullTime((int) hr, (int) min, (int) sec, (int) offset);
+            if (sec <= 59) {
+                return time;
             }
-            // Leap second check normalize to UTC to check if 23:59:60Z
-            hr = hr - offset / 60;
-            min = min - offset % 60;
-
-            if (min < 0) {
-                --hr;
-                min += 60;
-            }
-            if (hr < 0) {
-                hr += 24;
-            }
-            return isSpecialCaseLeapSecond(sec, min, hr);
+            // The remaining second is 60; it must be at 23:59 in UTC.
+            return Math.floorMod(time.minutesInUtc(), 24 * 60) == 23 * 60 + 59 ? time : null;
 
         } catch (DateTimeException e) {
-            return false;
+            return null;
         }
-    }
-
-    /**
-     * Determines if it is a valid leap second.
-     *
-     * See https://datatracker.ietf.org/doc/html/rfc3339#appendix-D
-     *
-     * @param sec second
-     * @param min minute
-     * @param hr  hour
-     * @return true if it is a valid leap second
-     */
-    private boolean isSpecialCaseLeapSecond(long sec, long min, long hr) {
-        return (sec == 60 && min == 59 && hr == 23);
     }
 
     @Override
