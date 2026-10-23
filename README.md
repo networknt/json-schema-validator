@@ -196,6 +196,8 @@ The `date-time` format validates the RFC 3339 `full-date "T" full-time` grammar,
 
 The Ethlo Time dependency can be excluded if less accurate leap-second validation is acceptable. With Ethlo present, a leap second must pass Ethlo's historical table check for its UTC date. Without Ethlo, leap seconds are accepted only at the end of June 30 or December 31 in UTC, without checking whether one was actually inserted on that date. The written offset can move a leap second onto a different local date; validation checks the corresponding UTC date. These checks validate the string without changing the instance value.
 
+Space-separated values and offset-less leap-second strings such as `2016-12-31T23:59:60` were previously accepted with Ethlo and are now rejected. These are breaking validation changes. See the [date-time compatibility notes](doc/compatibility.md#rfc-3339-date-time-boundaries) for migration guidance and the historical leap-table differences that remain.
+
 ```xml
 <dependency>
     <groupId>com.networknt</groupId>
