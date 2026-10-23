@@ -46,7 +46,7 @@ public class MinLengthValidator extends BaseKeywordValidator implements KeywordV
             return;
         }
 
-        if (this.minLength.compareTo(node.textValue().codePointCount(0, node.textValue().length())) > 0) {
+        if (!this.minLength.isMinimumSatisfiedBy(node.textValue().codePointCount(0, node.textValue().length()))) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.minLength.messageArgument()).build());

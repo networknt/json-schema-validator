@@ -35,6 +35,7 @@ import java.util.Optional;
  * {@link KeywordValidator} for contains.
  */
 public class ContainsValidator extends BaseKeywordValidator {
+    private static final CountLimit DEFAULT_MINIMUM = CountLimit.of(1);
     private static final String CONTAINS_MAX = "contains.max";
     private static final String CONTAINS_MIN = "contains.min";
 
@@ -113,17 +114,17 @@ public class ContainsValidator extends BaseKeywordValidator {
                 executionContext.setFailFast(failFast);
                 executionContext.setErrors(existingErrors);
             }
-            CountLimit m = CountLimit.of(1); // default to 1 if "min" not specified
+            CountLimit m = DEFAULT_MINIMUM; // default to 1 if "min" not specified
             if (this.min != null) {
                 m = this.min;
             }
-            if (m.compareTo(actual) > 0) {
+            if (!m.isMinimumSatisfiedBy(actual)) {
                 boundsViolated(executionContext, this.hasMinContains ? KeywordType.MIN_CONTAINS : KeywordType.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         node, instanceLocation, m);
             }
 
-            if (this.max != null && this.max.compareTo(actual) < 0) {
+            if (this.max != null && !this.max.isMaximumSatisfiedBy(actual)) {
                 boundsViolated(executionContext, KeywordType.MAX_CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         node, instanceLocation, this.max);
@@ -200,7 +201,7 @@ public class ContainsValidator extends BaseKeywordValidator {
             messageKey = CONTAINS_MAX;
         }
         executionContext.addError(error().instanceNode(instanceNode).instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath()).messageKey(messageKey)
-                        .locale(locale).arguments(String.valueOf(bounds.value()), this.schema.getSchemaNode().toString())
+                        .locale(locale).arguments(bounds.messageArgument(), this.schema.getSchemaNode().toString())
                         .keyword(validatorTypeCode.getValue()).build());
     }
     

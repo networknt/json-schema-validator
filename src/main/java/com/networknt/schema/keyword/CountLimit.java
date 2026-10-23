@@ -50,18 +50,23 @@ final class CountLimit {
         return of(value.intValue());
     }
 
-    /** Compares the schema limit to an actual count. */
-    int compareTo(int actual) {
-        return this.outsideIntRange != 0 ? this.outsideIntRange : Integer.compare(this.intValue, actual);
+    /** Whether the actual count meets this minimum. */
+    boolean isMinimumSatisfiedBy(int actual) {
+        return this.outsideIntRange < 0 || (this.outsideIntRange == 0 && actual >= this.intValue);
+    }
+
+    /** Whether the actual count meets this maximum. */
+    boolean isMaximumSatisfiedBy(int actual) {
+        return this.outsideIntRange > 0 || (this.outsideIntRange == 0 && actual <= this.intValue);
     }
 
     Number value() {
         return this.value;
     }
 
-    Object messageArgument() {
-        // MessageFormat expands Number arguments, even for exponent-sized limits.
-        return this.outsideIntRange == 0 ? this.value : this.value.toString();
+    String messageArgument() {
+        // Strings prevent locale grouping and expansion of exponent-sized numbers.
+        return this.value.toString();
     }
 
     /** Saturated view for the legacy protected int field. */
