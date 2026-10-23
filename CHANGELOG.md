@@ -10,6 +10,8 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 - With Ethlo present, `date-time` now rejects space-separated values such as `2020-01-01 12:00:00Z` and leap-second strings without an offset such as `2016-12-31T23:59:60`. Ethlo previously accepted these forms. RFC 3339 requires `T`/`t` and an explicit `Z`/`z` or signed `HH:MM` offset; callers relying on those spellings must supply the required separator/offset. The fallback already rejected both forms. (#1316)
 
 ### Added
+
+- Pin public JSON/YAML mapper tree-deserializer delegation with regression tests and document the required checks for Jackson upgrades. [#1363](https://github.com/networknt/json-schema-validator/issues/1363)
 - Opt-in `ExecutionConfig.maxEvaluationSteps` and `maxEvaluationDepth` limits for validation and schema walking, including walking without assertions. Exhaustion throws `ValidationLimitExceededException` instead of returning a partial validity result. Both limits default to unlimited; they bound admitted evaluation steps and schema frames, not work inside a keyword. (#1276)
 
 ### Changed
