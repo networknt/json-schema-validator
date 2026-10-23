@@ -216,6 +216,8 @@ The historical calendars are intentionally not made identical. Ethlo's current t
 
 ## Invalid `multipleOf` divisors
 
+See [Selective exact decimal tree reading](#selective-exact-decimal-tree-reading) for the underflow/overflow distinction: default readers preserve `multipleOf: 1e-400` exactly, while `multipleOf: 1e400` still overflows to Infinity and is ignored.
+
 The specification requires `multipleOf` to be a number strictly greater than 0. Schemas that break this are not rejected when they are loaded, and the library keeps the following behavior in all supported drafts:
 
 - A zero divisor (`0`, `0.0`, `-0.0`) is ignored, so every number is valid.
@@ -230,6 +232,8 @@ Divisors and bounds outside the range of a double depend on how the schema numbe
 
 
 ## Selective exact decimal tree reading
+
+`JsonMapperFactory.getInstance()` and `YamlMapperFactory.getInstance()` now return `DecimalNode` values for lossy finite floating-point spellings when reading trees, subject to explicit mapper settings and custom node factories.
 
 Built-in JSON/YAML readers and `JsonMapperFactory`/`YamlMapperFactory` tree reads preserve finite floating-point literals whose written decimal differs from `BigDecimal.valueOf(parsedDouble)`. This is the library's shortest-decimal interpretation of a double, not its exact binary expansion. Common lossless values such as `0.1` and `1.5` remain DoubleNodes; `9007199254740993.0`, `0.99999999999999999999` and finite underflow such as `1e-400` become DecimalNodes. Integers keep their native reader policy.
 
