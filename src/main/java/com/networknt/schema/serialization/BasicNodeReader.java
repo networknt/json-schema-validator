@@ -17,6 +17,7 @@
 package com.networknt.schema.serialization;
 
 import com.networknt.schema.InputFormat;
+import com.networknt.schema.utils.JsonNodes;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -35,6 +36,16 @@ public class BasicNodeReader implements NodeReader {
     }
 
     protected BasicNodeReader() {
+    }
+
+    @Override
+    public JsonNode readSchema(String content, InputFormat inputFormat) {
+        return JsonNodes.readSchemaTree(getObjectMapper(inputFormat), content, null);
+    }
+
+    @Override
+    public JsonNode readSchema(InputStream content, InputFormat inputFormat) {
+        return JsonNodes.readSchemaTree(getObjectMapper(inputFormat), content, null);
     }
 
     @Override
