@@ -31,8 +31,7 @@ public class MaxItemsValidator extends BaseKeywordValidator implements KeywordVa
 
     public MaxItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MAX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.max = CountLimit.isIntegral(schemaNode)
-                ? CountLimit.of(schemaNode) : CountLimit.of(Integer.MAX_VALUE);
+        this.max = CountLimit.of(schemaNode, Integer.MAX_VALUE);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
