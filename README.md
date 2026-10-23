@@ -5,7 +5,7 @@
 [Youtube](https://www.youtube.com/channel/UCHCRMWJVXw8iB7zKxF55Byw) |
 [Documentation](https://doc.networknt.com/library/json-schema-validator/) |
 [Contribution Guide](https://doc.networknt.com/contribute/) |
-[Jackson Upgrade Checks](CONTRIBUTING.md#jackson-upgrade-checks) |
+[Jackson Upgrade Checks](doc/jackson-upgrade-checks.md) |
 
 [![CI](https://github.com/networknt/json-schema-validator/actions/workflows/ci.yml/badge.svg)](https://github.com/networknt/json-schema-validator/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/com.networknt/json-schema-validator.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Acom.networknt%20a%3Ajson-schema-validator)

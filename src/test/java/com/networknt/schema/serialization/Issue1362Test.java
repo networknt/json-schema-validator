@@ -19,11 +19,13 @@ package com.networknt.schema.serialization;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.json.JsonMapper;
 
+@Tag("jackson-upgrade")
 class Issue1362Test {
     @Test
     void optimizedAdvancementInvalidatesPrecision() throws Exception {
