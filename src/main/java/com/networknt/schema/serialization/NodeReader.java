@@ -23,11 +23,12 @@ import com.networknt.schema.InputFormat;
 
 /**
  * Reader for reading content to {@link JsonNode}.
- * Built-in readers use the same numeric policy for schemas and instances: lossy
- * floating values under the eight count keyword names become decimal nodes.
- * Other numbers keep the configured mapper/factory policy. Numeric values in
- * externally supplied JsonNodes are not reparsed; a rounded double cannot recover
- * the exact decimal text and may differ from a decimal literal in const or enum.
+ * Built-in readers preserve finite floating-point literals as decimal nodes when
+ * their written decimal differs from the shortest double representation. Lossless
+ * doubles, including signed zero, keep their ordinary representation. Overflow
+ * retains ordinary nonfinite parsing, except for the existing exact count policy.
+ * Custom readers and node factories retain their numeric policies. Values already
+ * rounded in externally supplied JsonNodes cannot recover their source digits.
  */
 public interface NodeReader {
 
@@ -60,12 +61,10 @@ public interface NodeReader {
         return DefaultNodeReader.builder();
     }
     /**
-     * Reads a schema. Built-in readers promote count-named floating values to
-     * decimal nodes when their shortest double decimal would lose precision.
-     * This includes count-named fields in literal data, since references may use
-     * those objects as schemas. Copies and moved nodes retain their precision.
-     * Values outside BigDecimal's range retain ordinary nonfinite parsing.
-     * Custom readers and node factories retain their own numeric policies.
+     * Reads a schema using the configured reader policy. Built-in readers apply
+     * the same selective decimal precision to schemas and instances, including
+     * literal data, defaults and examples. Copies retain their stored precision.
+     * Explicit exact-decimal mapper settings bypass selective double decoding.
      */
     default JsonNode readSchema(String content, InputFormat inputFormat) throws java.io.IOException {
         return readTree(content, inputFormat);

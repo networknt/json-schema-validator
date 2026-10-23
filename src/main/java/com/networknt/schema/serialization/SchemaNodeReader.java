@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.networknt.schema.serialization.node.JsonNodeFactoryFactory;
 
-/** Shared schema/instance parsing: preserve lossy count decimals in the tree. */
+/** Shared tree parsing: preserve lossy finite decimals and existing count precision. */
 final class SchemaNodeReader {
     static JsonNode read(ObjectMapper mapper, String content, JsonNodeFactoryFactory factory) throws java.io.IOException {
         return read(mapper, mapper.createParser(content), factory);
@@ -39,19 +39,23 @@ final class SchemaNodeReader {
 
     private static JsonNode read(ObjectMapper mapper, JsonParser source, JsonNodeFactoryFactory factory) throws java.io.IOException {
         // Exact-decimal readers must not decode through double first.
-        try (JsonParser parser = mapper.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-                ? source : new CountParser(source)) {
+        try (JsonParser parser = precisionParser(source,
+                mapper.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS))) {
             JsonNodeFactory nodes = factory == null ? mapper.getNodeFactory() : factory.getJsonNodeFactory(parser);
             JsonNode result = mapper.reader(nodes).readTree(parser);
             return result == null ? nodes.missingNode() : result;
         }
     }
 
-    private static final class CountParser extends JsonParserDelegate {
+    static JsonParser precisionParser(JsonParser source, boolean useBigDecimals) {
+        return useBigDecimals || source instanceof PrecisionParser ? source : new PrecisionParser(source);
+    }
+
+    private static final class PrecisionParser extends JsonParserDelegate {
         private long lastOffset = Long.MIN_VALUE;
         private BigDecimal exact;
 
-        CountParser(JsonParser source) {
+        PrecisionParser(JsonParser source) {
             super(source);
         }
 
@@ -59,11 +63,9 @@ final class SchemaNodeReader {
             if (currentToken() != JsonToken.VALUE_NUMBER_FLOAT) {
                 return false;
             }
-            String name = currentName();
-            if (!("minItems".equals(name) || "maxItems".equals(name)
-                    || "minProperties".equals(name) || "maxProperties".equals(name)
-                    || "minLength".equals(name) || "maxLength".equals(name)
-                    || "minContains".equals(name) || "maxContains".equals(name))) {
+            // Preserve exact/native values already supplied by token buffers or custom parsers.
+            NumberTypeFP nativeType = super.getNumberTypeFP();
+            if (nativeType == NumberTypeFP.BIG_DECIMAL || nativeType == NumberTypeFP.FLOAT32) {
                 return false;
             }
             long offset = getTokenLocation().getCharOffset();
@@ -75,11 +77,23 @@ final class SchemaNodeReader {
             }
             lastOffset = offset;
             exact = null;
-            String token = getText().replace("_", ""); // YAML numeric separators.
             double number = super.getDoubleValue();
-            // Canonical, lossless text is common in instances; avoid a decimal allocation.
-            if (token.equals(Double.toString(number))) {
-                return false;
+            if (!Double.isFinite(number)) {
+                String name = currentName();
+                if (!("minItems".equals(name) || "maxItems".equals(name)
+                        || "minProperties".equals(name) || "maxProperties".equals(name)
+                        || "minLength".equals(name) || "maxLength".equals(name)
+                        || "minContains".equals(name) || "maxContains".equals(name))) {
+                    return false; // Retain the existing nonfinite divisor/bound policy.
+                }
+            }
+            String token = getText();
+            if (token.indexOf('_') >= 0) {
+                token = token.replace("_", ""); // Accepted YAML numeric separators only.
+            }
+            String shortest = Double.toString(number);
+            if (token.equals(shortest)) {
+                return false; // Canonical lossless machine-generated doubles need no decimal allocation.
             }
             BigDecimal decimal;
             try {
@@ -90,7 +104,7 @@ final class SchemaNodeReader {
                 return false;
             }
             // Match the library's shortest-decimal interpretation of doubles.
-            if (!Double.isFinite(number) || decimal.compareTo(BigDecimal.valueOf(number)) != 0) {
+            if (!Double.isFinite(number) || decimal.compareTo(new BigDecimal(shortest)) != 0) {
                 exact = decimal;
             }
             return exact != null;

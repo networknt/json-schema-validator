@@ -145,9 +145,12 @@ class Issue1349Test {
     }
 
     @Test
-    void schemaReaderPrecisionDefinesTheComparedEnumValue() {
+    void defaultReadersPreserveFiniteDecimalsButCannotRecoverPreparsedValues() throws Exception {
         String schemaText = "{\"enum\":[9007199254740993.0]}";
-        Schema rounded = registry(true).getSchema(schemaText);
+        Schema fromText = registry(true).getSchema(schemaText);
+        accepts(fromText, "9007199254740993");
+        rejects(fromText, "9007199254740992");
+        Schema rounded = registry(true).getSchema(new com.fasterxml.jackson.databind.ObjectMapper().readTree(schemaText));
         accepts(rounded, "9007199254740992");
         rejects(rounded, "9007199254740993");
         com.networknt.schema.serialization.NodeReader exactReader = com.networknt.schema.serialization.NodeReader.builder()

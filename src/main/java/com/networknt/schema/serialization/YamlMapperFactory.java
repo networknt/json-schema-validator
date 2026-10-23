@@ -19,7 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 /**
- * YAML Mapper Factory.
+ * YAML mapper factory with selective exact decimal tree reading.
+ * Finite lossy decimals become decimal nodes; lossless doubles and signed zero
+ * retain their representation. Scalar/POJO binding keeps Jackson's native policy.
+ * Explicit mapper features and custom node factories retain their own policies.
  */
 public class YamlMapperFactory {
 
@@ -27,7 +30,7 @@ public class YamlMapperFactory {
      * The holder defers the classloading until it is used.
      */
     private static class Holder {
-        private static final ObjectMapper INSTANCE = YAMLMapper.builder().build();
+        private static final ObjectMapper INSTANCE = YAMLMapper.builder().addModule(SelectiveTreeDeserializer.module()).build();
     }
 
     /**
