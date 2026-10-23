@@ -46,8 +46,11 @@ final class NumericStringValue {
                 -(long) value.scale() + digits.length() - end);
     }
 
-    /** Returns null unless the complete input follows the JSON number grammar. */
+    /** Returns null for absent text or input outside the JSON number grammar. */
     static NumericStringValue parse(String text) {
+        if (text == null) {
+            return null;
+        }
         int length = text.length();
         if (length == 0) {
             return null;

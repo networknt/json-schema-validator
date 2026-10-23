@@ -131,4 +131,32 @@ class Issue1349Test {
         }
     }
 
+    @Test
+    void nonTextNodesClassifiedAsStringsReturnNormalValidationErrors() {
+        JsonNode[] instances = { NODES.binaryNode(new byte[] { 1, 2, 3 }),
+                new tools.jackson.databind.node.POJONode("not numeric") };
+        for (String text : new String[] { "{\"enum\":[100]}", "{\"enum\":[1.5]}",
+                "{\"enum\":[1E+2]}", "{\"enum\":[null,\"literal\",100]}" }) {
+            Schema schema = registry(true).getSchema(text);
+            for (JsonNode instance : instances) {
+                assertEquals(1, schema.validate(instance).size(), text + ":" + instance.getNodeType());
+            }
+        }
+    }
+
+    @Test
+    void schemaReaderPrecisionDefinesTheComparedEnumValue() {
+        String schemaText = "{\"enum\":[9007199254740993.0]}";
+        Schema rounded = registry(true).getSchema(schemaText);
+        accepts(rounded, "9007199254740992");
+        rejects(rounded, "9007199254740993");
+        com.networknt.schema.serialization.NodeReader exactReader = com.networknt.schema.serialization.NodeReader.builder()
+                .jsonMapper(tools.jackson.databind.json.JsonMapper.builder()
+                        .enable(tools.jackson.databind.DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build()).build();
+        SchemaRegistry exact = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                b -> b.nodeReader(exactReader).schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()));
+        accepts(exact.getSchema(schemaText), "9007199254740993");
+        rejects(exact.getSchema(schemaText), "9007199254740992");
+    }
+
 }

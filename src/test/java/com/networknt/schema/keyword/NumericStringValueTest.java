@@ -60,4 +60,9 @@ class NumericStringValueTest {
             assertEquals(grammar.matcher(value).matches(), NumericStringValue.parse(value) != null, value);
         }
     }
+    @Test
+    void absentTextDoesNotRepresentANumber() {
+        assertNull(NumericStringValue.parse(null));
+    }
+
 }

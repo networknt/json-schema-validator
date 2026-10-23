@@ -20,11 +20,11 @@ Command: `mvn -B clean verify`, selecting each JDK with `JAVA_HOME` and `PATH`.
 
 | Branch | JDK | Unit cases | Existing skips | Artifact checks | Result |
 | --- | --- | ---: | ---: | ---: | --- |
-| master | 17.0.13-amzn | 10448 | 30 | 1 | PASS |
-| master | 21.0.5-amzn | 10448 | 30 | 1 | PASS |
-| master | 25.0.3-amzn | 10448 | 30 | 1 | PASS |
+| master | 17.0.13-amzn | 10451 | 30 | 1 | PASS |
+| master | 21.0.5-amzn | 10451 | 30 | 1 | PASS |
+| master | 25.0.3-amzn | 10451 | 30 | 1 | PASS |
 
-- Master: 10,448 cases plus one artifact check on JDK 17/21/25; 30 existing skips.
+- Master: 10,451 cases plus one artifact check on JDK 17/21/25; 30 existing skips.
 - Issue1349Test covers all five supported dialects; accepted equivalent forms; malformed/whitespace/Unicode/leading-zero text; strict and literal-string behavior; containers, boolean text and equivalent members; exact integers above 2^53; signed zero; all finite Jackson numeric node types; explicit NaN/Infinity member spellings; BigDecimal minimum/maximum scales; 100,000-digit exponents; and long fractional mantissas.
 - NumericStringValueTest checks one million pairs against BigDecimal comparison, 1,000 rescaled/engineering spellings with hash agreement, and 20,000 generated strings against an independent JSON-number regex.
 - Updated pre-existing branch-specific loose enum tests to assert the selected numeric-value policy. All existing numeric equality and protected conversion-hook tests remain active.
@@ -34,3 +34,13 @@ Command: `mvn -B clean verify`, selecting each JDK with `JAVA_HOME` and `PATH`.
 - These are local results; remote CI is a separate acceptance gate.
 - GitNexus reported LOW as a lower-bound estimate for EnumValidator, with zero direct indexed callers/processes and warnings that interface dispatch is untraced. It cannot scan the two unindexed worktrees, so it does not qualify the final diff. Source review, regression tests, complete JDK matrices and git diff --check provide local evidence.
 - No performance claims or reader-policy changes are included. Numeric coercion is limited to finite top-level enum members, plus the separately retained non-finite exact-text behavior.
+
+## Review follow-up
+
+The new regression test reproduced the 2.x BinaryNode null-text exception before the fix. `NumericStringValue.parse(null)` now returns no numeric match. BinaryNode and POJONode instances classified as strings produce normal validation errors when they expose no matching numeric text. The parser-level null contract is tested on both branches.
+
+Additional tests demonstrate the schema-reader boundary: the default reader rounds `9007199254740993.0` and matches `"9007199254740992"`; an explicit `USE_BIG_DECIMAL_FOR_FLOATS` reader preserves the written value and matches `"9007199254740993"`. This is documented behavior, not a change to reader precision policy.
+
+The two linear passes in the parser are retained: one validates the complete grammar and scans the exponent, and the other identifies significant coefficient digits. This keeps validation separate from normalization and does not expand exponents. No new performance claim is made.
+
+All JDK rows above were rerun after this follow-up. The preceding PR head was `6aeb391`. GitNexus could not locate the new NumericStringValue helper (UNKNOWN), so source/call-site review and the complete test matrices provide verification for this change.
