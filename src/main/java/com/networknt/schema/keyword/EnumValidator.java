@@ -27,10 +27,6 @@ import com.networknt.schema.utils.JsonType;
 import com.networknt.schema.utils.TypeFactory;
 import com.networknt.schema.SchemaContext;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,7 +37,8 @@ import java.util.Set;
 public class EnumValidator extends BaseKeywordValidator implements KeywordValidator {
     private final Set<JsonNodeValue> nodes;
     private final String error;
-    private final List<Predicate<String>> looseValues = new ArrayList<>();
+    private final Set<String> looseValues;
+    private final Set<NumericStringValue> looseNumbers;
 
     static String asText(JsonNode node) {
         if (node.isObject() || node.isArray() || node.isTextual()) {
@@ -53,6 +50,9 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
     
     public EnumValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.ENUM, schemaNode, schemaLocation, parentSchema, schemaContext);
+        boolean typeLoose = schemaContext.getSchemaRegistryConfig().isTypeLoose();
+        looseValues = typeLoose ? new HashSet<>() : Collections.emptySet();
+        looseNumbers = typeLoose ? new HashSet<>() : Collections.emptySet();
         if (schemaNode != null && schemaNode.isArray()) {
             nodes = new HashSet<>();
             StringBuilder sb = new StringBuilder();
@@ -68,7 +68,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
                     converted = processArrayNode((ArrayNode) n);
                 }
                 boolean added = nodes.add(JsonNodeValue.of(converted));
-                if (added && schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
+                if (added && typeLoose) {
                     prepareLooseValue(converted);
                 }
 
@@ -120,11 +120,10 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
     private boolean isTypeLooseContainsInEnum(JsonNode node) {
         if (TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig()) == JsonType.STRING) {
             String nodeText = node.textValue();
-            for (Predicate<String> value : looseValues) {
-                if (value.test(nodeText)) {
-                    return true;
-                }
+            if (looseValues.contains(nodeText)) {
+                return true;
             }
+            return !looseNumbers.isEmpty() && looseNumbers.contains(NumericStringValue.parse(nodeText));
         }
         return false;
     }
@@ -135,30 +134,9 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
             return;
         }
         if (node.isNumber() && !JsonNodeTypes.isNonFiniteNumber(node)) {
-            BigDecimal decimal = node.decimalValue();
-            // Plain text is the coefficient followed by -scale zeros. Keep it
-            // compact so extreme exponents never require an expanded string.
-            if (decimal.scale() < 0 && decimal.signum() != 0) {
-                String digits = decimal.unscaledValue().toString();
-                long zeros = -(long) decimal.scale();
-                looseValues.add(text -> {
-                    if ((long) text.length() != digits.length() + zeros || !text.startsWith(digits)) {
-                        return false;
-                    }
-                    for (int i = digits.length(); i < text.length(); i++) {
-                        if (text.charAt(i) != '0') {
-                            return false;
-                        }
-                    }
-                    return true;
-                });
-            } else {
-                String text = decimal.scale() < 0 ? "0" : decimal.toString();
-                looseValues.add(text::equals);
-            }
+            looseNumbers.add(NumericStringValue.of(node.decimalValue()));
         } else {
-            String text = node.asText();
-            looseValues.add(text::equals);
+            looseValues.add(node.asText());
         }
     }
 
