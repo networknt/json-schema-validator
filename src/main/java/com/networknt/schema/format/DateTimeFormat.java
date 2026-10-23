@@ -21,23 +21,32 @@ public class DateTimeFormat implements Format {
     private static final boolean ETHLO_PRESENT = Classes.isPresent("com.ethlo.time.ITU", DateTimeFormat.class.getClassLoader());
 
     /**
-     * Uses etho.
+     * Uses the shared RFC 3339 grammar and Ethlo's historical leap-second table.
      * <p> 
      * This needs to be in a holder class otherwise a ClassNotFoundException will be
      * thrown when the DateTimeFormat is instantiated.
      */
     public static class Ethlo {
         public static boolean isValid(String value) {
-            // RFC 3339 date-time has a four-digit year and requires T or t after full-date.
-            if (value.length() < 11 || (value.charAt(10) != 'T' && value.charAt(10) != 't')) {
+            TimeFormat.FullTime time = JavaTimeOffsetDateTime.parse(value);
+            if (time == null) {
                 return false;
             }
+            if (time.second != 60) {
+                return true;
+            }
+            // Grammar/ranges/fraction digits have already been validated. Only the
+            // historical leap-second date needs Ethlo, whose OffsetDateTime parser
+            // cannot represent every RFC 3339 offset or fraction length.
+            LocalDate date = DateFormat.parse(value.substring(0, JavaTimeOffsetDateTime.DATE_LENGTH));
+            LocalDate utc = date.plusDays(Math.floorDiv(time.minutesInUtc(), 24 * 60));
+            if (utc.getYear() < 0 || utc.getYear() > 9999) {
+                return false; // Outside Ethlo's four-digit years and its recorded leap dates.
+            }
             try {
-                ITU.parseDateTime(value);
+                ITU.parseDateTime(utc + "T23:59:60Z");
             } catch (LeapSecondException ex) {
-                if (!ex.isVerifiedValidLeapYearMonth()) {
-                    return false;
-                }
+                return ex.isVerifiedValidLeapYearMonth();
             }
             return true;
         }
@@ -57,20 +66,27 @@ public class DateTimeFormat implements Format {
         private static final int DATE_LENGTH = "2020-01-01".length();
 
         public static boolean isValid(String value) {
+            return parse(value) != null;
+        }
+
+        private static TimeFormat.FullTime parse(String value) {
             if (value.length() <= DATE_LENGTH) {
-                return false;
+                return null;
             }
             char separator = value.charAt(DATE_LENGTH);
             if (separator != 'T' && separator != 't') {
-                return false;
+                return null;
             }
             LocalDate date = DateFormat.parse(value.substring(0, DATE_LENGTH));
             TimeFormat.FullTime time = TimeFormat.parse(value.substring(DATE_LENGTH + 1));
             if (time == null || date == null) {
-                return false;
+                return null;
             }
-            // TimeFormat.parse has checked that a leap second is at 23:59:60 UTC, so only the date is left
-            return time.second != 60 || isLastDayOfJuneOrDecemberInUtc(date, time);
+            // TimeFormat.parse checks 23:59:60 UTC; the written date may cross midnight.
+            if (time.second == 60 && !isLastDayOfJuneOrDecemberInUtc(date, time)) {
+                return null;
+            }
+            return time;
         }
 
         private static boolean isLastDayOfJuneOrDecemberInUtc(LocalDate date, TimeFormat.FullTime time) {
