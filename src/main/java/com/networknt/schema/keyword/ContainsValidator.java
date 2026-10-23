@@ -16,8 +16,6 @@
 
 package com.networknt.schema.keyword;
 
-import com.networknt.schema.utils.JsonNodes;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
@@ -66,7 +64,7 @@ public class ContainsValidator extends BaseKeywordValidator {
             if (hasMaxContains) {
                 Optional<JsonNode> maxNode = Optional
                         .ofNullable(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()))
-                        .filter(JsonNodes::isIntegralCountLimit);
+                        .filter(CountLimit::isIntegral);
                 if (maxNode.isPresent()) {
                     currentMax = CountLimit.of(maxNode.get());
                 }
@@ -75,7 +73,7 @@ public class ContainsValidator extends BaseKeywordValidator {
             if (this.hasMinContains) {
                 Optional<JsonNode> minNode = Optional
                         .ofNullable(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()))
-                        .filter(JsonNodes::isIntegralCountLimit);
+                        .filter(CountLimit::isIntegral);
                 if (minNode.isPresent()) {
                     currentMin = CountLimit.of(minNode.get());
                 }

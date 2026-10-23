@@ -624,14 +624,6 @@ public class SchemaRegistry {
         return dialectRegistry.getDialect(key, this);
     }
 
-    private JsonNode readSchema(String content, InputFormat inputFormat) throws IOException {
-        return this.nodeReader.readSchema(content, inputFormat);
-    }
-
-    private JsonNode readSchema(InputStream content, InputFormat inputFormat) throws IOException {
-        return this.nodeReader.readSchema(content, inputFormat);
-    }
-
     JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
         return this.nodeReader.readTree(content, inputFormat);
     }
@@ -665,7 +657,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final String schema, InputFormat inputFormat) {
         try {
-            final JsonNode schemaNode = readSchema(schema, inputFormat);
+            final JsonNode schemaNode = readTree(schema, inputFormat);
             return newSchema(null, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -698,7 +690,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final InputStream schemaStream, InputFormat inputFormat) {
         try {
-            final JsonNode schemaNode = readSchema(schemaStream, inputFormat);
+            final JsonNode schemaNode = readTree(schemaStream, inputFormat);
             return newSchema(null, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -741,7 +733,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final SchemaLocation schemaUri, final String schema, InputFormat inputFormat) {
         try {
-            final JsonNode schemaNode = readSchema(schema, inputFormat);
+            final JsonNode schemaNode = readTree(schema, inputFormat);
             return newSchema(schemaUri, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -759,7 +751,7 @@ public class SchemaRegistry {
      */
     public Schema getSchema(final SchemaLocation schemaUri, final InputStream schemaStream, InputFormat inputFormat) {
         try {
-            final JsonNode schemaNode = readSchema(schemaStream, inputFormat);
+            final JsonNode schemaNode = readTree(schemaStream, inputFormat);
             return newSchema(schemaUri, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -845,9 +837,9 @@ public class SchemaRegistry {
                 }
                 final JsonNode schemaNode;
                 if (isYaml(schemaUri)) {
-                    schemaNode = readSchema(inputStream, InputFormat.YAML);
+                    schemaNode = readTree(inputStream, InputFormat.YAML);
                 } else {
-                    schemaNode = readSchema(inputStream, InputFormat.JSON);
+                    schemaNode = readTree(inputStream, InputFormat.JSON);
                 }
 
                 final Dialect dialect = getDialectOrDefault(schemaNode);

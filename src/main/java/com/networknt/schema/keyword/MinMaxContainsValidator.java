@@ -1,7 +1,5 @@
 package com.networknt.schema.keyword;
 
-import com.networknt.schema.utils.JsonNodes;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
@@ -30,7 +28,7 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
         // checks its own value. The specification does not require minContains <=
         // maxContains. Contradictory bounds only mean that no array can satisfy contains,
         // which ContainsValidator already reports, so they are not a schema error.
-        if (!schemaNode.isNumber() || !JsonNodes.isIntegralCountLimit(schemaNode) || JsonNodes.decimalValueForCountLimit(schemaNode).signum() < 0) {
+        if (!schemaNode.isNumber() || !CountLimit.isIntegral(schemaNode) || CountLimit.of(schemaNode).isNegative()) {
             this.malformedParentSchema = parentSchema.getSchemaNode().toString();
         } else {
             this.malformedParentSchema = null;

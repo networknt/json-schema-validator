@@ -58,8 +58,12 @@ class Issue1334Test {
                 .validate(instance, InputFormat.JSON);
         assertEquals(1, errors.size());
         assertEquals(minimum, errors.get(0).getKeyword());
-        assertEquals(0, new BigDecimal(limit).compareTo(
-                new BigDecimal(errors.get(0).getArguments()[0].toString())), errors.get(0).toString());
+        if (Double.isInfinite(Double.parseDouble(limit))) {
+            assertEquals("Infinity", errors.get(0).getArguments()[0]);
+        } else {
+            assertEquals(0, new BigDecimal(limit).compareTo(
+                    new BigDecimal(errors.get(0).getArguments()[0].toString())), errors.get(0).toString());
+        }
         String nonEmpty = "Properties".equals(kind) ? "{\"a\":1}" : "Length".equals(kind) ? "\"a\"" : "[1]";
         assertTrue(SchemaRegistry.withDefaultDialect(version)
                 .getSchema("{" + contains + "\"max" + kind + "\":" + limit + "}")
@@ -148,8 +152,12 @@ class Issue1334Test {
                 List<Error> errors = registry.getSchema("{\"max" + kind + "\":" + limit + "}")
                         .validate(instance, InputFormat.JSON);
                 assertEquals(1, errors.size());
-                assertEquals(0, new BigDecimal(limit).compareTo(
-                        new BigDecimal(errors.get(0).getArguments()[0].toString())));
+                if (Double.isInfinite(Double.parseDouble(limit))) {
+                    assertEquals("-Infinity", errors.get(0).getArguments()[0]);
+                } else {
+                    assertEquals(0, new BigDecimal(limit).compareTo(
+                            new BigDecimal(errors.get(0).getArguments()[0].toString())));
+                }
             }
         }
     }
@@ -210,8 +218,7 @@ class Issue1334Test {
                     text.getBytes(java.nio.charset.StandardCharsets.UTF_8)), InputFormat.JSON);
             List<Error> errors = schema.validate("[]", InputFormat.JSON);
             assertEquals(1, errors.size());
-            assertEquals(0, new BigDecimal("1e400").compareTo(
-                    new BigDecimal(errors.get(0).getArguments()[0].toString())));
+            assertEquals("Infinity", errors.get(0).getArguments()[0]);
             assertTrue(registry.getSchema("{\"minItems\":1,\"multipleOf\":1.1}")
                     .getSchemaNode().get("minItems").isInt());
             assertTrue(registry.getSchema("{\"multipleOf\":1.1}")

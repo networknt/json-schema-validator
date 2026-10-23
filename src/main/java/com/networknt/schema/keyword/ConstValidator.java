@@ -32,16 +32,11 @@ public class ConstValidator extends BaseKeywordValidator implements KeywordValid
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-        if (schemaNode.isNumber() && node.isNumber()) {
-            if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
-                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(schemaNode.asText(), node.asText())
-                        .build());
-            }
-        } else if (!schemaNode.equals(node)) {
+        if (!JsonNodeValue.same(schemaNode, node)) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText(), node.asText()).build());
+                    .evaluationPath(executionContext.getEvaluationPath())
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .arguments(schemaNode.asText(), node.asText()).build());
         }
     }
 }
