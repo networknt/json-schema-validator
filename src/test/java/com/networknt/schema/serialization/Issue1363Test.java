@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -30,6 +31,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.std.JsonNodeDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +51,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 /** Upgrade contract for the Jackson tree deserializers wrapped by the public factories. */
+@Tag("jackson-upgrade")
 class Issue1363Test {
     private static final String LOSSY = "9007199254740993.0";
     private static final String OBJECT = "{\"value\":123.25,\"negativeZero\":-0.0,\"nested\":[null,true,\"text\",7]}";
@@ -260,6 +268,19 @@ class Issue1363Test {
 
     @ParameterizedTest
     @EnumSource(Format.class)
+    void malformedInputKeepsDiagnosticDetailsAndCauses(Format format) {
+        Exception failure = sameFailure(format.stock().readerFor(JsonNode.class),
+                format.selective().readerFor(JsonNode.class), "{\n\"value\": [}\n");
+        JsonProcessingException diagnostic = assertInstanceOf(JsonProcessingException.class, failure);
+        assertNotNull(diagnostic.getLocation());
+        assertTrue(diagnostic.getLocation().getLineNr() > 0);
+        if (format == Format.YAML) {
+            assertNotNull(failure.getCause()); // Exercise nonempty SnakeYAML cause chains too.
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(Format.class)
     void customNodeFactoryAndDecimalScaleSettingsAreHonored(Format format) throws Exception {
         JsonNodeFactory factory = new TaggedNodeFactory();
         ObjectReader selective = format.selective().reader(factory);
@@ -307,6 +328,29 @@ class Issue1363Test {
 
     @ParameterizedTest
     @EnumSource(Format.class)
+    void typedTreePrecisionReachesANativeSubtypeDeserializer(Format format) throws Exception {
+        // A user module can supply a native subtype deserializer after the factory module.
+        // It does not install a second precision wrapper: deserializeWithType must supply it.
+        ObjectMapper mapper = withNativeObjectDeserializer(format.selective());
+        String object = "{\"value\":" + LOSSY + "}";
+        assertTrue(mapper.readValue(object, ObjectNode.class).get("value").isDouble());
+        JsonNode typed = mapper.readValue("{\"node\":[\"object\"," + object + "]}", TypedFields.class).node;
+        assertTrue(typed.get("value").isBigDecimal());
+        assertEquals(0, new BigDecimal(LOSSY).compareTo(typed.get("value").decimalValue()));
+        JsonNode stock = withNativeObjectDeserializer(format.stock()).readerFor(TypedFields.class)
+                .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .<TypedFields>readValue("{\"node\":[\"object\"," + object + "]}").node;
+        sameTree(stock, typed);
+    }
+
+    private static ObjectMapper withNativeObjectDeserializer(ObjectMapper mapper) {
+        SimpleModule nativeSubtype = new SimpleModule("native-object-subtype");
+        nativeSubtype.addDeserializer(ObjectNode.class, new NativeObjectDeserializer());
+        return mapper.copy().registerModule(nativeSubtype);
+    }
+
+    @ParameterizedTest
+    @EnumSource(Format.class)
     void scalarUntypedAndPojoBindingRemainNative(Format format) throws Exception {
         ObjectMapper selective = format.selective();
         ObjectMapper stock = format.stock();
@@ -338,10 +382,38 @@ class Issue1363Test {
         return Arrays.asList(JsonNode.class, ObjectNode.class, ArrayNode.class);
     }
 
-    private static void sameFailure(ObjectReader stock, ObjectReader selective, String input) {
+    private static Exception sameFailure(ObjectReader stock, ObjectReader selective, String input) {
         Exception expected = assertThrows(Exception.class, () -> stock.readValue(input));
         Exception actual = assertThrows(Exception.class, () -> selective.readValue(input));
+        sameException(expected, actual);
+        return actual;
+    }
+
+    private static void sameException(Throwable expected, Throwable actual) {
+        if (expected == null) {
+            assertNull(actual);
+            return;
+        }
+        assertNotNull(actual);
         assertEquals(expected.getClass(), actual.getClass());
+        assertEquals(expected.getMessage(), actual.getMessage());
+        if (expected instanceof JsonProcessingException) {
+            JsonProcessingException left = (JsonProcessingException) expected;
+            JsonProcessingException right = (JsonProcessingException) actual;
+            assertEquals(left.getOriginalMessage(), right.getOriginalMessage());
+            JsonLocation leftLocation = left.getLocation();
+            JsonLocation rightLocation = right.getLocation();
+            if (leftLocation == null) {
+                assertNull(rightLocation);
+            } else {
+                assertNotNull(rightLocation);
+                assertEquals(leftLocation.getLineNr(), rightLocation.getLineNr());
+                assertEquals(leftLocation.getColumnNr(), rightLocation.getColumnNr());
+                assertEquals(leftLocation.getCharOffset(), rightLocation.getCharOffset());
+                assertEquals(leftLocation.getByteOffset(), rightLocation.getByteOffset());
+            }
+        }
+        sameException(expected.getCause(), actual.getCause());
     }
 
     private static void sameTree(JsonNode expected, JsonNode actual) {
@@ -396,6 +468,13 @@ class Issue1363Test {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_ARRAY)
         @JsonSubTypes({ @JsonSubTypes.Type(value = ArrayNode.class, name = "array") })
         public ArrayNode array;
+    }
+
+    static class NativeObjectDeserializer extends JsonDeserializer<ObjectNode> {
+        @Override
+        public ObjectNode deserialize(JsonParser parser, DeserializationContext context) throws java.io.IOException {
+            return (ObjectNode) JsonNodeDeserializer.getDeserializer(ObjectNode.class).deserialize(parser, context);
+        }
     }
 
     static class TaggedNodeFactory extends JsonNodeFactory {
