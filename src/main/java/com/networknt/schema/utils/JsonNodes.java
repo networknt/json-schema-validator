@@ -21,6 +21,7 @@ import java.io.InputStream;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.util.JsonParserDelegate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -33,6 +34,59 @@ import com.networknt.schema.serialization.node.JsonNodeFactoryFactory;
  * Utility methods for JsonNode.
  */
 public class JsonNodes {
+    /** Reads schema count limits as decimals without changing other numbers or node factories. */
+    public static JsonNode readSchemaTree(ObjectMapper objectMapper, String content,
+            JsonNodeFactoryFactory jsonNodeFactoryFactory) {
+        try (JsonParser parser = new CountLimitParser(objectMapper.createParser(content))) {
+            JsonNodeFactory nodeFactory = jsonNodeFactoryFactory == null ? objectMapper.getNodeFactory()
+                    : jsonNodeFactoryFactory.getJsonNodeFactory(parser);
+            JsonNode result = objectMapper.reader(nodeFactory).readTree(parser);
+            return result != null ? result : nodeFactory.missingNode();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid input", e);
+        }
+    }
+
+    /** Reads schema count limits as decimals without changing other numbers or node factories. */
+    public static JsonNode readSchemaTree(ObjectMapper objectMapper, InputStream content,
+            JsonNodeFactoryFactory jsonNodeFactoryFactory) {
+        try (JsonParser parser = new CountLimitParser(objectMapper.createParser(content))) {
+            JsonNodeFactory nodeFactory = jsonNodeFactoryFactory == null ? objectMapper.getNodeFactory()
+                    : jsonNodeFactoryFactory.getJsonNodeFactory(parser);
+            JsonNode result = objectMapper.reader(nodeFactory).readTree(parser);
+            return result != null ? result : nodeFactory.missingNode();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid input", e);
+        }
+    }
+
+    /** Preserves the token's decimal value only for count keywords in schemas. */
+    private static final class CountLimitParser extends JsonParserDelegate {
+        CountLimitParser(JsonParser parser) {
+            super(parser);
+        }
+
+        private boolean isCountLimit() throws IOException {
+            String name = currentName();
+            return "minItems".equals(name) || "maxItems".equals(name)
+                    || "minProperties".equals(name) || "maxProperties".equals(name)
+                    || "minLength".equals(name) || "maxLength".equals(name)
+                    || "minContains".equals(name) || "maxContains".equals(name);
+        }
+
+        @Override
+        public NumberType getNumberType() throws IOException {
+            return currentToken() == com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_FLOAT
+                    && isCountLimit() && !isNaN() ? NumberType.BIG_DECIMAL : super.getNumberType();
+        }
+
+        @Override
+        public NumberTypeFP getNumberTypeFP() throws IOException {
+            return isCountLimit() && !isNaN() ? NumberTypeFP.BIG_DECIMAL : super.getNumberTypeFP();
+        }
+    }
+
+
     /**
      * Gets the node found at the path.
      *
