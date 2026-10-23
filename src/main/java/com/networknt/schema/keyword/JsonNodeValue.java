@@ -30,9 +30,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
  * Only numeric types are folded together; strings and booleans remain distinct.
  * Arrays and objects are walked without making normalized copies.
  *
- * A key caches the kind and value of a top-level number, so repeated hash-bucket
- * comparisons do not classify it again. Large integer pairs compare directly
- * without allocating BigDecimals, and nested container keys stay small.
+ * Keys cache only the hash; numeric comparison uses the same rules at every depth.
  * Referenced nodes must not be mutated while a key is in a set.
  */
 class JsonNodeValue {
@@ -40,13 +38,7 @@ class JsonNodeValue {
     private final int hash;
 
     static JsonNodeValue of(JsonNode node) {
-        if (!node.isNumber()) {
-            return new JsonNodeValue(node, hash(node));
-        }
-        int kind = numberKind(node);
-        long value = kind == WHOLE ? wholeValue(node)
-                : kind == DOUBLE || kind == NON_FINITE ? Double.doubleToLongBits(node.doubleValue()) : 0;
-        return new NumberValue(node, kind, value);
+        return new JsonNodeValue(node, hash(node));
     }
 
     private JsonNodeValue(JsonNode node, int hash) {
@@ -69,48 +61,6 @@ class JsonNodeValue {
         }
         JsonNodeValue other = (JsonNodeValue) obj;
         return hash == other.hash && same(node, other.node);
-    }
-
-    /** Only top-level numbers pay for cached classification and primitive data. */
-    private static final class NumberValue extends JsonNodeValue {
-        private final int kind;
-        // A WHOLE value, or the canonical bits of a DOUBLE/NON_FINITE value.
-        private final long value;
-
-        NumberValue(JsonNode node, int kind, long value) {
-            super(node, kind == BIG ? bigHash(decimalValue(node)) : Long.hashCode(value));
-            this.kind = kind;
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof NumberValue)) {
-                return false;
-            }
-            NumberValue other = (NumberValue) obj;
-            if (hashCode() != other.hashCode()) {
-                return false;
-            }
-            if (kind == WHOLE || other.kind == WHOLE || kind == NON_FINITE || other.kind == NON_FINITE) {
-                return kind == other.kind && value == other.value;
-            }
-            if (kind == DOUBLE && other.kind == DOUBLE) {
-                return value == other.value;
-            }
-            if (node.isBigInteger() && other.node.isBigInteger()) {
-                return node.bigIntegerValue().equals(other.node.bigIntegerValue());
-            }
-            return decimalValue(node).compareTo(decimalValue(other.node)) == 0;
-        }
-    }
-
-    /** Decimal value policy shared with enum conversion hooks. */
-    static BigDecimal decimalValue(JsonNode node) {
-        return node.decimalValue();
     }
 
     /**
@@ -168,7 +118,7 @@ class JsonNodeValue {
         case BIG_INTEGER:
             return node.canConvertToLong() ? WHOLE : BIG;
         default:
-            BigDecimal decimal = decimalValue(node);
+            BigDecimal decimal = node.decimalValue();
             boolean whole = decimal.signum() == 0 || decimal.scale() <= 0 || decimal.stripTrailingZeros().scale() <= 0;
             return whole && decimal.compareTo(LONG_MIN) >= 0 && decimal.compareTo(LONG_MAX) <= 0 ? WHOLE : BIG;
         }
@@ -180,7 +130,7 @@ class JsonNodeValue {
             double value = node.doubleValue();
             // 0x1p53 is 2^53. Below it a whole double's shortest form is its exact
             // value; above it the two can differ (2^60 is not its shortest form).
-            return Math.abs(value) < 0x1p53 ? (long) value : decimalValue(node).longValue();
+            return Math.abs(value) < 0x1p53 ? (long) value : node.decimalValue().longValue();
         }
         return node.longValue();
     }
@@ -192,11 +142,10 @@ class JsonNodeValue {
             case WHOLE:
                 return Long.hashCode(wholeValue(node));
             case NON_FINITE:
-                return Double.hashCode(node.doubleValue());
             case DOUBLE:
                 return Double.hashCode(node.doubleValue());
             default: // BIG
-                return bigHash(decimalValue(node));
+                return bigHash(node.decimalValue());
             }
         case ARRAY:
             int arrayHash = 1;
@@ -263,7 +212,10 @@ class JsonNodeValue {
         if (aKind == DOUBLE && bKind == DOUBLE) {
             return a.doubleValue() == b.doubleValue();
         }
-        return decimalValue(a).compareTo(decimalValue(b)) == 0;
+        if (a.isBigInteger() && b.isBigInteger()) {
+            return a.bigIntegerValue().equals(b.bigIntegerValue());
+        }
+        return a.decimalValue().compareTo(b.decimalValue()) == 0;
     }
 
 }

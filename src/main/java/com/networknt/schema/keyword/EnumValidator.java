@@ -18,8 +18,6 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.DecimalNode;
-import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -30,6 +28,9 @@ import com.networknt.schema.utils.TypeFactory;
 import com.networknt.schema.SchemaContext;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +41,7 @@ import java.util.Set;
 public class EnumValidator extends BaseKeywordValidator implements KeywordValidator {
     private final Set<JsonNodeValue> nodes;
     private final String error;
+    private final List<Predicate<String>> looseValues = new ArrayList<>();
 
     static String asText(JsonNode node) {
         if (node.isObject() || node.isArray() || node.isTextual()) {
@@ -59,14 +61,15 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
             String separator = "";
 
             for (JsonNode n : schemaNode) {
+                JsonNode converted = n;
                 if (n.isNumber()) {
-                    // convert to DecimalNode for number comparison
-                    nodes.add(JsonNodeValue.of(processNumberNode(n)));
+                    converted = processNumberNode(n);
                 } else if (n.isArray()) {
-                    ArrayNode a = processArrayNode((ArrayNode) n);
-                    nodes.add(JsonNodeValue.of(a));
-                } else {
-                    nodes.add(JsonNodeValue.of(n));
+                    converted = processArrayNode((ArrayNode) n);
+                }
+                boolean added = nodes.add(JsonNodeValue.of(converted));
+                if (added && schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
+                    prepareLooseValue(converted);
                 }
 
                 sb.append(separator);
@@ -117,19 +120,8 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
     private boolean isTypeLooseContainsInEnum(JsonNode node) {
         if (TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig()) == JsonType.STRING) {
             String nodeText = node.textValue();
-            for (JsonNodeValue key : nodes) {
-                String value = key.node.asText();
-                if (key.node.isNumber() && !JsonNodeTypes.isNonFiniteNumber(key.node)) {
-                    BigDecimal decimal = key.node.decimalValue();
-                    if (decimal.scale() < 0) {
-                        // Preserve the old plain text used by typeLoose, without
-                        // expanding huge exponents just to reject a short string.
-                        long length = decimal.signum() == 0 ? 1
-                                : (long) decimal.precision() - decimal.scale() + (decimal.signum() < 0 ? 1 : 0);
-                        value = length == nodeText.length() ? decimal.toPlainString() : null;
-                    }
-                }
-                if (value != null && value.equals(nodeText)) {
+            for (Predicate<String> value : looseValues) {
+                if (value.test(nodeText)) {
                     return true;
                 }
             }
@@ -137,22 +129,52 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         return false;
     }
 
+    /** Prepare scalar loose comparison once; containers do not coerce to strings. */
+    private void prepareLooseValue(JsonNode node) {
+        if (node.isArray() || node.isObject()) {
+            return;
+        }
+        if (node.isNumber() && !JsonNodeTypes.isNonFiniteNumber(node)) {
+            BigDecimal decimal = node.decimalValue();
+            // Plain text is the coefficient followed by -scale zeros. Keep it
+            // compact so extreme exponents never require an expanded string.
+            if (decimal.scale() < 0 && decimal.signum() != 0) {
+                String digits = decimal.unscaledValue().toString();
+                long zeros = -(long) decimal.scale();
+                looseValues.add(text -> {
+                    if ((long) text.length() != digits.length() + zeros || !text.startsWith(digits)) {
+                        return false;
+                    }
+                    for (int i = digits.length(); i < text.length(); i++) {
+                        if (text.charAt(i) != '0') {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+            } else {
+                String text = decimal.scale() < 0 ? "0" : decimal.toString();
+                looseValues.add(text::equals);
+            }
+        } else {
+            String text = node.asText();
+            looseValues.add(text::equals);
+        }
+    }
+
     /**
-     * Processes a number for the enum conversion hook. Value equality is handled
-     * by JsonNodeValue; no plain-string expansion is needed here.
-     * 
+     * Conversion hook for subclasses. The default retains the original node;
+     * numeric value equality no longer needs normalized copies.
+     *
      * @param n the node
      * @return the node
      */
     protected JsonNode processNumberNode(JsonNode n) {
-        if (JsonNodeTypes.isNonFiniteNumber(n)) {
-            return DoubleNode.valueOf(n.doubleValue());
-        }
-        return DecimalNode.valueOf(JsonNodeValue.decimalValue(n));
+        return n;
     }
 
     /**
-     * Processes the array and ensures that numbers within have trailing zeroes stripped.
+     * Applies the numeric conversion hook, copying only when a member changes.
      * 
      * @param node the node
      * @return the node
@@ -161,12 +183,17 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         if (!hasNumber(node)) {
             return node;
         }
-        ArrayNode a = node.deepCopy();
+        ArrayNode a = node;
         for (int x = 0; x < a.size(); x++) {
             JsonNode v = a.get(x);
             if (v.isNumber()) {
                 v = processNumberNode(v);
-                a.set(x, v);
+                if (v != a.get(x)) {
+                    if (a == node) {
+                        a = node.deepCopy();
+                    }
+                    a.set(x, v);
+                }
             }
         }
         return a;
