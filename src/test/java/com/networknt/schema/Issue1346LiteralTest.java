@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -92,10 +93,10 @@ class Issue1346LiteralTest {
 
     @ParameterizedTest
     @MethodSource("readers")
-    void equalOrdinaryTreesKeepIndependentExactCountSemantics(NodeReader reader) {
+    void differentCountsHaveDifferentTreeValues(NodeReader reader) {
         Schema fraction = registry(reader).getSchema("{\"maxItems\":0.99999999999999999999}");
         Schema integral = registry(reader).getSchema("{\"maxItems\":1.0}");
-        assertEquals(fraction.getSchemaNode(), integral.getSchemaNode());
+        assertNotEquals(fraction.getSchemaNode(), integral.getSchemaNode());
         assertTrue(fraction.validate("[1,2]", InputFormat.JSON).isEmpty());
         assertEquals(1, integral.validate("[1,2]", InputFormat.JSON).size());
         Schema duplicate = registry(reader).getSchema("{\"maxItems\":1e-400,\"maxItems\":2}");

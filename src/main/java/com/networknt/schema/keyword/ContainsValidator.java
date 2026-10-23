@@ -62,12 +62,10 @@ public class ContainsValidator extends BaseKeywordValidator {
             // Without these keywords, contains only needs one matching element.
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             if (hasMaxContains) {
-                currentMax = CountLimit.parse(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()),
-                        parentSchemaNode, KeywordType.MAX_CONTAINS.getValue());
+                currentMax = CountLimit.parse(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()));
             }
             if (this.hasMinContains) {
-                currentMin = CountLimit.parse(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()),
-                        parentSchemaNode, KeywordType.MIN_CONTAINS.getValue());
+                currentMin = CountLimit.parse(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()));
             }
         } else {
             this.schema = null;

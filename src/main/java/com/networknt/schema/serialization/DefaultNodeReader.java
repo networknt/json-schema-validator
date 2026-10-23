@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.serialization.node.JsonNodeFactoryFactory;
 import com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory;
-import com.networknt.schema.utils.JsonNodes;
 
 /**
  * Default {@link NodeReader}.
@@ -44,20 +43,12 @@ public class DefaultNodeReader implements NodeReader {
 
     @Override
     public JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
-        if (this.jsonNodeFactoryFactory == null) {
-            return getObjectMapper(inputFormat).readTree(content);
-        } else {
-            return JsonNodes.readTree(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
-        }
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
     }
 
     @Override
     public JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException {
-        if (this.jsonNodeFactoryFactory == null) {
-            return getObjectMapper(inputFormat).readTree(content);
-        } else {
-            return JsonNodes.readTree(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
-        }
+        return SchemaNodeReader.read(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
     }
 
     /**

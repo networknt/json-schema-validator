@@ -185,8 +185,7 @@ class Issue1346Test {
                     boolean violates = "min".equals(prefix) == positive;
                     assertEquals(violates ? 1 : 0, errors.size(), keyword + ": " + limit);
                     if (violates) {
-                        String argument = path == InputPath.DEFAULT_READER ? (positive ? "1E+400" : "-1E+400")
-                                : (positive ? "Infinity" : "-Infinity");
+                        String argument = positive ? "1E+400" : "-1E+400";
                         assertEquals(argument, errors.get(0).getArguments()[0]);
                         assertTrue(errors.get(0).getMessage().contains(argument));
                     }
@@ -213,7 +212,7 @@ class Issue1346Test {
                 String text = "{" + contains + "\"min" + kind + "\":" + limit + "}";
                 Error error = schema(SpecificationVersion.DRAFT_2020_12, path, text, false)
                         .validate(instance(kind, true), InputFormat.JSON).get(0);
-                String expected = "1e30".equals(limit) ? "1E+30" : "1E+308";
+                String expected = "1e30".equals(limit) ? "1000000000000000000000000000000" : "1E+308";
                 assertEquals(expected, error.getArguments()[0]);
                 assertTrue(error.getMessage().contains(expected));
                 assertTrue(error.getMessage().length() < 200);
@@ -251,7 +250,7 @@ class Issue1346Test {
             Result result = annotated(boundSchema);
             assertEquals("minContains".equals(keyword) ? 1 : 0, result.getErrors().size());
             if (!result.getErrors().isEmpty()) {
-                assertEquals(path == InputPath.DEFAULT_READER ? "1E+400" : "Infinity",
+                assertEquals("1E+400",
                         result.getErrors().get(0).getArguments()[0]);
             }
             assertEquals(boundSchema.getSchemaNode().get(keyword).numberValue(), annotation(result, keyword));
@@ -407,6 +406,6 @@ class Issue1346Test {
         List<Error> errors = registry.getSchema(node).validate("[1]", InputFormat.JSON);
         assertEquals(1, errors.size());
         assertEquals("minContains", errors.get(0).getKeyword());
-        assertEquals("3E+9", errors.get(0).getArguments()[0]);
+        assertEquals("3000000000", errors.get(0).getArguments()[0]);
     }
 }
