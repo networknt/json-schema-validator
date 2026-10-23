@@ -16,28 +16,30 @@ import com.networknt.schema.utils.Classes;
  * Format for date-time.
  */
 public class DateTimeFormat implements Format {
+    private static final int DATE_LENGTH = "2020-01-01".length();
     private static final Logger logger = LoggerFactory.getLogger(DateTimeFormat.class);
 
     private static final boolean ETHLO_PRESENT = Classes.isPresent("com.ethlo.time.ITU", DateTimeFormat.class.getClassLoader());
 
     /**
-     * Uses etho.
+     * Uses the shared RFC 3339 grammar and Ethlo's historical leap-second table.
      * <p> 
      * This needs to be in a holder class otherwise a ClassNotFoundException will be
      * thrown when the DateTimeFormat is instantiated.
      */
     public static class Ethlo {
         public static boolean isValid(String value) {
-            // RFC 3339 date-time has a four-digit year and requires T or t after full-date.
-            if (value.length() < 11 || (value.charAt(10) != 'T' && value.charAt(10) != 't')) {
-                return false;
+            return isValidDateTime(value, true);
+        }
+
+        private static boolean isValidLeapSecond(LocalDate utc) {
+            if (utc.getYear() < 0 || utc.getYear() > 9999) {
+                return false; // Outside Ethlo's four-digit years and its recorded leap dates.
             }
             try {
-                ITU.parseDateTime(value);
+                ITU.parseDateTime(utc + "T23:59:60Z");
             } catch (LeapSecondException ex) {
-                if (!ex.isVerifiedValidLeapYearMonth()) {
-                    return false;
-                }
+                return ex.isVerifiedValidLeapYearMonth();
             }
             return true;
         }
@@ -54,32 +56,34 @@ public class DateTimeFormat implements Format {
      * June 30 or a December 31 in UTC (RFC 3339, appendix D).
      */
     public static class JavaTimeOffsetDateTime {
-        private static final int DATE_LENGTH = "2020-01-01".length();
-
         public static boolean isValid(String value) {
-            if (value.length() <= DATE_LENGTH) {
-                return false;
-            }
-            char separator = value.charAt(DATE_LENGTH);
-            if (separator != 'T' && separator != 't') {
-                return false;
-            }
-            LocalDate date = DateFormat.parse(value.substring(0, DATE_LENGTH));
-            TimeFormat.FullTime time = TimeFormat.parse(value.substring(DATE_LENGTH + 1));
-            if (time == null || date == null) {
-                return false;
-            }
-            // TimeFormat.parse has checked that a leap second is at 23:59:60 UTC, so only the date is left
-            return time.second != 60 || isLastDayOfJuneOrDecemberInUtc(date, time);
-        }
-
-        private static boolean isLastDayOfJuneOrDecemberInUtc(LocalDate date, TimeFormat.FullTime time) {
-            LocalDate utc = date.plusDays(Math.floorDiv(time.minutesInUtc(), 24 * 60));
-            return utc.getMonth() == Month.JUNE && utc.getDayOfMonth() == 30
-                    || utc.getMonth() == Month.DECEMBER && utc.getDayOfMonth() == 31;
+            return isValidDateTime(value, false);
         }
     }
-    
+
+    private static boolean isValidDateTime(String value, boolean verifyLeapSecondHistory) {
+        if (value.length() <= DATE_LENGTH) {
+            return false;
+        }
+        char separator = value.charAt(DATE_LENGTH);
+        if (separator != 'T' && separator != 't') {
+            return false;
+        }
+        LocalDate date = DateFormat.parse(value.substring(0, DATE_LENGTH));
+        TimeFormat.FullTime time = TimeFormat.parse(value.substring(DATE_LENGTH + 1));
+        if (time == null || date == null) {
+            return false;
+        }
+        if (time.second != 60) {
+            return true;
+        }
+        // TimeFormat.parse checks 23:59:60 UTC; compute that UTC date once.
+        LocalDate utc = date.plusDays(Math.floorDiv(time.minutesInUtc(), 24 * 60));
+        boolean possibleLeapDate = utc.getMonth() == Month.JUNE && utc.getDayOfMonth() == 30
+                || utc.getMonth() == Month.DECEMBER && utc.getDayOfMonth() == 31;
+        return possibleLeapDate && (!verifyLeapSecondHistory || Ethlo.isValidLeapSecond(utc));
+    }
+
     private static final Predicate<String> VALIDATE = ETHLO_PRESENT ? Ethlo::isValid : JavaTimeOffsetDateTime::isValid;
 
     @Override

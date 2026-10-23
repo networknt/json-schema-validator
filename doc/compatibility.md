@@ -200,3 +200,16 @@ Only top-level numeric enum members receive this conversion. A literal string me
 The comparison uses each numeric enum node's existing decimal value, consistent with numeric value equality. It does not recover digits already rounded by a caller's mapper or the configured schema reader. Protected enum conversion hooks remain in use.
 
 For example, a default reader rounds `{"enum":[9007199254740993.0]}` to a double-valued member. Loose matching therefore accepts `"9007199254740992"`, not `"9007199254740993"`. Configure the schema reader's mapper with `USE_BIG_DECIMAL_FOR_FLOATS`, or supply an exact DecimalNode, to preserve the written value; then those verdicts reverse. This enum change does not alter schema-reader precision policy.
+
+
+## RFC 3339 date-time boundaries
+
+The `date-time` format requires a four-digit full date, `T`/`t`, hours/minutes/seconds, and `Z`/`z` or a complete signed `HH:MM` offset. Both validation paths accept the unknown-local-offset spelling `-00:00`, offsets through ±23:59, and one or more fractional-second digits without a nine-digit limit. Space separators, empty fractions, missing seconds, hour-only offsets and trailing text are rejected.
+
+For example, `2004-09-25T09:55:11-00:00`, `2020-01-01T12:00:00.1234567890Z` and `2020-01-01T12:00:00+23:59` are valid. `2020-01-01 12:00:00Z`, `2020-01-01T12:00:00.Z` and `2020-01-01T12:00:00+24:00` are invalid. This changes the Ethlo-present behavior for the first four boundaries to agree with RFC 3339 and the fallback.
+
+Leap-second accuracy remains dependency-specific: Ethlo checks the historical insertion table; the no-Ethlo fallback permits possible leap seconds at the end of June/December UTC without verifying an actual insertion. Offsets crossing midnight are evaluated against the UTC date, including when the local year differs. Ordinary valid date-times at years 0000 and 9999 remain accepted even if their UTC date crosses the four-digit-year boundary. Validation does not rewrite or truncate the input string.
+
+These include **breaking validation changes with Ethlo present**: space-separated strings such as `2020-01-01 12:00:00Z` and offset-less leap seconds such as `2016-12-31T23:59:60` were accepted before and are now rejected. Supply `T`/`t` and an explicit `Z`/`z` or signed `HH:MM` offset. The no-Ethlo fallback already rejected both forms.
+
+The historical calendars are intentionally not made identical. Ethlo's current table rejects the real leap seconds on 1979-12-31 and 1987-12-31 and accepts 1971-12-31 and 1988-12-31, which did not have insertions. The fallback accepts all four as possible December-end leap seconds. These inherited differences are retained and pinned by tests; the change aligns syntax and offset/range handling, not historical leap-table data.

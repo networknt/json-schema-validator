@@ -192,9 +192,11 @@ The YAML dependency can be excluded if this is not required. Attempting to proce
 </dependency>
 ```
 
-The Ethlo Time dependency can be excluded if less accurate leap-second validation is acceptable. The `date-time` format then uses an RFC 3339 fallback that validates `full-date "T" full-time` (also accepting lowercase `t` and `z`), requires seconds and an offset, and accepts numeric offsets up to ±23:59. Leap seconds are accepted only at the end of June 30 or December 31 in UTC; the fallback does not check whether a leap second was actually inserted on that date.
+The `date-time` format validates the RFC 3339 `full-date "T" full-time` grammar, also accepting lowercase `t` and `z`. Seconds and a complete offset are required; a space separator, an empty fraction and trailing text are rejected. Both dependency paths accept `-00:00`, numeric offsets up to ±23:59 and fractions longer than nine digits.
 
-The fallback also accepts `-00:00`, offsets beyond ±18:00, and fractions longer than nine digits, which Ethlo rejects. Ethlo accepts a space between the date and time, while the fallback requires `T` or `t`.
+The Ethlo Time dependency can be excluded if less accurate leap-second validation is acceptable. With Ethlo present, a leap second must pass Ethlo's historical table check for its UTC date. Without Ethlo, leap seconds are accepted only at the end of June 30 or December 31 in UTC, without checking whether one was actually inserted on that date. The written offset can move a leap second onto a different local date; validation checks the corresponding UTC date. These checks validate the string without changing the instance value.
+
+Space-separated values and offset-less leap-second strings such as `2016-12-31T23:59:60` were previously accepted with Ethlo and are now rejected. These are breaking validation changes. See the [date-time compatibility notes](doc/compatibility.md#rfc-3339-date-time-boundaries) for migration guidance and the historical leap-table differences that remain.
 
 ```xml
 <dependency>

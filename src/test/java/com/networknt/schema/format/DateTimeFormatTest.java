@@ -16,12 +16,14 @@
 package com.networknt.schema.format;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -97,7 +99,9 @@ class DateTimeFormatTest {
     @ValueSource(strings = {
             "2020-01-01T12:00Z",
             "2020-01-01T12:00:00+01",
-            "2020-01-01T12:00:00.Z"
+            "2020-01-01T12:00:00.Z",
+            "2016-12-31T23:59:60",
+            "2015-06-30T23:59:60.123456789"
     })
     void bothPathsRejectValuesThatAreNotRfc3339(String value) {
         // The schema takes the Ethlo path, as long as Ethlo is on the test classpath
@@ -244,11 +248,91 @@ class DateTimeFormatTest {
                 .invoke(registry.getMethod("withDefaultDialect", version).invoke(null, draft7), "{\"type\":\"string\",\"format\":\"date-time\"}");
         Method validate = schema.getClass().getMethod("validate", String.class, inputFormat);
 
-        // An offset beyond 18:00 is where the fallback and Ethlo differ: Ethlo rejects it
+        // These RFC 3339 values must also work through the actual no-Ethlo class-loading path.
         assertTrue(((List<?>) validate.invoke(schema, "\"2020-01-01T12:00:00+23:59\"", json)).isEmpty());
+        assertTrue(((List<?>) validate.invoke(schema, "\"2004-09-25T09:55:11-00:00\"", json)).isEmpty());
+        assertTrue(((List<?>) validate.invoke(schema, "\"2020-01-01T12:00:00.12345678901234567890Z\"", json)).isEmpty());
+        assertFalse(((List<?>) validate.invoke(schema, "\"2020-01-01 12:00:00Z\"", json)).isEmpty());
         assertTrue(((List<?>) validate.invoke(schema, "\"2017-01-01T00:59:60+01:00\"", json)).isEmpty());
         assertFalse(((List<?>) validate.invoke(schema, "\"2020-01-01T12:00Z\"", json)).isEmpty());
         assertFalse(((List<?>) validate.invoke(schema, "\"2020-01-01T24:59:60+01:00\"", json)).isEmpty());
         assertFalse(((List<?>) validate.invoke(schema, "\"2016-12-30T23:59:60Z\"", json)).isEmpty());
+        for (String value : new String[] { "1979-12-31T23:59:60Z", "1987-12-31T23:59:60Z",
+                "1971-12-31T23:59:60Z", "1988-12-31T23:59:60Z" }) {
+            assertTrue(((List<?>) validate.invoke(schema, "\"" + value + "\"", json)).isEmpty(), value);
+        }
+        assertFalse(((List<?>) validate.invoke(schema, "\"2016-12-31T23:59:60\"", json)).isEmpty());
     }
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "2004-09-25T09:55:11-00:00",
+            "2020-01-01T12:00:00.1234567890Z",
+            "2020-01-01T12:00:00.123456789012345678901234567890-00:00",
+            "2020-01-01t12:00:00.12345678901234567890z",
+            "2020-01-01T12:00:00+18:01",
+            "2020-01-01T12:00:00-18:01",
+            "2020-01-01T12:00:00+23:59",
+            "2020-01-01T12:00:00-23:59",
+            "0000-01-01T00:00:00+23:59",
+            "9999-12-31T23:59:59-23:59",
+            "2016-12-31T23:59:60-00:00",
+            "2016-12-31T23:59:60.12345678901234567890Z",
+            "2017-01-01T23:58:60.12345678901234567890+23:59",
+            "2016-12-31T00:00:60.12345678901234567890-23:59"
+    })
+    void bothPathsAcceptTheRemainingIssue1316Cases(String value) {
+        assertTrue(DateTimeFormat.Ethlo.isValid(value), value);
+        assertTrue(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
+        assertTrue(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
+                ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "2003-02-03 12:07:54.27+06:43",
+            "2020-01-01T12:00:00.Z",
+            "2020-01-01T12:00:00.+23:59",
+            "2020-01-01T12:00Z",
+            "2020-01-01T12:00:00+01",
+            "2020-01-01T12:00:00+24:00",
+            "2020-01-01T12:00:00-24:00",
+            "2020-01-01T12:00:00+23:60",
+            "2020-01-01T12:00:00-23:60",
+            "2020-01-01T12:00:00+01:00:00",
+            "2020-01-01T12:00:00.1234567890Zjunk",
+            "2020-02-30T12:00:00.1234567890+23:59",
+            "2017-01-01T23:59:60+23:59",
+            "2016-12-30T00:00:60-23:59",
+            "2016-12-31T23:59:61Z"
+    })
+    void bothPathsRejectMalformedAndInvalidBoundaryCases(String value) {
+        assertFalse(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
+                ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
+        assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
+    }
+
+    @Test
+    void ethloStillRequiresAnActuallyRecordedLeapSecond() {
+        for (String value : new String[] { "2020-06-30T23:59:60Z", "2021-01-01T23:58:60+23:59",
+                "0000-01-01T00:59:60+01:00", "9999-12-31T23:59:60Z" }) {
+            assertTrue(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
+            assertFalse(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
+                    ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1979-12-31T23:59:60Z,false",
+            "1987-12-31T23:59:60Z,false",
+            "1971-12-31T23:59:60Z,true",
+            "1988-12-31T23:59:60Z,true"
+    })
+    void preservesInheritedEthloLeapTableDifferences(String value, boolean ethloAccepts) {
+        assertTrue(Classes.isPresent("com.ethlo.time.ITU", DateTimeFormatTest.class.getClassLoader()));
+        assertEquals(ethloAccepts, SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
+                ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
+        assertTrue(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
+    }
+
 }

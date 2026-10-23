@@ -49,6 +49,9 @@ class Issue575Test {
         String json15 = "{\"testDateTime\":\"2022-05-18T18:45:32.123456-05:00\"}"; // America/New_York
         String json16 = "{\"testDateTime\":\"2022-05-18T08:27:53Z\"}";             // UTC
         String json17 = "{\"testDateTime\":\"2022-05-18T08:27:53+00:00\"}";        // UTC
+        String json18 = "{\"testDateTime\":\"2022-05-18T08:27:53+23:00\"}";        // RFC 3339 range
+        String json19 = "{\"testDateTime\":\"2022-05-18T08:27:53-23:00\"}";        // RFC 3339 range
+        String json20 = "{\"testDateTime\":\"2022-05-18T08:27:53-00:00\"}";        // Unknown local offset
 
         return Stream.of(
                 Arguments.of(json1),
@@ -67,7 +70,10 @@ class Issue575Test {
                 Arguments.of(json14),
                 Arguments.of(json15),
                 Arguments.of(json16),
-                Arguments.of(json17)
+                Arguments.of(json17),
+                Arguments.of(json18),
+                Arguments.of(json19),
+                Arguments.of(json20)
         );
     }
 
@@ -79,7 +85,9 @@ class Issue575Test {
     @ParameterizedTest
     @MethodSource("validTimeZoneOffsets")
     void testValidTimeZoneOffsets(String jsonObject) throws JacksonException {
-        List<Error> errors = schema.validate(new ObjectMapper().readTree(jsonObject));
+        List<Error> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT,
+                (executionContext, schemaContext) -> executionContext.executionConfig(
+                        executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         Assertions.assertTrue(errors.isEmpty());
     }
 
@@ -94,12 +102,12 @@ class Issue575Test {
         String json4 = "{\"testDateTime\":\"2022-05-18T11:23Z\"}";
         // Invalid JSON payload: Text instead of date-time value
         String json5 = "{\"testDateTime\":\"Orlando\"}";
-        // Invalid JSON payload: A time zone offset of +23:00 is not valid
-        String json6 = "{\"testDateTime\":\"2022-05-18T08:27:53+23:00\"}";
-        // Invalid JSON payload: A time zone offset of -23:00 is not valid
-        String json7 = "{\"testDateTime\":\"2022-05-18T08:27:53-23:00\"}";
-        // Invalid JSON payload: com.ethlo.time:itu does not allow offset -00:00 (Valid per RFC3339 section 4.3. but prohibited in ISO-8601)
-        String json8 = "{\"testDateTime\":\"2022-05-18T08:27:53-00:00\"}";
+        // RFC 3339 offset hours cannot exceed 23
+        String json6 = "{\"testDateTime\":\"2022-05-18T08:27:53+24:00\"}";
+        // RFC 3339 offset hours cannot exceed 23
+        String json7 = "{\"testDateTime\":\"2022-05-18T08:27:53-24:00\"}";
+        // RFC 3339 offset minutes cannot exceed 59
+        String json8 = "{\"testDateTime\":\"2022-05-18T08:27:53-00:60\"}";
 
         return Stream.of(
                 Arguments.of(json1),
