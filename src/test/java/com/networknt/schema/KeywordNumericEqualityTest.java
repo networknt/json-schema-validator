@@ -101,7 +101,8 @@ class KeywordNumericEqualityTest {
     }
 
     @Test
-    void enumTypeLooseStillUsesTheConvertedNumberText() {
+    // Compatibility with the branch baseline; Jackson 3 normalizes, Jackson 2 uses plain text.
+    void enumTypeLooseRetainsJackson3NormalizedDecimalCompatibility() {
         SchemaRegistry loose = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()));
         Schema schema = loose.getSchema("{\"enum\":[100]}");
@@ -111,6 +112,64 @@ class KeywordNumericEqualityTest {
         ObjectNode exactSchema = NODES.objectNode();
         exactSchema.set("enum", NODES.arrayNode().add(new BigDecimal("1E+2")));
         assertTrue(loose.getSchema(exactSchema).validate("\"1E+2\"", InputFormat.JSON).isEmpty());
+    }
+
+    private static SchemaRegistry looseRegistry() {
+        return SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()));
+    }
+
+    @Test
+    void enumTypeLooseSkipsContainersAndStillMatchesScalars() {
+        SchemaRegistry loose = looseRegistry();
+        Schema containers = loose.getSchema("{\"enum\":[[],{},[1],{\"a\":1}]}");
+        for (String text : Arrays.asList("", "[]", "{}", "[1]", "{\"a\":1}", "missing")) {
+            assertFalse(containers.validate(NODES.stringNode(text)).isEmpty(), text);
+        }
+        Schema mixed = loose.getSchema("{\"enum\":[[],{},true,null,\"literal\",100]}");
+        for (String text : Arrays.asList("true", "literal", "1E+2")) {
+            assertTrue(mixed.validate(NODES.stringNode(text)).isEmpty(), text);
+        }
+        assertFalse(mixed.validate(NODES.stringNode("missing")).isEmpty());
+    }
+
+    @Test
+    void enumTypeLooseUsesFirstOfEquivalentNumericMembers() {
+        ObjectNode schemaNode = NODES.objectNode();
+        schemaNode.set("enum", NODES.arrayNode().add(new BigDecimal("1")).add(new BigDecimal("1.00")));
+        Schema schema = looseRegistry().getSchema(schemaNode);
+        assertTrue(schema.validate(NODES.stringNode("1")).isEmpty());
+        assertFalse(schema.validate(NODES.stringNode("1.00")).isEmpty());
+    }
+
+    static Stream<Arguments> looseDecimals() {
+        return Stream.of(
+                Arguments.of(new BigDecimal("100"), "1E+2", "100.0"),
+                Arguments.of(new BigDecimal("-1E+3"), "-1E+3", "-100.0"),
+                Arguments.of(new BigDecimal("12E+3"), "1.2E+4", "12001"),
+                Arguments.of(new BigDecimal("1.20"), "1.2", "1.200"),
+                Arguments.of(new BigDecimal("0E+3"), "0", "000"),
+                Arguments.of(new BigDecimal("0.00"), "0", "0.000"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("looseDecimals")
+    void enumTypeLooseDecimalScales(BigDecimal value, String accepted, String rejected) {
+        ObjectNode schemaNode = NODES.objectNode();
+        schemaNode.set("enum", NODES.arrayNode().add(value));
+        Schema schema = looseRegistry().getSchema(schemaNode);
+        for (int i = 0; i < 3; i++) {
+            assertTrue(schema.validate(NODES.stringNode(accepted)).isEmpty(), accepted);
+            assertFalse(schema.validate(NODES.stringNode(rejected)).isEmpty(), rejected);
+        }
+    }
+
+    @Test
+    void enumTypeLooseExtremeExponentDoesNotExpandPlainText() {
+        ObjectNode schemaNode = NODES.objectNode();
+        schemaNode.set("enum", NODES.arrayNode().add(new BigDecimal(BigInteger.ONE, Integer.MIN_VALUE)));
+        Schema schema = looseRegistry().getSchema(schemaNode);
+        assertFalse(schema.validate(NODES.stringNode("10")).isEmpty());
     }
 
     @Test
