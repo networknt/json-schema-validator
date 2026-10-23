@@ -16,6 +16,8 @@
 
 package com.networknt.schema.keyword;
 
+import com.networknt.schema.utils.JsonNodes;
+
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
@@ -32,7 +34,7 @@ public class MaxPropertiesValidator extends BaseKeywordValidator implements Keyw
     public MaxPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
         super(KeywordType.MAX_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.max = schemaNode.canConvertToExactIntegral()
+        this.max = JsonNodes.isIntegralCountLimit(schemaNode)
                 ? CountLimit.of(schemaNode) : CountLimit.of(Integer.MAX_VALUE);
     }
 

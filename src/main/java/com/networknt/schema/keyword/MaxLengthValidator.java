@@ -16,6 +16,8 @@
 
 package com.networknt.schema.keyword;
 
+import com.networknt.schema.utils.JsonNodes;
+
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
@@ -33,7 +35,7 @@ public class MaxLengthValidator extends BaseKeywordValidator implements KeywordV
 
     public MaxLengthValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.maxLength = schemaNode != null && schemaNode.canConvertToExactIntegral()
+        this.maxLength = schemaNode != null && JsonNodes.isIntegralCountLimit(schemaNode)
                 ? CountLimit.of(schemaNode) : CountLimit.of(Integer.MAX_VALUE);
     }
 

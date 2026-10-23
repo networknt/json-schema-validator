@@ -17,6 +17,7 @@
 package com.networknt.schema.keyword;
 
 import java.math.BigDecimal;
+import com.networknt.schema.utils.JsonNodes;
 
 import tools.jackson.databind.JsonNode;
 
@@ -40,7 +41,7 @@ final class CountLimit {
     }
 
     static CountLimit of(JsonNode node) {
-        BigDecimal value = node.decimalValue();
+        BigDecimal value = JsonNodes.decimalValueForCountLimit(node);
         if (value.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) > 0) {
             return new CountLimit(value, Integer.MAX_VALUE, 1);
         }
