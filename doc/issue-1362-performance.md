@@ -28,14 +28,24 @@ result is stale and is not qualification evidence for this change.
 
 ## Measurement
 
+### Historical standalone-harness results
+
+The table below comes from the separate best-of-eight timing harness used for
+#1362; that harness is not checked into this repository. It does **not** come
+from the checked-in `DecimalTreeBenchmark` JMH benchmark. These are historical
+results from before the #1368 character-buffer reuse change.
+
 Corretto 25.0.3, 1 GiB fixed heap, eight warmups and best of eight reads.
 Native means an unmodified Jackson JsonMapper/YAMLMapper; selective means
 NodeReader.readTree using the default policy. These are tree-read timings,
 not end-to-end Schema.validate timings or a before/after comparison.
 JSON uses 200,000 elements. YAML uses 20,000 to stay below its default
 3,145,728-code-point limit for every payload. Seed: 1362.
-This lightweight harness is indicative; the checked-in JMH benchmark supplies
-forked measurements and also covers the end-to-end validation path.
+`DecimalTreeBenchmark` defaults to **20,000 elements for both formats**. The
+standalone harness used **200,000 for JSON and 20,000 for YAML**. JMH uses
+forked average-time measurements, while the table uses best-of-eight timings,
+so its output is not a reproduction of this table. JMH also covers the
+end-to-end validation path; that path is not measured in the table.
 
 | Format | Payload | Elements | Native ms | Selective ms | Ratio |
 |---|---|---:|---:|---:|---:|
@@ -56,7 +66,11 @@ plain/machine YAML floats meet the target in this measurement. The remaining
 cost includes shortest-double formatting; precision has not been weakened to
 meet a timing threshold. Issue #1362 should remain open pending that work.
 
-## Repeat with JMH
+## Run the checked-in JMH benchmark
+
+These commands measure the current checkout. The JSON command overrides the
+20,000-element default to match the historical JSON payload size; the YAML
+command retains 20,000 elements. The measurement protocols remain different.
 
 ```sh
 mvn -Pbenchmark -DskipTests package

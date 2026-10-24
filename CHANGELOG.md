@@ -16,6 +16,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+- Avoid duplicate numeric text-buffer reads when classifying JSON/YAML decimals; pin fast-path boundaries, randomized classification, and Jackson 3 name-matcher cache invalidation with regression tests. [#1368](https://github.com/networknt/json-schema-validator/issues/1368)
 - Reduce decimal-preserving tree parser overhead by caching per token and avoiding text and decimal allocations for lossless floats. [#1362](https://github.com/networknt/json-schema-validator/issues/1362)
 - `JsonMapperFactory.getInstance()` and `YamlMapperFactory.getInstance()` now return `DecimalNode` values for lossy finite floating-point spellings when reading trees, subject to explicit mapper settings and custom node factories. (#1357)
 - Preserve lossy finite decimal literals uniformly in built-in JSON/YAML schema and instance readers and public mapper-factory tree reads. Bounds and `multipleOf` now validate decimal spellings such as `9007199254740993.0` exactly. Decimal nodes can surface in literals, defaults, examples, annotations and JSON output; finite numeric equality no longer depends on the field name. Lossless doubles and signed zero retain type/sign/serialization. Existing overflow/nonfinite behavior, count-specific precision, explicit mapper settings, custom node factories and scalar/POJO binding policies are retained. This intentionally changes validation where values previously rounded to the same double. (#1357)
