@@ -12,6 +12,8 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Added
 
+- Pin public JSON/YAML mapper tree-deserializer delegation with regression tests and document the required checks for Jackson upgrades. [#1363](https://github.com/networknt/json-schema-validator/issues/1363)
+
 ### Changed
 
 - Reduce decimal-preserving tree parser overhead by caching per token and avoiding text and decimal allocations for lossless floats. [#1362](https://github.com/networknt/json-schema-validator/issues/1362)
