@@ -134,9 +134,18 @@ final class SchemaNodeReader {
             if (nativeType == NumberTypeFP.BIG_DECIMAL || nativeType == NumberTypeFP.FLOAT32) {
                 return false;
             }
-            if (isShortDecimal()) {
-                super.getDoubleValue();
-                return false;
+            int length = getTextLength();
+            char[] characters = null;
+            int offset = 0;
+            // Keep the buffer local to this decision. YAML builds a new array on
+            // each request; reuse it if the shortest-spelling comparison needs it.
+            if (length <= 16) {
+                characters = getTextCharacters();
+                offset = getTextOffset();
+                if (isShortDecimal(characters, offset, length)) {
+                    super.getDoubleValue();
+                    return false;
+                }
             }
             double number = super.getDoubleValue();
             if (!Double.isFinite(number)) {
@@ -149,8 +158,14 @@ final class SchemaNodeReader {
                 }
             }
             String shortest = Double.toString(number);
-            if (matchesShortest(shortest)) {
-                return false; // Lossless machine-generated doubles need no token String or decimal.
+            if (length == shortest.length()) {
+                if (characters == null) {
+                    characters = getTextCharacters();
+                    offset = getTextOffset();
+                }
+                if (matchesShortest(shortest, characters, offset, length)) {
+                    return false; // Lossless doubles need no token String or decimal.
+                }
             }
             String token = getText();
             if (token.indexOf('_') >= 0) {
@@ -173,13 +188,7 @@ final class SchemaNodeReader {
 
         // Binary64 preserves at least 15 significant decimal digits. Restrict this
         // shortcut to short fixed-point tokens so underflow/overflow cannot apply.
-        private boolean isShortDecimal() throws java.io.IOException {
-            int length = getTextLength();
-            if (length > 16) {
-                return false;
-            }
-            char[] characters = getTextCharacters();
-            int offset = getTextOffset();
+        private boolean isShortDecimal(char[] characters, int offset, int length) {
             int digits = 0;
             for (int i = 0; i < length; i++) {
                 char c = characters[offset + i];
@@ -192,13 +201,7 @@ final class SchemaNodeReader {
             return digits <= 15;
         }
 
-        private boolean matchesShortest(String shortest) throws java.io.IOException {
-            int length = getTextLength();
-            if (length != shortest.length()) {
-                return false;
-            }
-            char[] characters = getTextCharacters();
-            int offset = getTextOffset();
+        private boolean matchesShortest(String shortest, char[] characters, int offset, int length) {
             for (int i = 0; i < length; i++) {
                 if (characters[offset + i] != shortest.charAt(i)) {
                     return false;
