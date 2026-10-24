@@ -17,9 +17,11 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -28,6 +30,7 @@ import com.networknt.schema.serialization.NodeReader;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
+@Tag("jackson-upgrade")
 class Issue1350ReviewTest {
     static Stream<NodeReader> readers() {
         return Stream.of(BasicNodeReader.getInstance(), NodeReader.builder().build(),

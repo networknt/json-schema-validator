@@ -17,13 +17,16 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 import com.networknt.schema.serialization.NodeReader;
 
+@Tag("jackson-upgrade")
 class Issue1350Test {
     private static final String[] KEYWORDS = { "minItems", "maxItems", "minProperties", "maxProperties",
             "minLength", "maxLength", "minContains", "maxContains" };
