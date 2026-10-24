@@ -148,6 +148,8 @@ class Issue1368Test {
         // 16 vs 17 chars: widening the conservative limit is numerically safe for this
         // negative 15-digit value, so also pin whether the fallback reads its full text.
         assertAccesses(format, "1234567890123.40", 1, 0);
+        // A short negative token must retain the shortcut, even though fallback has the same value.
+        assertAccesses(format, "-123456789012.5", 1, 0);
         assertAccesses(format, "-1234567890123.40", 0, 1);
         // A canonical exponent fails the fixed-point shortcut, then reuses its characters.
         assertAccesses(format, "1.2345E7", 1, 0);
@@ -173,7 +175,7 @@ class Issue1368Test {
         }
     }
 
-    private static void assertAccesses(Format format, String token, int characters, int text) throws Exception {
+    private static void assertAccesses(Format format, String token, int maxCharacterReads, int maxTextReads) throws Exception {
         ObjectMapper mapper = format.stock();
         // Put numbers inside an object so JSON exercises a nonzero text-buffer offset.
         CountingParser source = new CountingParser(mapper.getFactory().createParser("{\"value\": " + token + "}"));
@@ -183,10 +185,14 @@ class Issue1368Test {
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
             parser.getNumberType();
             parser.getNumberTypeFP();
+            // Bound our classification requests, before Jackson binds the tree. Fewer
+            // requests are fine; incidental reads by a future tree deserializer are irrelevant.
+            assertTrue(source.characterReads <= maxCharacterReads,
+                    () -> format + ": " + token + " character reads " + source.characterReads + " > " + maxCharacterReads);
+            assertTrue(source.textReads <= maxTextReads,
+                    () -> format + ": " + token + " text reads " + source.textReads + " > " + maxTextReads);
             JsonNode node = mapper.reader().without(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS).readTree(parser);
             assertValue(node, new BigDecimal(token), Double.parseDouble(token), false, token);
-            assertEquals(characters, source.characterReads, format + ": " + token);
-            assertEquals(text, source.textReads, format + ": " + token);
         }
     }
 

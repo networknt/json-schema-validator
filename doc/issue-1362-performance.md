@@ -28,6 +28,11 @@ result is stale and is not qualification evidence for this change.
 
 ## Measurement
 
+The #1368 character-buffer reuse is allocation hygiene. YAML wall-clock
+measurements reported during review of the master branch were within timing
+noise. The historical table below predates that change and does not establish
+a speedup from it.
+
 ### Historical standalone-harness results
 
 The table below comes from the separate best-of-eight timing harness used for
