@@ -8,11 +8,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-class Issue792 {
+class Issue792Test {
 
     @Test
     void test() throws JacksonException {
-        SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(false).failFast(true).build();
+        JsonNode jsonNode = new ObjectMapper().readTree("{\"field\": \"pattern-violation\", \"other\": \"pattern-violation\"}");
+
+        assertEquals(1, schema(true).validate(jsonNode).size());
+        assertEquals(2, schema(false).validate(jsonNode).size());
+    }
+
+    private static Schema schema(boolean failFast) {
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(false).failFast(failFast).build();
 
         SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
 
@@ -26,13 +33,14 @@ class Issue792 {
                 "    \"field\": {\n" +
                 "      \"type\": \"string\",\n" +
                 "      \"pattern\": \"^[A-Z]{2}$\"\n" +
+                "    },\n" +
+                "    \"other\": {\n" +
+                "      \"type\": \"string\",\n" +
+                "      \"pattern\": \"^[A-Z]{2}$\"\n" +
                 "    }\n" +
                 "   }\n" +
                 "}";
 
-        Schema jsonSchema = schemaFactory.getSchema(schemaDef);
-        JsonNode jsonNode = new ObjectMapper().readTree("{\"field\": \"pattern-violation\"}");
-
-        assertEquals(1, jsonSchema.validate(jsonNode).size());
+        return schemaFactory.getSchema(schemaDef);
     }
 }
