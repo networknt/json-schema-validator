@@ -89,6 +89,7 @@ class DateTimeFormatTest {
     void rejectsNonTSeparators(String value) {
         assertFalse(SCHEMA.validate("\"" + value + "\"", InputFormat.JSON,
                 ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(true))).isEmpty(), value);
+        assertFalse(DateTimeFormat.Ethlo.isValid(value), value);
         assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value), value);
     }
 
@@ -115,12 +116,6 @@ class DateTimeFormatTest {
     void formatAnnotationDoesNotRejectSpaceSeparator() {
         assertTrue(SCHEMA.validate("\"2020-01-01 12:00:00Z\"", InputFormat.JSON,
                 ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(false))).isEmpty());
-    }
-
-    void bothPathsRejectSpaceSeparator() {
-        String value = "2020-01-01 12:00:00Z";
-        assertFalse(DateTimeFormat.Ethlo.isValid(value));
-        assertFalse(DateTimeFormat.JavaTimeOffsetDateTime.isValid(value));
     }
 
     @ParameterizedTest
