@@ -19,12 +19,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -37,84 +41,161 @@ import org.junit.jupiter.api.Test;
  * match, or a test-shaped method that has no test annotation.
  */
 class TestDiscoveryTest {
-    private static final Path TEST_SOURCES = Paths.get("src", "test", "java");
-    private static final Pattern TEST_ANNOTATION = Pattern.compile("@(?:Test|ParameterizedTest|RepeatedTest|TestFactory|TestTemplate)\\b");
-    // Surefire's default includes, plus *IT, which the verify-packaged-boundary execution runs by name
-    private static final Pattern RUNNABLE_CLASS_NAME = Pattern.compile("Test\\w*|\\w*Test|\\w*Tests|\\w*TestCase|\\w*IT");
-    private static final Pattern NO_ARGUMENT_VOID_METHOD = Pattern.compile("^\\s*(?:public\\s+)?void\\s+(\\w+)\\s*\\(\\s*\\)");
+    private static final Pattern TEST_ANNOTATION = Pattern.compile(
+            "@(?:org\\.junit\\.(?:jupiter\\.(?:api|params)\\.)?)?(?:Test|ParameterizedTest|RepeatedTest|TestFactory|TestTemplate)\\b");
+    private static final Pattern JUNIT_METHOD_ANNOTATION = Pattern.compile(
+            "@(?:org\\.junit\\.(?:jupiter\\.(?:api|params)\\.)?)?(?:Test|ParameterizedTest|RepeatedTest|TestFactory|TestTemplate"
+                    + "|BeforeEach|AfterEach|BeforeAll|AfterAll)\\b");
+    // Surefire's default includes
+    private static final Pattern SUREFIRE_CLASS_NAME = Pattern.compile("Test\\w*|\\w*Test|\\w*Tests|\\w*TestCase");
+    // Run by name by the verify-packaged-boundary execution in pom.xml
+    private static final Set<String> RUN_BY_NAME = Set.of("InternalPackageIT");
+    private static final Pattern NO_ARGUMENT_VOID_METHOD = Pattern.compile(
+            "^[ \\t]*(?:public[ \\t]+)?void[ \\t]+(\\w+)[ \\t]*\\([ \\t]*\\)", Pattern.MULTILINE);
+    private static final Pattern CALL_OR_METHOD_REFERENCE = Pattern.compile("::(\\w+)|\\b(\\w+)\\s*\\(");
+    private static final Pattern COMMENT_OR_LITERAL = Pattern.compile(
+            "\"\"\"[\\s\\S]*?\"\"\"|\"(?:\\\\.|[^\"\\\\\\n])*\"|'(?:\\\\.|[^'\\\\\\n])*'|/\\*[\\s\\S]*?\\*/|//[^\\n]*");
+
+    /**
+     * A test source with its comments and string literals blanked out, keeping line breaks so that
+     * offsets still map to line numbers.
+     */
+    private record TestSource(Path path, String className, String code) {
+    }
 
     @Test
-    void testClassesMatchTheSurefireIncludes() throws IOException {
+    void testClassesMatchTheSurefireIncludes() {
         List<String> misnamed = testSources().stream()
-                .filter(source -> TEST_ANNOTATION.matcher(read(source)).find())
-                .filter(source -> !read(source).contains("abstract class " + className(source)))
-                .filter(source -> !RUNNABLE_CLASS_NAME.matcher(className(source)).matches())
-                .map(Path::toString)
+                .filter(source -> TEST_ANNOTATION.matcher(source.code()).find())
+                .filter(source -> !source.code().contains("abstract class " + source.className()))
+                .filter(source -> !SUREFIRE_CLASS_NAME.matcher(source.className()).matches())
+                .filter(source -> !RUN_BY_NAME.contains(source.className()))
+                .map(source -> source.path().toString())
                 .collect(Collectors.toList());
 
         assertEquals(Collections.emptyList(), misnamed);
     }
 
     @Test
-    void testShapedMethodsHaveATestAnnotation() throws IOException {
-        List<String> unannotated = new ArrayList<>();
-        testSources().stream()
-                .filter(source -> TEST_ANNOTATION.matcher(read(source)).find())
-                .forEach(source -> unannotated.addAll(unannotatedMethods(source)));
+    void testShapedMethodsHaveATestAnnotation() {
+        List<String> unannotated = testSources().stream()
+                .filter(source -> TEST_ANNOTATION.matcher(source.code()).find())
+                .flatMap(source -> unannotatedMethods(source).stream())
+                .collect(Collectors.toList());
 
         assertEquals(Collections.emptyList(), unannotated);
     }
 
     /**
-     * A package-private or public no-argument void method that has no annotation and is not called from
-     * elsewhere in its file is a test that JUnit skips.
+     * A package-private or public no-argument void method of the test class, without a JUnit annotation and
+     * not called anywhere in its file, is a test that JUnit skips. Methods of nested and anonymous classes,
+     * such as {@code Runnable.run()}, are not test candidates.
      */
-    private static List<String> unannotatedMethods(Path source) {
-        String content = read(source);
-        String[] lines = content.split("\\R", -1);
+    private static List<String> unannotatedMethods(TestSource source) {
+        Map<String, Integer> callCounts = callCounts(source.code());
         List<String> unannotated = new ArrayList<>();
-        for (int i = 0; i < lines.length; i++) {
-            Matcher method = NO_ARGUMENT_VOID_METHOD.matcher(lines[i]);
-            if (method.find() && !isAnnotated(lines, i) && !isCalled(content, method.group(1))) {
-                unannotated.add(source + ":" + (i + 1) + " " + method.group(1));
+        Matcher method = NO_ARGUMENT_VOID_METHOD.matcher(source.code());
+        while (method.find()) {
+            String name = method.group(1);
+            boolean calledElsewhere = callCounts.getOrDefault(name, 0) > 1; // the declaration itself is one match
+            if (braceDepth(source.code(), method.start()) == 1 && !calledElsewhere
+                    && !JUNIT_METHOD_ANNOTATION.matcher(annotationsBefore(source.code(), method.start())).find()) {
+                unannotated.add(source.path() + ":" + lineNumber(source.code(), method.start(1)) + " " + name);
             }
         }
         return unannotated;
     }
 
-    private static boolean isAnnotated(String[] lines, int methodLine) {
-        for (int i = methodLine - 1; i >= 0; i--) {
-            String previous = lines[i].trim();
-            if (!previous.isEmpty()) {
-                // A multi-line annotation ends with ")", as in @ValueSource(strings = { ... })
-                return previous.startsWith("@") || previous.endsWith(")");
+    /**
+     * Returns the code between the previous member, statement or block boundary and the method
+     * declaration, which holds the method's annotations. Braces inside annotation arguments, as in
+     * {@code @ValueSource(strings = {...})}, are skipped by tracking parentheses.
+     */
+    private static String annotationsBefore(String code, int declarationStart) {
+        int depth = 0;
+        int i = declarationStart - 1;
+        for (; i >= 0; i--) {
+            char c = code.charAt(i);
+            if (c == ')') {
+                depth++;
+            } else if (c == '(') {
+                depth--;
+            } else if (depth == 0 && (c == ';' || c == '{' || c == '}')) {
+                break;
             }
         }
-        return false;
+        return code.substring(i + 1, declarationStart);
     }
 
-    private static boolean isCalled(String content, String methodName) {
-        return Pattern.compile("\\b" + methodName + "\\b").matcher(content).results().count() > 1;
+    private static int braceDepth(String code, int offset) {
+        int depth = 0;
+        for (int i = 0; i < offset; i++) {
+            char c = code.charAt(i);
+            if (c == '{') {
+                depth++;
+            } else if (c == '}') {
+                depth--;
+            }
+        }
+        return depth;
     }
 
-    private static List<Path> testSources() throws IOException {
-        try (Stream<Path> files = Files.walk(TEST_SOURCES)) {
+    private static Map<String, Integer> callCounts(String code) {
+        Map<String, Integer> counts = new HashMap<>();
+        Matcher call = CALL_OR_METHOD_REFERENCE.matcher(code);
+        while (call.find()) {
+            String name = call.group(1) != null ? call.group(1) : call.group(2);
+            counts.merge(name, 1, Integer::sum);
+        }
+        return counts;
+    }
+
+    private static int lineNumber(String code, int offset) {
+        int line = 1;
+        for (int i = 0; i < offset; i++) {
+            if (code.charAt(i) == '\n') {
+                line++;
+            }
+        }
+        return line;
+    }
+
+    private static List<TestSource> testSources() {
+        try (Stream<Path> files = Files.walk(testSourceRoot())) {
             return files.filter(file -> file.toString().endsWith(".java"))
                     .sorted()
+                    .map(TestDiscoveryTest::load)
                     .collect(Collectors.toList());
-        }
-    }
-
-    private static String className(Path source) {
-        String fileName = source.getFileName().toString();
-        return fileName.substring(0, fileName.length() - ".java".length());
-    }
-
-    private static String read(Path source) {
-        try {
-            return Files.readString(source);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /**
+     * Resolves src/test/java from the compiled test classes (target/test-classes), so the test does not
+     * depend on the working directory.
+     */
+    private static Path testSourceRoot() {
+        try {
+            Path testClasses = Paths.get(TestDiscoveryTest.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            return testClasses.getParent().getParent().resolve(Paths.get("src", "test", "java"));
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static TestSource load(Path path) {
+        try {
+            String fileName = path.getFileName().toString();
+            String className = fileName.substring(0, fileName.length() - ".java".length());
+            return new TestSource(path, className, withoutCommentsAndLiterals(Files.readString(path)));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static String withoutCommentsAndLiterals(String source) {
+        return COMMENT_OR_LITERAL.matcher(source)
+                .replaceAll(match -> Matcher.quoteReplacement(match.group().replaceAll("[^\\n]", " ")));
     }
 }
