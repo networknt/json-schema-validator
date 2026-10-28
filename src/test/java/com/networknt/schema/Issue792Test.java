@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-class Issue792 {
+class Issue792Test {
 
     @Test
     void test() throws JacksonException {

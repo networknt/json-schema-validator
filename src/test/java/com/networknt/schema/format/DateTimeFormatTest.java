@@ -117,6 +117,7 @@ class DateTimeFormatTest {
                 ec -> ec.executionConfig(config -> config.formatAssertionsEnabled(false))).isEmpty());
     }
 
+    @Test
     void bothPathsRejectSpaceSeparator() {
         String value = "2020-01-01 12:00:00Z";
         assertFalse(DateTimeFormat.Ethlo.isValid(value));
