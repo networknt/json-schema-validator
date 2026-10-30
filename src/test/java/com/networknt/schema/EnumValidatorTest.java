@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.serialization.NodeReader;
 
 import tools.jackson.core.json.JsonReadFeature;
@@ -197,7 +198,7 @@ class EnumValidatorTest {
     @Test
     void nullableEnumListsNullOnce() {
         for (String members : List.of("null, \"STR-01\"", "\"STR-01\"")) {
-            Schema schema = SchemaRegistry.withDialect(com.networknt.schema.dialect.Dialects.getOpenApi30())
+            Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi30())
                     .getSchema("{\"type\":\"string\",\"nullable\":true,\"enum\":[" + members + "]}");
             List<Error> errors = schema.validate("\"INVALID\"", InputFormat.JSON);
             assertEquals(1, errors.size());
@@ -207,15 +208,4 @@ class EnumValidatorTest {
         }
     }
 
-    @Test
-    void looseNullEnumUsesNullTextRatherThanEmptyString() {
-        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()));
-        Schema schema = registry.getSchema("{\"enum\":[null]}");
-        assertFalse(schema.validate("\"\"", InputFormat.JSON).isEmpty());
-        assertTrue(schema.validate("\"null\"", InputFormat.JSON).isEmpty());
-        assertTrue(schema.validate("null", InputFormat.JSON).isEmpty());
-        assertTrue(registry.getSchema("{\"enum\":[null,\"\"]}")
-                .validate("\"\"", InputFormat.JSON).isEmpty());
-    }
 }

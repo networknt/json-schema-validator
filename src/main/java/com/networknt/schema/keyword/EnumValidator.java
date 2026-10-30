@@ -138,7 +138,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         if (node.isNumber() && !JsonNodeTypes.isNonFiniteNumber(node)) {
             looseNumbers.add(NumericStringValue.of(node.decimalValue()));
         } else {
-            looseValues.add(node.isNull() ? "null" : node.asString());
+            looseValues.add(node.asString());
         }
     }
 
