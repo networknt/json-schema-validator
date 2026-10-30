@@ -16,6 +16,8 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+- Render null enum members as `null` in validation errors and avoid listing null twice for nullable schemas. With `typeLoose` enabled, explicit null enum members match the string `"null"` rather than the empty string, restoring Jackson 2 behavior. (#1373)
+
 - Avoid duplicate numeric text-buffer reads when classifying JSON/YAML decimals; pin fast-path boundaries, randomized classification, and Jackson 3 name-matcher cache invalidation with regression tests. [#1368](https://github.com/networknt/json-schema-validator/issues/1368)
 - Reduce decimal-preserving tree parser overhead by caching per token and avoiding text and decimal allocations for lossless floats. [#1362](https://github.com/networknt/json-schema-validator/issues/1362)
 - `JsonMapperFactory.getInstance()` and `YamlMapperFactory.getInstance()` now return `DecimalNode` values for lossy finite floating-point spellings when reading trees, subject to explicit mapper settings and custom node factories. (#1357)

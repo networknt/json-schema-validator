@@ -180,4 +180,42 @@ class EnumValidatorTest {
         messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
     }
+
+    @Test
+    void nullEnumMembersRenderAsJsonNull() {
+        for (String members : List.of("null, \"STR-01\", \"STR-02\"",
+                "\"STR-01\", null, \"STR-02\"", "\"STR-01\", \"STR-02\", null")) {
+            Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                    .getSchema("{\"type\":[\"string\",\"null\"],\"enum\":[" + members + "]}");
+            List<Error> errors = schema.validate("\"INVALID\"", InputFormat.JSON);
+            assertEquals(1, errors.size());
+            assertEquals(": does not have a value in the enumeration [" + members + "]", errors.get(0).toString());
+            assertTrue(schema.validate("null", InputFormat.JSON).isEmpty());
+        }
+    }
+
+    @Test
+    void nullableEnumListsNullOnce() {
+        for (String members : List.of("null, \"STR-01\"", "\"STR-01\"")) {
+            Schema schema = SchemaRegistry.withDialect(com.networknt.schema.dialect.Dialects.getOpenApi30())
+                    .getSchema("{\"type\":\"string\",\"nullable\":true,\"enum\":[" + members + "]}");
+            List<Error> errors = schema.validate("\"INVALID\"", InputFormat.JSON);
+            assertEquals(1, errors.size());
+            String expected = members.startsWith("null") ? members : members + ", null";
+            assertEquals(": does not have a value in the enumeration [" + expected + "]", errors.get(0).toString());
+            assertTrue(schema.validate("null", InputFormat.JSON).isEmpty());
+        }
+    }
+
+    @Test
+    void looseNullEnumUsesNullTextRatherThanEmptyString() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(SchemaRegistryConfig.builder().typeLoose(true).build()));
+        Schema schema = registry.getSchema("{\"enum\":[null]}");
+        assertFalse(schema.validate("\"\"", InputFormat.JSON).isEmpty());
+        assertTrue(schema.validate("\"null\"", InputFormat.JSON).isEmpty());
+        assertTrue(schema.validate("null", InputFormat.JSON).isEmpty());
+        assertTrue(registry.getSchema("{\"enum\":[null,\"\"]}")
+                .validate("\"\"", InputFormat.JSON).isEmpty());
+    }
 }
