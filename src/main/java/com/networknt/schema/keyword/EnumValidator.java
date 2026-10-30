@@ -41,7 +41,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
     private final Set<NumericStringValue> looseNumbers;
 
     static String asString(JsonNode node) {
-        if (node.isObject() || node.isArray() || node.isString()) {
+        if (node.isObject() || node.isArray() || node.isString() || node.isNull()) {
             // toString for isString is so that there are quotes
             return node.toString();
         }
@@ -59,8 +59,10 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
 
             sb.append('[');
             String separator = "";
+            boolean hasNull = false;
 
             for (JsonNode n : schemaNode) {
+                hasNull |= n.isNull();
                 JsonNode converted = n;
                 if (n.isNumber()) {
                     converted = processNumberNode(n);
@@ -80,7 +82,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
             // Whether null is accepted depends on the ancestors the value is
             // reached through, which is only known during validation. This
             // just reports null as permitted when the owning schema says so.
-            if (schemaContext.isNullableKeywordEnabled()
+            if (!hasNull && schemaContext.isNullableKeywordEnabled()
                     && JsonNodeTypes.isNodeNullable(parentSchema.getSchemaNode())) {
                 separator = ", ";
                 sb.append(separator);
