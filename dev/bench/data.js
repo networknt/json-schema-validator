@@ -1,98 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793737570672,
+  "lastUpdate": 1793739163388,
   "repoUrl": "https://github.com/networknt/json-schema-validator",
   "entries": {
     "JSON Schema Validator Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "stevehu@gmail.com",
-            "name": "Steve Hu",
-            "username": "stevehu"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "3c433c440b9baf8339929fb8abbcd95eac9fa503",
-          "message": "Add YAML non-finite number regression test for #1228 (#1282)\n\nJackson 3.2 parses YAML .nan/.inf/-.inf as numeric values, and #1241\nalready handles non-finite numbers during validation. Cover the default\nYAML mapper path so these inputs keep producing a type error instead of\na parser exception.\n\nTest contributed by @patpatpat123 in #1228.\n\n\nClaude-Session: https://claude.ai/code/session_01XJ3SkCprrZVpASPFMADg1h\n\nCo-authored-by: Claude Opus 5 <noreply@anthropic.com>",
-          "timestamp": "2026-09-15T10:32:58-04:00",
-          "tree_id": "8e2ef8c713fde85f546f6c9e445bd0d24425d861",
-          "url": "https://github.com/networknt/json-schema-validator/commit/3c433c440b9baf8339929fb8abbcd95eac9fa503"
-        },
-        "date": 1789483163604,
-        "tool": "jmh",
-        "benches": [
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
-            "value": 4650.651917923489,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 1244.4049930925094,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 1284.701700088972,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 1364.6897134169203,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 3026.64078112248,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 3868.964054684077,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 1021.8699690906702,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 1115.2621073550447,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 2916.5014920714307,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 3177.469774340027,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 4564.453409796776,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -7162,6 +7072,324 @@ window.BENCHMARK_DATA = {
           {
             "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
             "value": 33.750655734169776,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stevehu@gmail.com",
+            "name": "Steve Hu",
+            "username": "stevehu"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "75c95ecaec45a4a8b2b3954586dbd99f8289da25",
+          "message": "Fix YAML nonfinite tree reads with Jackson 3.1.8 (#1375)",
+          "timestamp": "2026-11-03T15:07:53-05:00",
+          "tree_id": "f34c3c00efe10f1a1d36756d09b071099a0e9436",
+          "url": "https://github.com/networknt/json-schema-validator/commit/75c95ecaec45a4a8b2b3954586dbd99f8289da25"
+        },
+        "date": 1793739162539,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
+            "value": 7406.388956251642,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 2023.8161704411334,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 2065.946891341064,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 2262.313625341522,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 5860.606229903994,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 7726.660075522824,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1341.8398456332077,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1440.8302364125666,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 4301.760874350856,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 4748.80636244568,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 7249.121352577808,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"decimal\"} )",
+            "value": 9532.683411357451,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"bigInteger\"} )",
+            "value": 5509.020197117147,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"double\"} )",
+            "value": 31211.17426582403,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"nestedDecimal\"} )",
+            "value": 8033.208356377898,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"decimal\"} )",
+            "value": 9485.14956233673,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"bigInteger\"} )",
+            "value": 5635.1490988354535,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"double\"} )",
+            "value": 31221.11605609348,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"nestedDecimal\"} )",
+            "value": 8293.785607934538,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"integer\"} )",
+            "value": 0.28635699363628303,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"plain\"} )",
+            "value": 0.5151390470708135,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"machine\"} )",
+            "value": 1.397153552522479,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal19\"} )",
+            "value": 1.5856415070488292,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal40\"} )",
+            "value": 2.483090069098687,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"integer\"} )",
+            "value": 5.510248817938361,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"plain\"} )",
+            "value": 8.396741907898871,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"machine\"} )",
+            "value": 13.56134569433045,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal19\"} )",
+            "value": 11.115864420993502,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
+            "value": 14.163364700694578,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"integer\"} )",
+            "value": 0.33880949007416855,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"plain\"} )",
+            "value": 0.6524586095721501,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"machine\"} )",
+            "value": 2.9240350318499693,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal19\"} )",
+            "value": 6.113308032346812,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal40\"} )",
+            "value": 9.470962325121185,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"integer\"} )",
+            "value": 5.613715020549827,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"plain\"} )",
+            "value": 9.308358420357147,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"machine\"} )",
+            "value": 13.803868612256812,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal19\"} )",
+            "value": 16.299626225298585,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
+            "value": 22.08697928654641,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"integer\"} )",
+            "value": 0.3363537704390156,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"plain\"} )",
+            "value": 0.6544053808248437,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"machine\"} )",
+            "value": 2.9140715280735976,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal19\"} )",
+            "value": 6.2045103636486845,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal40\"} )",
+            "value": 8.811566192925312,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"integer\"} )",
+            "value": 5.610285403724263,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"plain\"} )",
+            "value": 9.24098772525595,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"machine\"} )",
+            "value": 13.83459062146354,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal19\"} )",
+            "value": 16.597265538419016,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
+            "value": 21.923778701205745,
             "unit": "ms/op",
             "extra": "iterations: 3\nforks: 1\nthreads: 1"
           }
