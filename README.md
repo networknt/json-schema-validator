@@ -587,10 +587,12 @@ The following is sample output from the Hierarchical format.
 | `locale`                      | The locale to use for generating messages in `Error`. Note that this value is copied from `SchemaRegistryConfig` for each execution.                                                                                            | `Locale.getDefault()` |
 | `failFast`                    | Whether to return failure immediately when an assertion is generated. Note that this value is copied from `SchemaRegistryConfig` for each execution but is automatically set to `true` for the Boolean and Flag output formats. | `false`               |
 | `formatAssertionsEnabled`     | The default is to generate format assertions from Draft 4 to Draft 7 and to only generate annotations from Draft 2019-09. Setting to `true` or `false` will override the default behavior.                                      | `null`                |
-| `readOnly`                    | Used to indicate that the property should not be sent as part of the request payload, but only in the response payload. This affects the `readOnly` keyword used for the OpenAPI dialect.                                       | `null`                |
-| `writeOnly`                   | Used to indicate that the property should not be sent as part of the response payload, but only in the request payload. This affects the `writeOnly` keyword used for the OpenAPI dialect.                                      | `null`                |
+| `readOnly`                    | Used to indicate that the property should not be sent as part of the request payload, but only in the response payload. See the note on the two policies below this table. | `null`                |
+| `writeOnly`                   | Used to indicate that the property should not be sent as part of the response payload, but only in the request payload. See the note on the two policies below this table. | `null`                |
 | `maxEvaluationSteps`          | Maximum admitted schema-entry and keyword-dispatch steps per validation or walk execution. Zero means unlimited; negative values are rejected. See [Validation execution limits](doc/validation-execution-limits.md). | `0` |
 | `maxEvaluationDepth`          | Maximum simultaneously active schema evaluation frames, including the root, references, and schema wrappers. Zero means unlimited; negative values are rejected. | `0` |
+
+**The `readOnly` and `writeOnly` policies.** Both apply to the keyword in Draft 7 and later, including the OpenAPI 3.0 and 3.1 dialects. When a policy is `true`, the keyword reports an error unless its value is the boolean `false`. A property whose keyword the policy asserts for (any value but the boolean `false`) is also exempt from `required`, whether or not the dialect defines the keyword, but only a declaration directly on the property schema is seen, not one reached through `$ref` or `allOf`.
 
 ### Schema Registry Configuration
 
