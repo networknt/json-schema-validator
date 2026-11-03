@@ -48,7 +48,11 @@ final class SchemaNodeReader {
     }
 
     static JsonParser precisionParser(JsonParser source, boolean useBigDecimals) {
-        return useBigDecimals || source instanceof PrecisionParser ? source : new PrecisionParser(source);
+        if (source instanceof PrecisionParser) {
+            return source;
+        }
+        JsonParser compatible = YamlNonFiniteParser.wrap(source);
+        return useBigDecimals ? compatible : new PrecisionParser(compatible);
     }
 
     private static final class PrecisionParser extends JsonParserDelegate {
@@ -137,7 +141,8 @@ final class SchemaNodeReader {
             exact = null;
             // Preserve exact/native values already supplied by token buffers or custom parsers.
             NumberTypeFP nativeType = super.getNumberTypeFP();
-            if (nativeType == NumberTypeFP.BIG_DECIMAL || nativeType == NumberTypeFP.FLOAT32) {
+            if (nativeType == NumberTypeFP.BIG_DECIMAL || nativeType == NumberTypeFP.FLOAT32
+                    || (nativeType == NumberTypeFP.DOUBLE64 && super.isNaN())) {
                 return false;
             }
             int length = getStringLength();
