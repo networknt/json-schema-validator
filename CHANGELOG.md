@@ -10,9 +10,16 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 - `idn-hostname` rejects a trailing label separator, such as `example.`, `example。` or `a..`. Released versions up to 3.0.9 accepted any number of them, so a fully-qualified name written with the root dot, such as `example.`, now fails; strip the trailing dot before validating such input. This follows the JSON-Schema-Test-Suite and matches `hostname`, which already rejects a trailing dot.
 - `uri-template` limits literals to the characters RFC 6570 section 2.1 allows. A space or a backslash (`a b`, `a\b`), C1 control characters, lone surrogates, noncharacters, U+FFF0 to U+FFFD and U+E0000 to U+E0FFF are now rejected in a literal; 3.0.9 and earlier accepted any character other than ASCII controls and ``" < > ^ ` { | }``. The apostrophe is still accepted, as in the JSON-Schema-Test-Suite. The vendored `uri-template.json` suite files are updated to the current JSON-Schema-Test-Suite.
+- The value of an annotation is now the value the keyword holds, for every JSON value type. Boolean, array and null values used to be dropped, so a keyword whose value was a boolean, an array or `null` did not appear in the collected annotations at all. This applies to every annotation keyword, including the ones created for `readOnly` and `writeOnly`, for keywords that are not in the dialect, such as unknown keywords and root level fields, and for `deprecated`, `default`, `examples`, `example`, `xml` and `contentSchema`. [#1376](https://github.com/networknt/json-schema-validator/pull/1376)
+- The generic return type of `Annotation.getValue()` now has a wider set of values. Existing code such as `String s = annotation.getValue()` still compiles but now throws `ClassCastException` where the value is not a string; read the value as the type the keyword holds. An object, an array or a null is reported as the schema's own node, not as a copy, and must be treated as read-only: mutating it mutates the cached schema. A null value is reported as a `NullNode` rather than as the Java null that means there is no value. [#1376](https://github.com/networknt/json-schema-validator/pull/1376)
+
+### Added
+
+- `readOnly` and `writeOnly` are reported as annotations at the instance location they apply to when annotation collection is enabled. This is the keyword value in the schema; it has nothing to do with the `readOnly` and `writeOnly` execution config options. [#1376](https://github.com/networknt/json-schema-validator/pull/1376)
 
 ### Changed
 
+- The `readOnly` and `writeOnly` execution policies no longer report an error when the keyword value is the boolean `false`, because the error contradicts the annotation reported for that value. This applies whether annotation collection is enabled or not. Every other value still reports the error, including `true` and a value that is not a boolean, so nothing that was accepted before is now rejected. [#1376](https://github.com/networknt/json-schema-validator/pull/1376)
 - `hostname` rejects names longer than 253 characters.
 - `hostname` checks a label that starts with `xn--`, in any case, as an A-label. It must be at most 63 characters of Punycode that encodes back to itself, and its U-label must pass the IDNA2008 rules listed below. `xn--X`, `xn--hello-txk` and `xn--1-0hc` (U-label `1א`, which breaks the RFC 5893 Bidi Rule) are now rejected; before, any LDH label passed. The Bidi Rule applies within each A-label only: the other labels stay RFC 1123 LDH labels, so `3com.xn--mgbaam7a8h` remains valid.
 - `idn-hostname` decodes A-labels with an RFC 3492 Punycode decoder instead of `java.net.IDN` (IDNA2003). A-labels with characters IDNA2008 allows in context, such as U+00DF, U+03C2, U+200C and U+200D, are accepted when the RFC 5892 rules allow them. A-labels are case-insensitive.
@@ -31,10 +38,12 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
   - `idn-hostname` does not apply UTS 46 mapping.
 - Removed the unused `UnicodeDatabase.isGreek`, `isHebrew` and `isKatakana`, which tested code blocks rather than scripts.
 - Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping are disabled with a reason.
+
 ### Fixed
 
 - `uri-template` no longer throws `StackOverflowError` on long templates, such as a 5,000-character literal or an expression with a 1,000-character variable name. Runs of literal and variable-name characters are matched without recursion.
 - Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0 and 3.1. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
+- The `required` keyword no longer demands a `readOnly` or `writeOnly` property that the corresponding policy would assert for. It follows the policy rule, so a value that is not the boolean `false` exempts the property; a value that is not a boolean is no longer passed to `booleanValue()`, which threw `JsonNodeException`. Both policies are honoured when both are enabled. The exemption is decided from the keyword declared directly on the property schema in `properties`; a `readOnly` or `writeOnly` reached through `$ref` or `allOf` is not resolved into the property schema, so such a property is still required and still reports the policy error. The dialect is not consulted either: Draft 4 and 6 do not define `readOnly` or `writeOnly`, yet a property that declares one is still exempt from `required` there, which a test pins. [#1376](https://github.com/networknt/json-schema-validator/pull/1376)
 
 ## 3.0.9- 2026-11-03
 
