@@ -17,6 +17,7 @@ package com.networknt.schema.annotation;
 
 import java.util.Objects;
 
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.path.NodePath;
@@ -30,16 +31,23 @@ public class Annotation {
     private final SchemaLocation schemaLocation;
     private final NodePath evaluationPath;
     private final Object value;
+    private final boolean schemaNodeAnnotation;
     private boolean valid = true; // If not valid it means dropped
 
     public Annotation(String keyword, NodePath instanceLocation, SchemaLocation schemaLocation,
             NodePath evaluationPath, Object value) {
+        this(keyword, instanceLocation, schemaLocation, evaluationPath, value, false);
+    }
+
+    private Annotation(String keyword, NodePath instanceLocation, SchemaLocation schemaLocation,
+            NodePath evaluationPath, Object value, boolean schemaNodeAnnotation) {
         super();
         this.keyword = keyword;
         this.instanceLocation = instanceLocation;
         this.schemaLocation = schemaLocation;
         this.evaluationPath = evaluationPath;
         this.value = value;
+        this.schemaNodeAnnotation = schemaNodeAnnotation;
     }
 
     /**
@@ -49,6 +57,26 @@ public class Annotation {
      */
     public String getKeyword() {
         return keyword;
+    }
+
+    /**
+     * Whether the annotation reports the raw value of its schema node rather than the
+     * result of applying an applicator to the instance.
+     * <p>
+     * This is true for every annotation produced by
+     * {@code AbstractKeywordValidator.putSchemaNodeAnnotation}: the annotation keywords,
+     * including an unknown keyword, a root field of a document container and a keyword a
+     * dialect registers as an {@code AnnotationKeyword}, and {@code readOnly} and
+     * {@code writeOnly}. Such a keyword may have the same name as a keyword an applicator
+     * consumes in another dialect, for example {@code items}, {@code contains},
+     * {@code properties} or {@code unevaluatedProperties}. The applicator validators must
+     * ignore these annotations, or collecting annotations would change the validation
+     * result.
+     *
+     * @return whether the annotation reports a schema node value
+     */
+    public boolean isSchemaNodeAnnotation() {
+        return schemaNodeAnnotation;
     }
 
     /**
@@ -81,13 +109,41 @@ public class Annotation {
     }
 
     /**
-     * The attached value(s).
-     * 
+     * The value the annotation reports, which is not always the keyword's JSON value.
+     * <p>
+     * For a keyword whose annotation is collected from its schema node (the
+     * annotation keywords and readOnly/writeOnly), the value is that node's value as
+     * the Java type that matches the JSON type: a string, a number and a boolean are
+     * unwrapped to {@link String}, {@link Number} and {@link Boolean}, and an object,
+     * an array and a JSON null are reported as a copy of the schema node. A JSON null
+     * is therefore a node whose {@code isNull()} is true, not the Java null that means
+     * that the annotation has no value.
+     * <p>
+     * Other keywords report the value their own validator computes, which has the type
+     * that validator documents and need not be the keyword's JSON value. In particular
+     * {@code properties}, {@code patternProperties} and {@code additionalProperties}
+     * report a {@link java.util.Set} of the matched property names;
+     * {@code prefixItems} and {@code items} report {@code true} or, when the instance
+     * array is longer than the tuple, the number of tuple schemas that were applied as
+     * an {@link Integer}; {@code contains} reports {@code true} or a
+     * {@link java.util.List} of the matched indexes as {@link Integer}; and
+     * {@code format} reports its computed value. In Draft 7,
+     * {@code contentEncoding} and {@code contentMediaType} report the raw schema
+     * string; in 2019-09 and 2020-12, {@code contentEncoding} is an annotation
+     * keyword, so it reports the schema node and is marked as such. The value of such
+     * a keyword must not be read as its schema node.
+     *
      * @param <T> the value type
      * @return the value
      */
     @SuppressWarnings("unchecked")
     public <T> T getValue() {
+        if (value instanceof JsonNode) {
+            JsonNode node = (JsonNode) value;
+            if (node.isObject() || node.isArray() || node.isNull()) {
+                return (T) node.deepCopy();
+            }
+        }
         return (T) value;
     }
 
@@ -102,7 +158,8 @@ public class Annotation {
     @Override
     public String toString() {
         return "Annotation [evaluationPath=" + evaluationPath + ", schemaLocation=" + schemaLocation
-                + ", instanceLocation=" + instanceLocation + ", keyword=" + keyword + ", value=" + value + "]";
+                + ", instanceLocation=" + instanceLocation + ", keyword=" + keyword + ", value=" + value
+                + ", schemaNodeAnnotation=" + schemaNodeAnnotation + "]";
     }
 
     @Override
@@ -119,6 +176,9 @@ public class Annotation {
         if (getClass() != obj.getClass())
             return false;
         Annotation other = (Annotation) obj;
+        // schemaNodeAnnotation records where the value came from, not which annotation
+        // this is: two annotations with the same keyword and locations report the same
+        // thing regardless of that flag.
         return Objects.equals(evaluationPath, other.evaluationPath)
                 && Objects.equals(instanceLocation, other.instanceLocation) && Objects.equals(keyword, other.keyword)
                 && Objects.equals(schemaLocation, other.schemaLocation) && Objects.equals(value, other.value);
@@ -134,6 +194,7 @@ public class Annotation {
         private SchemaLocation schemaLocation;
         private NodePath evaluationPath;
         private Object value;
+        private boolean schemaNodeAnnotation;
 
         public Builder keyword(Keyword keyword) {
             this.keyword = keyword.getValue();
@@ -165,8 +226,19 @@ public class Annotation {
             return this;
         }
 
+        /**
+         * Marks that the annotation reports the raw value of its schema node.
+         *
+         * @param schemaNodeAnnotation whether the annotation reports a schema node value
+         * @return the builder
+         */
+        public Builder schemaNodeAnnotation(boolean schemaNodeAnnotation) {
+            this.schemaNodeAnnotation = schemaNodeAnnotation;
+            return this;
+        }
+
         public Annotation build() {
-            return new Annotation(keyword, instanceLocation, schemaLocation, evaluationPath, value);
+            return new Annotation(keyword, instanceLocation, schemaLocation, evaluationPath, value, schemaNodeAnnotation);
         }
     }
 

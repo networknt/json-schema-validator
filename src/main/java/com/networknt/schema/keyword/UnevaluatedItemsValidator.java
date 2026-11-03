@@ -75,6 +75,13 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
         Predicate<Annotation> validEvaluationPathFilter = a -> a.isValid();
         //Predicate<Annotation> validEvaluationPathFilter = a -> executionContext.getInstanceResults().isValid(instanceLocation, a.getEvaluationPath());
 
+        // An annotation collected from a schema node may share a name with a keyword this
+        // validator consumes. It reports the raw schema value, not the evaluation result, so it
+        // must not count as an evaluated-items annotation or annotation collection would change
+        // the result. This covers unknown keywords, document-container root fields, keywords a
+        // dialect registers as annotation keywords, and readOnly/writeOnly.
+        Predicate<Annotation> schemaNodeAnnotationFilter = a -> !a.isSchemaNodeAnnotation();
+
         Predicate<Annotation> adjacentEvaluationPathFilter = a -> a.getEvaluationPath()
                 .startsWith(executionContext.getEvaluationPath().getParent());
 
@@ -92,8 +99,8 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
         } else {
             // Get all the "items" for the instanceLocation
             List<Annotation> items = instanceLocationAnnotations.stream()
-                    .filter(a -> itemsKeyword.equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
-                    .filter(validEvaluationPathFilter).collect(Collectors.toList());
+                    .filter(a -> itemsKeyword.equals(a.getKeyword())).filter(schemaNodeAnnotationFilter)
+                    .filter(adjacentEvaluationPathFilter).filter(validEvaluationPathFilter).collect(Collectors.toList());
             if (items.isEmpty()) {
                 // The "items" wasn't applied meaning it is unevaluated if there is content
                 valid = false;
@@ -124,8 +131,8 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
                 // annotation value of true, then the combined result from these keywords is
                 // also true.
                 List<Annotation> additionalItems = instanceLocationAnnotations.stream()
-                        .filter(a -> additionalItemsKeyword.equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
-                        .filter(validEvaluationPathFilter).collect(Collectors.toList());
+                        .filter(a -> additionalItemsKeyword.equals(a.getKeyword())).filter(schemaNodeAnnotationFilter)
+                        .filter(adjacentEvaluationPathFilter).filter(validEvaluationPathFilter).collect(Collectors.toList());
                 for (Annotation annotation : additionalItems) {
                     if (annotation.getValue() instanceof Boolean && Boolean.TRUE.equals(annotation.getValue())) {
                         // The annotation "additionalItems: true"
@@ -137,8 +144,8 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
                 // Unevaluated
                 // Check if there are any "unevaluatedItems" annotations
                 List<Annotation> unevaluatedItems = instanceLocationAnnotations.stream()
-                        .filter(a -> "unevaluatedItems".equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
-                        .filter(validEvaluationPathFilter).collect(Collectors.toList());
+                        .filter(a -> "unevaluatedItems".equals(a.getKeyword())).filter(schemaNodeAnnotationFilter)
+                        .filter(adjacentEvaluationPathFilter).filter(validEvaluationPathFilter).collect(Collectors.toList());
                 for (Annotation annotation : unevaluatedItems) {
                     if (annotation.getValue() instanceof Boolean && Boolean.TRUE.equals(annotation.getValue())) {
                         // The annotation "unevaluatedItems: true"
@@ -151,8 +158,8 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
             int currentErrors = executionContext.getErrors().size();
             // Get all the "contains" for the instanceLocation
             List<Annotation> contains = instanceLocationAnnotations.stream()
-                    .filter(a -> "contains".equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
-                    .filter(validEvaluationPathFilter).collect(Collectors.toList());
+                    .filter(a -> "contains".equals(a.getKeyword())).filter(schemaNodeAnnotationFilter)
+                    .filter(adjacentEvaluationPathFilter).filter(validEvaluationPathFilter).collect(Collectors.toList());
 
             Set<Integer> containsEvaluated = new HashSet<>();
             boolean containsEvaluatedAll = false;

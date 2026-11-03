@@ -19,6 +19,7 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,14 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.databind.JsonNode;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.keyword.AbstractKeyword;
+import com.networknt.schema.keyword.AbstractKeywordValidator;
+import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.output.OutputUnit;
+import com.networknt.schema.path.NodePath;
 
 /**
  * UnevaluatedPropertiesValidatorTest.
@@ -237,5 +245,50 @@ class UnevaluatedPropertiesValidatorTest {
         					.annotationCollectionEnabled(false).annotationCollectionFilter(keyword -> true));
         		});
         assertTrue(outputUnit.isValid());
+    }
+
+    @Test
+    void schemaNodeAnnotationNamedPropertiesDoesNotMarkPropertiesEvaluated() {
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
+                + "  \"properties\": true,\r\n"
+                + "  \"unevaluatedProperties\": false\r\n"
+                + "}";
+        Dialect dialect = Dialect.builder(Dialects.getDraft202012())
+                .keyword(new EvaluatedPropertiesAnnotationKeyword()).build();
+        Schema schema = SchemaRegistry.withDialect(dialect).getSchema(schemaData);
+        List<Error> messages = schema.validate("{\"a\":1}", InputFormat.JSON,
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig
+                        .annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true)));
+        assertEquals(1, messages.size());
+        assertEquals("unevaluatedProperties", messages.get(0).getKeyword());
+        assertEquals("a", messages.get(0).getProperty());
+    }
+
+    /**
+     * Reports a {@code Set} under the name {@code properties}, but marks it as a
+     * schema-node annotation. This is the value type and keyword name that
+     * {@code unevaluatedProperties} consumes, so only the flag keeps it from counting
+     * as an evaluated-properties annotation.
+     */
+    private static final class EvaluatedPropertiesAnnotationKeyword extends AbstractKeyword {
+        private EvaluatedPropertiesAnnotationKeyword() {
+            super("properties");
+        }
+
+        @Override
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
+                Schema parentSchema, SchemaContext schemaContext) {
+            return new AbstractKeywordValidator(this, schemaNode, schemaLocation) {
+                @Override
+                public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+                        NodePath instanceLocation) {
+                    if (collectAnnotations(executionContext)) {
+                        putAnnotation(executionContext, annotation -> annotation.instanceLocation(instanceLocation)
+                                .value(Collections.singleton("a")).schemaNodeAnnotation(true));
+                    }
+                }
+            };
+        }
     }
 }
