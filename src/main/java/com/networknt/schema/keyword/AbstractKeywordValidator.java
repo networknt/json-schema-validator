@@ -24,6 +24,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.annotation.Annotation;
+import com.networknt.schema.path.NodePath;
 
 /**
  * Abstract {@link KeywordValidator}.
@@ -32,6 +33,11 @@ public abstract class AbstractKeywordValidator implements KeywordValidator {
     private final String keyword;
     protected final JsonNode schemaNode;
     protected final SchemaLocation schemaLocation;
+    /**
+     * The copy of the schema node to report as an annotation, built on the first
+     * validation that reports it. See {@link #annotationValueNode()}.
+     */
+    private volatile JsonNode annotationValueNode;
 
     /**
      * Constructor.
@@ -114,8 +120,56 @@ public abstract class AbstractKeywordValidator implements KeywordValidator {
         executionContext.getAnnotations().put(builder.build());
     }
 
-    
-    
+    /**
+     * Puts the value of the schema node of the keyword as an annotation at the
+     * instance location, if annotation collection is enabled and the keyword is not
+     * filtered out.
+     * <p>
+     * This is shared by the keywords that only contribute an annotation, and by the
+     * keywords that assert in addition to being an annotation.
+     * 
+     * @param executionContext the execution context
+     * @param instanceLocation the instance location
+     */
+    void putSchemaNodeAnnotation(ExecutionContext executionContext, NodePath instanceLocation) {
+        if (collectAnnotations(executionContext)) {
+            Object value;
+            if (AnnotationKeywordValues.isCopied(this.schemaNode)) {
+                value = annotationValueNode();
+            } else {
+                value = AnnotationKeywordValues.get(this.schemaNode);
+            }
+            if (value != null) {
+                final Object reported = value;
+                putAnnotation(executionContext,
+                        annotation -> annotation.instanceLocation(instanceLocation).value(reported));
+            }
+        }
+    }
+
+    /**
+     * Gets the copy of the schema node to report for the keyword.
+     * <p>
+     * The copy is built on the first call and then held, because a validator is shared
+     * by every instance it validates, so building it here makes the cost of the copy
+     * one per schema rather than one per validation. It is not built in the
+     * constructor: that would copy the node for every annotation keyword, including
+     * the ones that never report an annotation. The field is volatile because a schema
+     * and its validators are shared across threads: two threads may build a copy at
+     * the same time, which is harmless because the copies are equal, and both then see
+     * a fully constructed node.
+     *
+     * @return the copy of the schema node
+     */
+    private JsonNode annotationValueNode() {
+        JsonNode node = this.annotationValueNode;
+        if (node == null) {
+            node = AnnotationKeywordValues.copyOf(this.schemaNode);
+            this.annotationValueNode = node;
+        }
+        return node;
+    }
+
     /**
      * Determines if the keyword exists adjacent in the evaluation path.
      * <p>

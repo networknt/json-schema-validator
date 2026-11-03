@@ -39,13 +39,12 @@ public class ReadOnlyValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-        
-        if (Boolean.TRUE.equals(executionContext.getExecutionConfig().getReadOnly())) {
-            executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                    .build());
-        }
-        return;
+        ReadOnlyWriteOnlyPolicy.assertUnlessFalse(executionContext,
+                executionContext.getExecutionConfig().getReadOnly(), this.schemaNode,
+                () -> error().instanceNode(node).instanceLocation(instanceLocation)
+                        .evaluationPath(executionContext.getEvaluationPath())
+                        .locale(executionContext.getExecutionConfig().getLocale()).build());
+        putSchemaNodeAnnotation(executionContext, instanceLocation);
     }
 
 }

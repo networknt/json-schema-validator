@@ -36,24 +36,7 @@ public class AnnotationKeyword extends AbstractKeyword {
 
         @Override
         public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-            if (collectAnnotations(executionContext)) {
-                Object value = getAnnotationValue(getSchemaNode());
-                if (value != null) {
-                    putAnnotation(executionContext,
-                            annotation -> annotation.instanceLocation(instanceLocation).value(value));
-                }
-            }
-        }
-
-        private Object getAnnotationValue(JsonNode schemaNode) {
-            if (schemaNode.isString()) {
-                return schemaNode.asString(); 
-            } else if (schemaNode.isNumber()) {
-                return schemaNode.numberValue();
-            } else if (schemaNode.isObject()) {
-                return schemaNode;
-            }
-            return null;
+            putSchemaNodeAnnotation(executionContext, instanceLocation);
         }
     }
 
