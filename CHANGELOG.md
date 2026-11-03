@@ -18,6 +18,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+- Decode recognized YAML nonfinite float tokens with Jackson 3.1.8 during tree reads, including explicitly tagged case/sign variants and decimal-mode readers. Preserve the configured nonfinite-to-BigDecimal coercion policy. [#1228](https://github.com/networknt/json-schema-validator/issues/1228)
 - Render null enum members as `null` in validation errors and avoid listing null twice for nullable schemas. [#1373](https://github.com/networknt/json-schema-validator/issues/1373)
 - Avoid duplicate numeric text-buffer reads when classifying JSON/YAML decimals; pin fast-path boundaries, randomized classification, and Jackson 3 name-matcher cache invalidation with regression tests. [#1368](https://github.com/networknt/json-schema-validator/issues/1368)
 - Reduce decimal-preserving tree parser overhead by caching per token and avoiding text and decimal allocations for lossless floats. [#1362](https://github.com/networknt/json-schema-validator/issues/1362)

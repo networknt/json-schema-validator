@@ -18,12 +18,18 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import com.networknt.schema.serialization.YamlMapperFactory;
+
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+@Tag("jackson-upgrade")
 class Issue1228Test {
     private final Schema schema = SchemaRegistry
             .withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
@@ -40,7 +46,10 @@ class Issue1228Test {
     @CsvSource({
             ".nan, NaN",
             ".inf, Infinity",
-            "-.inf, -Infinity"
+            "-.inf, -Infinity",
+            "!!float .NaN, NaN",
+            "!!float -.INF, -Infinity",
+            "!!float +.inf, Infinity"
     })
     void yamlNonFiniteValuesReturnTypeErrors(String literal, double expectedValue) {
         List<Error> errors = schema.validate("defaultValue: " + literal, InputFormat.YAML);
@@ -52,6 +61,10 @@ class Issue1228Test {
         assertTrue(error.getInstanceNode().isNumber(),
                 "The YAML literal should be parsed as a numeric node");
         assertEquals(expectedValue, error.getInstanceNode().doubleValue());
+        assertEquals(expectedValue, YamlMapperFactory.getInstance()
+                .readTree("defaultValue: " + literal).get("defaultValue").doubleValue());
+        assertEquals(expectedValue, YamlMapperFactory.getInstance().readTree(new ByteArrayInputStream(
+                ("[1.5, " + literal + ", 2.5]").getBytes(StandardCharsets.UTF_8))).get(1).doubleValue());
     }
 
     @Test
