@@ -10,8 +10,9 @@ import com.networknt.schema.utils.RFC5892;
  * <p>
  * A hostname is a sequence of LDH labels (RFC 1123, section 2.1) of at most 63 characters
  * each, separated by dots, with an overall length of at most 253 characters. A label that
- * starts with the ACE prefix {@code xn--} is an A-label and must also decode to a valid
- * U-label (RFC 5890, section 2.3.2.1).
+ * starts with the ACE prefix {@code xn--}, in any case, is an A-label and must also be valid
+ * Punycode that decodes to a valid U-label (RFC 5890, section 2.3.2.1); see
+ * {@link RFC5892#isValidALabel(String)}.
  */
 public class HostnameFormat implements Format {
     private static final int MAX_LENGTH = 253;
@@ -29,7 +30,7 @@ public class HostnameFormat implements Format {
             return false;
         }
         for (String label : value.split("\\.")) {
-            if (label.regionMatches(true, 0, ACE_PREFIX, 0, ACE_PREFIX.length()) && !RFC5892.isValid(label)) {
+            if (label.regionMatches(true, 0, ACE_PREFIX, 0, ACE_PREFIX.length()) && !RFC5892.isValidALabel(label)) {
                 return false;
             }
         }

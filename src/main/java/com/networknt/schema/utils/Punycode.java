@@ -7,7 +7,7 @@ package com.networknt.schema.utils;
  * allows, such as U+00DF (sharp s), U+03C2 (final sigma), U+200C (ZWNJ) and U+200D (ZWJ). Decoding
  * the Punycode directly leaves those code points for the RFC 5892 rules to judge.
  */
-public final class Punycode {
+final class Punycode {
     private static final int BASE = 36;
     private static final int TMIN = 1;
     private static final int TMAX = 26;
@@ -26,9 +26,10 @@ public final class Punycode {
      * @param input the Punycode string
      * @return the decoded string, or {@code null} if the input is not valid Punycode
      */
-    public static String decode(String input) {
+    static String decode(String input) {
         int b = input.lastIndexOf(DELIMITER);
         if (b < 0) b = 0;
+        // Every decoded code point consumes at least one input character, so this never overflows.
         int[] output = new int[input.length()];
         int length = 0;
         for (int j = 0; j < b; j++) {
@@ -60,9 +61,6 @@ public final class Punycode {
             if (n > Character.MAX_CODE_POINT || (n >= Character.MIN_SURROGATE && n <= Character.MAX_SURROGATE)) {
                 return null;
             }
-            if (length == output.length) {
-                output = java.util.Arrays.copyOf(output, output.length * 2);
-            }
             System.arraycopy(output, i, output, i + 1, length - i);
             output[i++] = n;
             length++;
@@ -76,7 +74,7 @@ public final class Punycode {
      * @param input the string to encode
      * @return the Punycode string
      */
-    public static String encode(String input) {
+    static String encode(String input) {
         int[] codePoints = input.codePoints().toArray();
         StringBuilder output = new StringBuilder();
         for (int c : codePoints) {
