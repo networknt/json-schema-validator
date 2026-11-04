@@ -111,10 +111,12 @@ public class RFC5892 {
             if (label.isEmpty()) return false;
 
             String unicode = label;
-            if (isACE(label)) {
-                // IDN returns the original value when it encounters an issue converting to Unicode
-                unicode = IDN.toUnicode(label, IDN.USE_STD3_ASCII_RULES);
-                if (unicode.equalsIgnoreCase(label)) return false;
+            boolean aLabel = isACE(label);
+            if (aLabel) {
+                // Decode the Punycode directly: java.net.IDN follows IDNA2003, which rejects or maps
+                // code points that IDNA2008 allows in context, such as U+00DF, U+200C and U+200D.
+                unicode = toUnicode(label);
+                if (null == unicode) return false;
             }
 
             int len = unicode.length();
@@ -150,6 +152,11 @@ public class RFC5892 {
                 if (!rules.test(unicode, i)) return false;
             }
 
+            if (aLabel) {
+                if (63 < label.length()) return false; // RFC 5891 4.2.4.  Registration Validation Requirements
+                continue;
+            }
+
             try {
                 String ace = IDN.toASCII(unicode, IDN.USE_STD3_ASCII_RULES);
                 if (63 < ace.length()) return false; // RFC 5891 4.2.4.  Registration Validation Requirements
@@ -165,6 +172,21 @@ public class RFC5892 {
         }
 
         return true;
+    }
+
+    /**
+     * Converts an A-label to its U-label (RFC 5890 2.3.2.1).
+     *
+     * @param label the A-label, including the ACE prefix
+     * @return the U-label, or {@code null} if the label is not a valid A-label: the Punycode
+     * does not decode, does not encode back to the same label, or decodes to ASCII only
+     */
+    private static String toUnicode(String label) {
+        String punycode = label.substring(ACE_PREFIX_LENGTH);
+        String unicode = Punycode.decode(punycode);
+        if (null == unicode || unicode.isEmpty() || unicode.chars().allMatch(c -> c < 0x80)) return null;
+        if (!Punycode.encode(unicode).equalsIgnoreCase(punycode)) return null;
+        return unicode;
     }
 
     private static boolean isACE(String value) {

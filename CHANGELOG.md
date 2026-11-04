@@ -9,6 +9,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Changed
 
 - The `hostname` format now rejects names longer than 253 characters and A-labels (`xn--`) that do not decode to a valid U-label, such as invalid Punycode or labels that break the IDNA hyphen, combining-mark, bidi or contextual rules. Updated the vendored `hostname.json` suite files to the current JSON-Schema-Test-Suite.
+- `hostname` and `idn-hostname` decode A-labels with an RFC 3492 Punycode decoder instead of `java.net.IDN`, which follows IDNA2003. A-labels with code points that IDNA2008 allows in context, such as U+00DF, U+03C2, U+200C and U+200D, are now accepted when the RFC 5892 rules allow them, and an A-label must encode back to itself.
 
 ## 3.0.9- 2026-11-03
 
