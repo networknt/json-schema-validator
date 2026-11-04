@@ -83,12 +83,15 @@ class RFC5892Test {
     }
 
     @Test
-    void hostnameALabelsAllowCodePointsNewerThanTheBundledTable() {
+    void allowsCodePointsNewerThanTheBundledTable() {
         // U+1F4A9, U+1F600 and Adlam (Unicode 9) are not in the RFC 5892 Appendix B table.
         assertTrue(RFC5892.isValidALabel("xn--ls8h"));
         assertTrue(RFC5892.isValidALabel("xn--e28h"));
         assertTrue(RFC5892.isValidALabel("xn--bd6h"));
         assertTrue(RFC5892.isValidALabel("xn--9d6hc"));
+        // idn-hostname applies the same policy, so it accepts what hostname accepts.
+        assertTrue(RFC5892.isValid("xn--ls8h.la"));
+        assertTrue(RFC5892.isValid(new String(Character.toChars(0x1F4A9)) + ".la"));
     }
 
     @Test

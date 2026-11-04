@@ -51,18 +51,8 @@ public class RFC5892 {
     private static final BiPredicate<String, Integer> LTR = RFC5892::testLTR;
     private static final BiPredicate<String, Integer> RTL = RFC5892::testRTL;
 
-    private static final BiPredicate<String, Integer> IDNA_RULES = idnaRules(ALLOWED_CHARACTER);
-
-    /**
-     * The IDNA rules, except that a code point unassigned in the bundled RFC 5892 table is not rejected
-     * when the running JDK's Unicode version assigns it. The table is Unicode 5.2, so it would reject
-     * every code point added since.
-     */
-    private static final BiPredicate<String, Integer> IDNA_RULES_ALLOWING_UNASSIGNED =
-        idnaRules(RFC5892::testAllowedOrUnassignedCharacter);
-
-    private static BiPredicate<String, Integer> idnaRules(BiPredicate<String, Integer> allowedCharacter) {
-        return allowedCharacter
+    private static final BiPredicate<String, Integer> IDNA_RULES =
+        ALLOWED_CHARACTER
             .and(RULE_ARABIC_INDIC_DIGITS_RULE)
             .and(RULE_EXTENDED_ARABIC_INDIC_DIGITS_RULE)
             .and(RULE_GREEK_LOWER_NUMERAL_SIGN)
@@ -71,7 +61,6 @@ public class RFC5892 {
             .and(RULE_MIDDLE_DOT)
             .and(RULE_ZERO_WIDTH_JOINER)
             .and(RULE_ZERO_WIDTH_NON_JOINER);
-    }
 
     private static boolean isContextJ(int codepoint) {
         if (CONTEXTJ.isEmpty()) loadDerivedProperties();
@@ -93,16 +82,15 @@ public class RFC5892 {
         return UNASSIGNED.get(codepoint);
     }
 
+    /**
+     * RFC 5891 4.2.2 and 4.2.3.3. A code point that the bundled RFC 5892 table (Unicode 5.2) lists as
+     * unassigned is not rejected when the running JDK's Unicode version assigns it; otherwise every code
+     * point added since Unicode 5.2 would be rejected.
+     */
     private static boolean testAllowedCharacter(String s, int i) {
         int c = s.codePointAt(i);
-        return !isDisallowed(c) && !isUnassigned(c) // RFC 5891 4.2.2.  Rejection of Characters That Are Not Permitted
+        return !isDisallowed(c) && (!isUnassigned(c) || Character.isDefined(c)) // RFC 5891 4.2.2.  Rejection of Characters That Are Not Permitted
             && !isContextJ(c)   && !isContextO(c);  // RFC 5891 4.2.3.3.  Contextual Rules
-    }
-
-    private static boolean testAllowedOrUnassignedCharacter(String s, int i) {
-        int c = s.codePointAt(i);
-        return !isDisallowed(c) && (!isUnassigned(c) || Character.isDefined(c))
-            && !isContextJ(c) && !isContextO(c);
     }
 
     /**
@@ -153,7 +141,7 @@ public class RFC5892 {
             asciiLength += aceLength;
             if (MAX_NAME_LENGTH < asciiLength) return false;
 
-            if (!isValidULabel(unicode, IDNA_RULES)) return false;
+            if (!isValidULabel(unicode)) return false;
         }
 
         return true;
@@ -162,9 +150,7 @@ public class RFC5892 {
     /**
      * Validates an A-label in a {@code hostname}: it must be valid Punycode that encodes back to
      * itself, at most 63 characters, and its U-label must pass the RFC 5891 hyphen, combining mark,
-     * contextual and bidi rules. A code point that the bundled RFC 5892 table lists as unassigned is
-     * not rejected when the JDK assigns it, so names that use code points added in later Unicode
-     * versions stay valid.
+     * contextual, bidi and disallowed-character rules.
      *
      * @param label the label, including the ACE prefix
      * @return whether the label is a valid A-label
@@ -172,10 +158,10 @@ public class RFC5892 {
     public static boolean isValidALabel(String label) {
         if (MAX_LABEL_LENGTH < label.length() || !isACE(label)) return false;
         String unicode = toUnicode(label);
-        return null != unicode && isValidULabel(unicode, IDNA_RULES_ALLOWING_UNASSIGNED);
+        return null != unicode && isValidULabel(unicode);
     }
 
-    private static boolean isValidULabel(String unicode, BiPredicate<String, Integer> idnaRules) {
+    private static boolean isValidULabel(String unicode) {
         int len = unicode.length();
         BiPredicate<String, Integer> rules;
 
@@ -192,15 +178,15 @@ public class RFC5892 {
         // RFC 5893 2.  The Bidi Rule
         switch (getDirectionality(unicode.codePointAt(0))) {
             case DIRECTIONALITY_LEFT_TO_RIGHT:
-                rules = idnaRules.and(LTR);
+                rules = IDNA_RULES.and(LTR);
                 break;
             case DIRECTIONALITY_RIGHT_TO_LEFT:
             case DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC:
-                rules = idnaRules.and(RTL);
+                rules = IDNA_RULES.and(RTL);
                 break;
             case DIRECTIONALITY_EUROPEAN_NUMBER:
             case DIRECTIONALITY_OTHER_NEUTRALS:
-                rules = idnaRules;
+                rules = IDNA_RULES;
                 break;
             default: return false;
         }
