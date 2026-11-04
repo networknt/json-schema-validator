@@ -386,8 +386,7 @@ public class RFC5892 {
         if (GREEK_LOWER_NUMERAL_SIGN == c) {
             // There must be a Greek character after this symbol
             if (s.length() == 1 + i) return false;
-            int following = s.codePointAt(i + 1);
-	        return isGreek(following);
+            return UnicodeScript.GREEK == UnicodeScript.of(s.codePointAt(i + 1));
         }
         return true;
     }
@@ -405,8 +404,7 @@ public class RFC5892 {
         if (HEBREW_GERESH == c || HEBREW_GERSHAYIM == c) {
             // There must be a Hebrew character before this symbol
             if (0 == i) return false;
-            int preceding = s.codePointAt(i - 1);
-	        return isHebrew(preceding);
+            return UnicodeScript.HEBREW == UnicodeScript.of(s.codePointBefore(i));
         }
         return true;
     }
@@ -422,10 +420,12 @@ public class RFC5892 {
     private static boolean testKatakanaMiddleDot(String s, int i) {
         int c = s.codePointAt(i);
         if (KATAKANA_MIDDLE_DOT == c) {
-            // There must be a Katakana, Hiragana or Han character after this symbol
-            if (s.length() == 1 + i) return false;
-            int following = s.codePointAt(i + 1);
-	        return isKatakana(following);
+            // The label must contain a Hiragana, Katakana or Han character anywhere, not just after this symbol
+            return s.codePoints().anyMatch(cp -> {
+                if (KATAKANA_MIDDLE_DOT == cp) return false;
+                UnicodeScript script = UnicodeScript.of(cp);
+                return UnicodeScript.HIRAGANA == script || UnicodeScript.KATAKANA == script || UnicodeScript.HAN == script;
+            });
         }
         return true;
     }
@@ -444,9 +444,7 @@ public class RFC5892 {
             // There must be a 'l' character before and after this symbol
             if (0 == i) return false;
             if (s.length() == 1 + i) return false;
-            int preceding = s.codePointAt(i - 1);
-            int following = s.codePointAt(i + 1);
-	        return 'l' == preceding && 'l' == following;
+            return 'l' == s.codePointBefore(i) && 'l' == s.codePointAt(i + 1);
         }
         return true;
     }
@@ -491,8 +489,9 @@ public class RFC5892 {
             int preceding = s.codePointBefore(i);
             if (isVirama(preceding)) return true;
 
+            // Step by code point, as several scripts have supplementary transparent marks.
             int j = i;
-            while (0 < j && isJoinTypeTransparent(s.codePointBefore(j))) --j;
+            while (0 < j && isJoinTypeTransparent(s.codePointBefore(j))) j -= Character.charCount(s.codePointBefore(j));
             if (0 == j) return false;
 
             preceding = s.codePointBefore(j);
@@ -502,7 +501,7 @@ public class RFC5892 {
             int len = s.length();
             if (len == j) return false;
 
-            while (j < len && isJoinTypeTransparent(s.codePointAt(j))) ++j;
+            while (j < len && isJoinTypeTransparent(s.codePointAt(j))) j += Character.charCount(s.codePointAt(j));
             if (len == j) return false;
 
             int following = s.codePointAt(j);

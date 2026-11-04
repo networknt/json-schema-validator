@@ -158,4 +158,29 @@ class RFC5892Test {
         assertTrue(RFC5892.isValid(codePoints(0x13A0, 0x13A1)));
         assertFalse(RFC5892.isValid(codePoints(0xAB70, 0xAB71)));
     }
+
+    @Test
+    void katakanaMiddleDotNeedsAKanaOrHanCharacterAnywhereInTheLabel() {
+        // RFC 5892 A.7: any Hiragana, Katakana or Han character in the label, judged by script, not code block.
+        assertTrue(RFC5892.isValid(codePoints(0x4E00, 0x30FB)));
+        assertTrue(RFC5892.isValidALabel("xn--vek768f"));
+        assertTrue(RFC5892.isValid(codePoints(0x30FB, 'a', 0x4E00)));
+        assertFalse(RFC5892.isValid(codePoints(0x30FB, 0x30FC))); // PROLONGED SOUND MARK is Common, not Katakana
+        assertFalse(RFC5892.isValidALabel("xn--vekc"));
+    }
+
+    @Test
+    void greekKeraiaAndHebrewPunctuationAreJudgedByScript() {
+        assertTrue(RFC5892.isValid(codePoints(0x0375, 0x1D26))); // GREEK LETTER SMALL CAPITAL GAMMA, outside the Greek blocks
+        assertFalse(RFC5892.isValid(codePoints(0x03B1, 0x0375, 0x03E3))); // COPTIC SMALL LETTER SHEI, inside the Greek block
+        assertFalse(RFC5892.isValidALabel("xn--wva3j0f"));
+    }
+
+    @Test
+    void zeroWidthNonJoinerSkipsSupplementaryTransparentMarks() {
+        // Adlam letters are dual joining and U+1E944 ADLAM ALIF LENGTHENER is transparent.
+        assertTrue(RFC5892.isValid(codePoints(0x1E922, 0x1E944, 0x200C, 0x1E944, 0x1E923)));
+        assertTrue(RFC5892.isValidALabel("xn--0ug1411pea4kb"));
+        assertFalse(RFC5892.isValid(codePoints(0x1E922, 0x200C, 0x1E944, 0x1E944)));
+    }
 }
