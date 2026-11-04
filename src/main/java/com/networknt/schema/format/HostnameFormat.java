@@ -29,10 +29,15 @@ public class HostnameFormat implements Format {
         if (value.length() > MAX_LENGTH || !PATTERN.matcher(value).matches()) {
             return false;
         }
-        for (String label : value.split("\\.")) {
-            if (label.regionMatches(true, 0, ACE_PREFIX, 0, ACE_PREFIX.length()) && !RFC5892.isValidALabel(label)) {
+        // Walk the labels without splitting, so a name with no A-label allocates nothing.
+        for (int start = 0; start < value.length(); ) {
+            int end = value.indexOf('.', start);
+            if (end < 0) end = value.length();
+            if (value.regionMatches(true, start, ACE_PREFIX, 0, ACE_PREFIX.length())
+                    && !RFC5892.isValidALabel(value.substring(start, end))) {
                 return false;
             }
+            start = end + 1;
         }
         return true;
     }

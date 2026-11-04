@@ -1,6 +1,7 @@
 package com.networknt.schema.utils;
 
 import java.text.Normalizer;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Locale;
 import java.util.function.BiPredicate;
@@ -28,7 +29,18 @@ public class RFC5892 {
     private static final int HEBREW_GERSHAYIM = 0x05F4;
     private static final int KATAKANA_MIDDLE_DOT = 0x30FB;
     private static final int MIDDLE_DOT = 0x00B7;
-    private static final int VIRAMA = 0x94D;
+    /**
+     * Code points with Canonical_Combining_Class Virama (9), from Unicode 15.1.0. Sorted, for binary search.
+     */
+    private static final int[] VIRAMAS = {
+        0x094D, 0x09CD, 0x0A4D, 0x0ACD, 0x0B4D, 0x0BCD, 0x0C4D, 0x0CCD, 0x0D3B, 0x0D3C, 0x0D4D,
+        0x0DCA, 0x0E3A, 0x0EBA, 0x0F84, 0x1039, 0x103A, 0x1714, 0x1715, 0x1734, 0x17D2, 0x1A60,
+        0x1B44, 0x1BAA, 0x1BAB, 0x1BF2, 0x1BF3, 0x2D7F, 0xA806, 0xA82C, 0xA8C4, 0xA953, 0xA9C0,
+        0xAAF6, 0xABED, 0x10A3F, 0x11046, 0x11070, 0x1107F, 0x110B9, 0x11133, 0x11134, 0x111C0,
+        0x11235, 0x112EA, 0x1134D, 0x11442, 0x114C2, 0x115BF, 0x1163F, 0x116B6, 0x1172B, 0x11839,
+        0x1193D, 0x1193E, 0x119E0, 0x11A34, 0x11A47, 0x11A99, 0x11C3F, 0x11D44, 0x11D45, 0x11D97,
+        0x11F41, 0x11F42
+    };
     private static final int ZERO_WIDTH_JOINER = 0x200D;
     private static final int ZERO_WIDTH_NON_JOINER = 0x200C;
 
@@ -36,6 +48,7 @@ public class RFC5892 {
     private static final BitSet CONTEXTO = new BitSet(0x110000);
     private static final BitSet DISALLOWED = new BitSet(0x110000);
     private static final BitSet UNASSIGNED = new BitSet(0x110000);
+    private static volatile boolean loaded;
 
     private static final BiPredicate<String, Integer> RULE_ARABIC_INDIC_DIGITS_RULE = RFC5892::testArabicIndicDigit;
     private static final BiPredicate<String, Integer> RULE_EXTENDED_ARABIC_INDIC_DIGITS_RULE = RFC5892::testExtendedArabicIndicDigit;
@@ -63,34 +76,55 @@ public class RFC5892 {
             .and(RULE_ZERO_WIDTH_NON_JOINER);
 
     private static boolean isContextJ(int codepoint) {
-        if (CONTEXTJ.isEmpty()) loadDerivedProperties();
+        if (!loaded) loadDerivedProperties();
         return CONTEXTJ.get(codepoint);
     }
 
     private static boolean isContextO(int codepoint) {
-        if (CONTEXTO.isEmpty()) loadDerivedProperties();
+        if (!loaded) loadDerivedProperties();
         return CONTEXTO.get(codepoint);
     }
 
     private static boolean isDisallowed(int codepoint) {
-        if (DISALLOWED.isEmpty()) loadDerivedProperties();
+        if (!loaded) loadDerivedProperties();
         return DISALLOWED.get(codepoint);
     }
 
     private static boolean isUnassigned(int codepoint) {
-        if (UNASSIGNED.isEmpty()) loadDerivedProperties();
+        if (!loaded) loadDerivedProperties();
         return UNASSIGNED.get(codepoint);
     }
 
-    /**
-     * RFC 5891 4.2.2 and 4.2.3.3. A code point that the bundled RFC 5892 table (Unicode 5.2) lists as
-     * unassigned is not rejected when the running JDK's Unicode version assigns it; otherwise every code
-     * point added since Unicode 5.2 would be rejected.
-     */
     private static boolean testAllowedCharacter(String s, int i) {
         int c = s.codePointAt(i);
-        return !isDisallowed(c) && (!isUnassigned(c) || Character.isDefined(c)) // RFC 5891 4.2.2.  Rejection of Characters That Are Not Permitted
+        return !isDisallowed(c) && (!isUnassigned(c) || isDerivedPValid(c)) // RFC 5891 4.2.2.  Rejection of Characters That Are Not Permitted
             && !isContextJ(c)   && !isContextO(c);  // RFC 5891 4.2.3.3.  Contextual Rules
+    }
+
+    /**
+     * Classifies a code point that the bundled RFC 5892 table (Unicode 5.2) lists as unassigned, using
+     * the running JDK's Unicode data and an approximation of the RFC 5892 section 3 derivation: it is
+     * PVALID only if it is a lowercase, modifier or other letter, a nonspacing or spacing mark, or a
+     * decimal digit (LetterDigits without Lu), and NFKC and lower-casing leave it unchanged (Unstable).
+     * Symbols such as emoji, punctuation, upper case and format controls added since stay rejected.
+     */
+    private static boolean isDerivedPValid(int c) {
+        switch (getType(c)) {
+            case LOWERCASE_LETTER:
+            case MODIFIER_LETTER:
+            case OTHER_LETTER:
+            case NON_SPACING_MARK:
+            case COMBINING_SPACING_MARK:
+            case DECIMAL_DIGIT_NUMBER:
+                break;
+            default:
+                return false;
+        }
+        // Cherokee is the one script whose case folding maps small letters to capitals, so its small
+        // letters (Unicode 8) are unstable under NFKC_Casefold while its capitals stay PVALID.
+        if (Character.UnicodeScript.of(c) == Character.UnicodeScript.CHEROKEE) return false;
+        String s = new String(Character.toChars(c));
+        return s.equals(Normalizer.normalize(s, Normalizer.Form.NFKC)) && s.equals(s.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -168,9 +202,10 @@ public class RFC5892 {
         // RFC 5891 5.4.  Validation and Character List Testing
         if (!Normalizer.isNormalized(unicode, Normalizer.Form.NFC)) return false;
 
-        // RFC 5891 4.2.3.1.  Hyphen Restrictions
+        // RFC 5891 4.2.3.1.  Hyphen Restrictions, by code point position
         if ('-' == unicode.charAt(0) || '-' == unicode.codePointBefore(len)) return false;
-        if (4 <= len && '-' == unicode.codePointAt(2) && '-' == unicode.codePointAt(3)) return false;
+        int[] codePoints = unicode.codePoints().limit(4).toArray();
+        if (4 == codePoints.length && '-' == codePoints[2] && '-' == codePoints[3]) return false;
 
         // RFC 5891 4.2.3.2.  Leading Combining Marks
         if (isCombiningMark(unicode.codePointAt(0))) return false;
@@ -195,7 +230,53 @@ public class RFC5892 {
         for (int i = 0; i < len; i += Character.charCount(unicode.codePointAt(i))) {
             if (!rules.test(unicode, i)) return false;
         }
-        return true;
+
+        // RFC 5893 2.  A label with an R, AL or AN character is in a Bidi domain name, so the full Bidi Rule applies.
+        return !hasRightToLeft(unicode) || satisfiesBidiRule(unicode);
+    }
+
+    private static boolean hasRightToLeft(String label) {
+        for (int i = 0; i < label.length(); i += Character.charCount(label.codePointAt(i))) {
+            switch (getDirectionality(label.codePointAt(i))) {
+                case DIRECTIONALITY_RIGHT_TO_LEFT:
+                case DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC:
+                case DIRECTIONALITY_ARABIC_NUMBER:
+                    return true;
+                default:
+                    break;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * RFC 5893 2, rules 1, 3, 4 and 6. Rules 2 and 5, the allowed character classes, are checked by the
+     * LTR and RTL predicates.
+     */
+    private static boolean satisfiesBidiRule(String label) {
+        byte first = getDirectionality(label.codePointAt(0));
+        boolean rtl = first == DIRECTIONALITY_RIGHT_TO_LEFT || first == DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;
+        // Rule 1: the first character must have the Bidi property L, R or AL.
+        if (!rtl && first != DIRECTIONALITY_LEFT_TO_RIGHT) return false;
+
+        boolean europeanNumber = false;
+        boolean arabicNumber = false;
+        byte last = first;
+        for (int i = 0; i < label.length(); i += Character.charCount(label.codePointAt(i))) {
+            byte d = getDirectionality(label.codePointAt(i));
+            if (d == DIRECTIONALITY_EUROPEAN_NUMBER) europeanNumber = true;
+            if (d == DIRECTIONALITY_ARABIC_NUMBER) arabicNumber = true;
+            if (d != DIRECTIONALITY_NONSPACING_MARK) last = d;
+        }
+        if (rtl) {
+            // Rule 4: an RTL label must not contain both EN and AN.
+            if (europeanNumber && arabicNumber) return false;
+            // Rule 3: an RTL label must end with R, AL, EN or AN, followed by zero or more NSM.
+            return last == DIRECTIONALITY_RIGHT_TO_LEFT || last == DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+                || last == DIRECTIONALITY_EUROPEAN_NUMBER || last == DIRECTIONALITY_ARABIC_NUMBER;
+        }
+        // Rule 6: an LTR label must end with L or EN, followed by zero or more NSM.
+        return last == DIRECTIONALITY_LEFT_TO_RIGHT || last == DIRECTIONALITY_EUROPEAN_NUMBER;
     }
 
     /**
@@ -216,7 +297,10 @@ public class RFC5892 {
     }
 
     private static boolean isAscii(String value) {
-        return value.chars().allMatch(c -> c < 0x80);
+        for (int i = 0; i < value.length(); i++) {
+            if (value.charAt(i) >= 0x80) return false;
+        }
+        return true;
     }
 
     private static boolean isACE(String value) {
@@ -367,6 +451,10 @@ public class RFC5892 {
         return true;
     }
 
+    private static boolean isVirama(int codepoint) {
+        return Arrays.binarySearch(VIRAMAS, codepoint) >= 0;
+    }
+
     /**
      * Determines whether the ZERO WIDTH JOINER conforms to the RFC 5892 specification.
      * 
@@ -380,8 +468,7 @@ public class RFC5892 {
         if (ZERO_WIDTH_JOINER == c) {
             // There must be a virama character before this symbol.
             if (0 == i) return false;
-            int preceding = s.codePointAt(i - 1);
-	        return VIRAMA == preceding;
+            return isVirama(s.codePointBefore(i));
         }
         return true;
     }
@@ -402,7 +489,7 @@ public class RFC5892 {
 
             if (0 == i) return false;
             int preceding = s.codePointBefore(i);
-            if (VIRAMA == preceding) return true;
+            if (isVirama(preceding)) return true;
 
             int j = i;
             while (0 < j && isJoinTypeTransparent(s.codePointBefore(j))) --j;
@@ -441,7 +528,7 @@ public class RFC5892 {
     }
 
     private static synchronized void loadDerivedProperties() {
-        if (DISALLOWED.isEmpty()) {
+        if (!loaded) {
             UCDLoader.loadMapping("/ucd/RFC5892-appendix-B.txt", v -> {
                 switch (v) {
                     case "CONTEXTJ": return CONTEXTJ;
@@ -462,6 +549,8 @@ public class RFC5892 {
             CONTEXTO.clear(HEBREW_GERSHAYIM);
             CONTEXTO.clear(KATAKANA_MIDDLE_DOT);
             CONTEXTO.clear(MIDDLE_DOT);
+            // The volatile write publishes the filled tables to threads that read loaded without the lock.
+            loaded = true;
         }
     }
 

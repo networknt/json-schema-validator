@@ -44,9 +44,8 @@ class HostnameFormatTest {
         "xn--bcher-kva.example",
         "XN--BCHER-KVA.EXAMPLE",
         "xn--Bcher-kva.example",
-        "xn--ls8h.la",
-        "xn--e28h.example",
-        "xn--bd6h.example"
+        "xn--9d6hc.example",
+        "xn--3zc0eybz95j.example"
     })
     void accepts(String value) {
         assertTrue(matches(value), value);
@@ -63,7 +62,11 @@ class HostnameFormatTest {
         "exa mple.com",
         "xn--X",
         "xn--abc-",
-        "xn--hello-txk.example"
+        "xn--hello-txk.example",
+        "xn--ls8h.la",
+        "xn--e28h.example",
+        "xn--bd6h.example",
+        "xn--11-88t.example"
     })
     void rejects(String value) {
         assertFalse(matches(value), value);

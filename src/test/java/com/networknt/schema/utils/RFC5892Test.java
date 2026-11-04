@@ -82,16 +82,51 @@ class RFC5892Test {
         assertFalse(RFC5892.isValidALabel("xn--abc-"));
     }
 
+    private static String codePoints(int... codePoints) {
+        return new String(codePoints, 0, codePoints.length);
+    }
+
     @Test
-    void allowsCodePointsNewerThanTheBundledTable() {
-        // U+1F4A9, U+1F600 and Adlam (Unicode 9) are not in the RFC 5892 Appendix B table.
-        assertTrue(RFC5892.isValidALabel("xn--ls8h"));
-        assertTrue(RFC5892.isValidALabel("xn--e28h"));
-        assertTrue(RFC5892.isValidALabel("xn--bd6h"));
+    void allowsLettersNewerThanTheBundledTable() {
+        // Adlam small letters (Unicode 9, Ll) are not in the Unicode 5.2 table.
         assertTrue(RFC5892.isValidALabel("xn--9d6hc"));
-        // idn-hostname applies the same policy, so it accepts what hostname accepts.
-        assertTrue(RFC5892.isValid("xn--ls8h.la"));
-        assertTrue(RFC5892.isValid(new String(Character.toChars(0x1F4A9)) + ".la"));
+        assertTrue(RFC5892.isValid("xn--9d6hc.example"));
+        assertTrue(RFC5892.isValid(codePoints(0x1E922, 0x1E923) + ".example"));
+    }
+
+    @Test
+    void rejectsSymbolsUpperCaseAndControlsNewerThanTheBundledTable() {
+        // U+1F600 and U+1F4A9 (emoji, So)
+        assertFalse(RFC5892.isValidALabel("xn--e28h"));
+        assertFalse(RFC5892.isValidALabel("xn--ls8h"));
+        assertFalse(RFC5892.isValid("xn--ls8h.la"));
+        // U+20BF BITCOIN SIGN (Sc)
+        assertFalse(RFC5892.isValidALabel("xn--a-0qn"));
+        // U+1C90 GEORGIAN MTAVRULI CAPITAL LETTER AN (Lu)
+        assertFalse(RFC5892.isValidALabel("xn--j4f"));
+        // U+1E900 ADLAM CAPITAL LETTER ALIF (Lu)
+        assertFalse(RFC5892.isValidALabel("xn--bd6h"));
+        // U+2066 LEFT-TO-RIGHT ISOLATE (Cf)
+        assertFalse(RFC5892.isValidALabel("xn--11-88t"));
+    }
+
+    @Test
+    void zeroWidthJoinersMayFollowAnyVirama() {
+        // Devanagari, Sinhala and Malayalam ZWJ, Bengali ZWNJ
+        assertTrue(RFC5892.isValidALabel("xn--11b2ezcw70k"));
+        assertTrue(RFC5892.isValidALabel("xn--3zc0eybz95j"));
+        assertTrue(RFC5892.isValidALabel("xn--bwca1om25e"));
+        assertTrue(RFC5892.isValidALabel("xn--p5ba1o498f"));
+        // A ZWJ after a consonant, not a virama
+        assertFalse(RFC5892.isValid(codePoints(0x0D15, 0x200D, 0x0D15)));
+    }
+
+    @Test
+    void hyphenPositionsAreCountedInCodePoints() {
+        // "--" in the 3rd and 4th code points is invalid, whether or not the first two are supplementary.
+        assertFalse(RFC5892.isValid(codePoints(0x4E00, 0x4E01, '-', '-', 'a')));
+        assertFalse(RFC5892.isValid(codePoints(0x20000, 0x20001, '-', '-', 'a')));
+        assertTrue(RFC5892.isValid(codePoints(0x20000, '-', '-', 'a')));
     }
 
     @Test
@@ -104,5 +139,23 @@ class RFC5892Test {
         assertFalse(RFC5892.isValidALabel("xn--02b508i"));
         // ZERO WIDTH JOINER preceded by a virama
         assertTrue(RFC5892.isValidALabel("xn--11b2ezcw70k"));
+    }
+
+    @Test
+    void appliesTheBidiRuleToALabelWithRightToLeftCharacters() {
+        // Rule 1: a label with a Hebrew letter must not start with a digit.
+        assertFalse(RFC5892.isValid("1\u05d0"));
+        assertFalse(RFC5892.isValidALabel("xn--" + Punycode.encode("1\u05d0")));
+        // Rule 4: European and Arabic-Indic digits must not both appear in an RTL label.
+        assertFalse(RFC5892.isValid("\u06271\u0661"));
+        assertTrue(RFC5892.isValid("\u05d01"));
+        assertTrue(RFC5892.isValid("\u0627\u0661"));
+    }
+
+    @Test
+    void cherokeeCapitalsStayValidAndItsSmallLettersAreNot() {
+        // Cherokee case folding maps small letters (Unicode 8) to the capitals, which stay PVALID.
+        assertTrue(RFC5892.isValid(codePoints(0x13A0, 0x13A1)));
+        assertFalse(RFC5892.isValid(codePoints(0xAB70, 0xAB71)));
     }
 }
