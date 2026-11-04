@@ -97,8 +97,22 @@ public class RFC5892 {
 
     private static boolean testAllowedCharacter(String s, int i) {
         int c = s.codePointAt(i);
-        return !isDisallowed(c) && (!isUnassigned(c) || isDerivedPValid(c)) // RFC 5891 4.2.2.  Rejection of Characters That Are Not Permitted
+        return isPermitted(c) // RFC 5891 4.2.2.  Rejection of Characters That Are Not Permitted
             && !isContextJ(c)   && !isContextO(c);  // RFC 5891 4.2.3.3.  Contextual Rules
+    }
+
+    private static boolean isPermitted(int c) {
+        switch (c) {
+            // RFC 6452: Unicode 6.0 changed the general category of these three, and IDNA2008 kept the newly
+            // derived values instead of adding exceptions, so they differ from the Unicode 5.2 table.
+            case 0x0CF1: // KANNADA SIGN JIHVAMULIYA, now Lo
+            case 0x0CF2: // KANNADA SIGN UPADHMANIYA, now Lo
+                return true;
+            case 0x19DA: // NEW TAI LUE THAM DIGIT ONE, now No
+                return false;
+            default:
+                return !isDisallowed(c) && (!isUnassigned(c) || isDerivedPValid(c));
+        }
     }
 
     /**
@@ -109,7 +123,13 @@ public class RFC5892 {
      * Symbols such as emoji, punctuation, upper case and format controls added since stay rejected.
      */
     private static boolean isDerivedPValid(int c) {
-        switch (getType(c)) {
+        int type = getType(c);
+        // Cherokee is the one script whose case folding maps small letters to capitals, so its small
+        // letters (Unicode 8) are unstable under NFKC_Casefold while its capitals stay PVALID.
+        if (Character.UnicodeScript.of(c) == Character.UnicodeScript.CHEROKEE) return UPPERCASE_LETTER == type;
+        // MONGOLIAN FREE VARIATION SELECTOR FOUR (Unicode 14) is a Default_Ignorable_Code_Point, so it is DISALLOWED.
+        if (0x180F == c) return false;
+        switch (type) {
             case LOWERCASE_LETTER:
             case MODIFIER_LETTER:
             case OTHER_LETTER:
@@ -120,11 +140,11 @@ public class RFC5892 {
             default:
                 return false;
         }
-        // Cherokee is the one script whose case folding maps small letters to capitals, so its small
-        // letters (Unicode 8) are unstable under NFKC_Casefold while its capitals stay PVALID.
-        if (Character.UnicodeScript.of(c) == Character.UnicodeScript.CHEROKEE) return false;
         String s = new String(Character.toChars(c));
-        return s.equals(Normalizer.normalize(s, Normalizer.Form.NFKC)) && s.equals(s.toLowerCase(Locale.ROOT));
+        // Case folding approximated as lower(upper(c)): it catches letters that fold to another letter,
+        // such as CYRILLIC SMALL LETTER ROUNDED VE (U+1C80), which folds to U+0432.
+        return s.equals(Normalizer.normalize(s, Normalizer.Form.NFKC)) && s.equals(s.toLowerCase(Locale.ROOT))
+            && c == Character.toLowerCase(Character.toUpperCase(c));
     }
 
     /**

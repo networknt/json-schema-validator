@@ -183,4 +183,19 @@ class RFC5892Test {
         assertTrue(RFC5892.isValidALabel("xn--0ug1411pea4kb"));
         assertFalse(RFC5892.isValid(codePoints(0x1E922, 0x200C, 0x1E944, 0x1E944)));
     }
+
+    @Test
+    void followsTheUnicode60CategoryChangesListedInRfc6452() {
+        assertTrue(RFC5892.isValid(codePoints(0x0CF1)));
+        assertTrue(RFC5892.isValidALabel("xn--9uc"));
+        assertFalse(RFC5892.isValid(codePoints('a', 0x19DA)));
+    }
+
+    @Test
+    void rejectsNewCodePointsThatAreUnstableUnderCaseFoldingOrIgnorable() {
+        assertFalse(RFC5892.isValid(codePoints('a', 0x1C80))); // CYRILLIC SMALL LETTER ROUNDED VE folds to U+0432
+        assertFalse(RFC5892.isValidALabel("xn--a-wyl"));
+        assertFalse(RFC5892.isValid(codePoints('a', 0x180F))); // MONGOLIAN FREE VARIATION SELECTOR FOUR
+        assertTrue(RFC5892.isValid(codePoints(0x13F5))); // CHEROKEE LETTER MV, a capital added in Unicode 8
+    }
 }
