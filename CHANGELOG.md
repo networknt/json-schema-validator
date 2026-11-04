@@ -6,6 +6,10 @@ This format is based on [Keep a Changelog](http://keepachangelog.com/).
 This project does not adhere to [Semantic Versioning](https://semver.org/) and minor version changes can have incompatible API changes. These incompatible API changes will largely affect those who have custom validator or walker implementations. Those who just use the library to validate using the standard JSON Schema Draft specifications may not need changes.
 ## [Unreleased]
 
+### Changed
+
+- The `hostname` format now rejects names longer than 253 characters and A-labels (`xn--`) that do not decode to a valid U-label, such as invalid Punycode or labels that break the IDNA hyphen, combining-mark, bidi or contextual rules. Updated the vendored `hostname.json` suite files to the current JSON-Schema-Test-Suite.
+
 ## 3.0.9- 2026-11-03
 
 ### Breaking changes
