@@ -30,7 +30,7 @@ public class RFC5892 {
     private static final int KATAKANA_MIDDLE_DOT = 0x30FB;
     private static final int MIDDLE_DOT = 0x00B7;
     /**
-     * Code points with Canonical_Combining_Class Virama (9), from Unicode 15.1.0. Sorted, for binary search.
+     * Code points with Canonical_Combining_Class Virama (9), from Unicode 16.0.0. Sorted, for binary search.
      */
     private static final int[] VIRAMAS = {
         0x094D, 0x09CD, 0x0A4D, 0x0ACD, 0x0B4D, 0x0BCD, 0x0C4D, 0x0CCD, 0x0D3B, 0x0D3C, 0x0D4D,
@@ -39,7 +39,7 @@ public class RFC5892 {
         0xAAF6, 0xABED, 0x10A3F, 0x11046, 0x11070, 0x1107F, 0x110B9, 0x11133, 0x11134, 0x111C0,
         0x11235, 0x112EA, 0x1134D, 0x11442, 0x114C2, 0x115BF, 0x1163F, 0x116B6, 0x1172B, 0x11839,
         0x1193D, 0x1193E, 0x119E0, 0x11A34, 0x11A47, 0x11A99, 0x11C3F, 0x11D44, 0x11D45, 0x11D97,
-        0x11F41, 0x11F42
+        0x113CE, 0x113CF, 0x113D0, 0x11F41, 0x11F42, 0x1612F
     };
     private static final int ZERO_WIDTH_JOINER = 0x200D;
     private static final int ZERO_WIDTH_NON_JOINER = 0x200C;
@@ -171,7 +171,9 @@ public class RFC5892 {
             return false; // a value made up only of label separators (e.g. "." or "...") has no labels
         }
         int asciiLength = labels.length - 1; // the separators
-        for (String label : labels) {
+        String[] uLabels = new String[labels.length];
+        for (int n = 0; n < labels.length; n++) {
+            String label = labels[n];
             // String.split() drops trailing empty strings, so a trailing label
             // separator never produces an empty label here. A leading or interior
             // empty label (e.g. ".example" or "a..b") is invalid.
@@ -196,8 +198,34 @@ public class RFC5892 {
             if (MAX_NAME_LENGTH < asciiLength) return false;
 
             if (!isValidULabel(unicode)) return false;
+            uLabels[n] = unicode;
         }
+        return isValidBidiDomainName(uLabels);
+    }
 
+    /**
+     * Applies the RFC 5893 Bidi Rule across a whole name: once any label contains an R, AL or AN
+     * character, every label of the name, ASCII ones included, must satisfy the rule.
+     *
+     * @param labels the labels of the name, A-labels already validated, or U-labels
+     * @return whether the name is not a Bidi domain name or all of its labels satisfy the Bidi Rule
+     */
+    public static boolean satisfiesBidiDomainRule(String[] labels) {
+        String[] uLabels = new String[labels.length];
+        for (int n = 0; n < labels.length; n++) {
+            uLabels[n] = isACE(labels[n]) ? toUnicode(labels[n]) : labels[n];
+            if (null == uLabels[n]) return false;
+        }
+        return isValidBidiDomainName(uLabels);
+    }
+
+    private static boolean isValidBidiDomainName(String[] uLabels) {
+        boolean bidiDomainName = false;
+        for (String uLabel : uLabels) bidiDomainName |= hasRightToLeft(uLabel);
+        if (!bidiDomainName) return true;
+        for (String uLabel : uLabels) {
+            if (!satisfiesBidiRule(uLabel)) return false;
+        }
         return true;
     }
 
@@ -224,8 +252,10 @@ public class RFC5892 {
 
         // RFC 5891 4.2.3.1.  Hyphen Restrictions, by code point position
         if ('-' == unicode.charAt(0) || '-' == unicode.codePointBefore(len)) return false;
-        int[] codePoints = unicode.codePoints().limit(4).toArray();
-        if (4 == codePoints.length && '-' == codePoints[2] && '-' == codePoints[3]) return false;
+        if (4 <= len) {
+            int third = unicode.offsetByCodePoints(0, 2);
+            if (third + 1 < len && '-' == unicode.charAt(third) && '-' == unicode.charAt(third + 1)) return false;
+        }
 
         // RFC 5891 4.2.3.2.  Leading Combining Marks
         if (isCombiningMark(unicode.codePointAt(0))) return false;

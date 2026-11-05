@@ -415,16 +415,12 @@
             },
             {
                 "description": "Bidi domain name with a digit-first label is invalid",
-                "disabled": true,
-                "reason": "RFC 5893 rule 1 for digit-first labels in a Bidi domain name is not implemented",
                 "comment": "https://www.rfc-editor.org/rfc/rfc5893#section-2 a label in a Bidi domain name must start with an L, R or AL character",
                 "data": "0a.\u05d0",
                 "valid": false
             },
             {
                 "description": "label starting with a digit before a right-to-left letter is invalid",
-                "disabled": true,
-                "reason": "RFC 5893 rule 1 for digit-first labels in a Bidi domain name is not implemented",
                 "comment": "https://www.rfc-editor.org/rfc/rfc5893#section-2",
                 "data": "0\u0627",
                 "valid": false
@@ -437,8 +433,6 @@
             },
             {
                 "description": "right-to-left label mixing both digit types is invalid",
-                "disabled": true,
-                "reason": "RFC 5893 rule 4 (no mix of European and Arabic-Indic digits) is not implemented",
                 "comment": "https://www.rfc-editor.org/rfc/rfc5893#section-2",
                 "data": "\u05d00\u0660",
                 "valid": false

@@ -15,8 +15,20 @@
  */
 package com.networknt.schema.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.junit.jupiter.api.Test;
 
@@ -195,7 +207,79 @@ class RFC5892Test {
     void rejectsNewCodePointsThatAreUnstableUnderCaseFoldingOrIgnorable() {
         assertFalse(RFC5892.isValid(codePoints('a', 0x1C80))); // CYRILLIC SMALL LETTER ROUNDED VE folds to U+0432
         assertFalse(RFC5892.isValidALabel("xn--a-wyl"));
-        assertFalse(RFC5892.isValid(codePoints('a', 0x180F))); // MONGOLIAN FREE VARIATION SELECTOR FOUR
         assertTrue(RFC5892.isValid(codePoints(0x13F5))); // CHEROKEE LETTER MV, a capital added in Unicode 8
+    }
+
+    @Test
+    void rejectsTheDefaultIgnorableMongolianFreeVariationSelectorFour() {
+        // On a JDK older than Unicode 14 the code point is unassigned, so the assertion would pass for the wrong reason.
+        assumeTrue(Character.isDefined(0x180F));
+        assertFalse(RFC5892.isValid(codePoints('a', 0x180F)));
+    }
+
+    @Test
+    void zeroWidthJoinersMayFollowUnicode16Viramas() {
+        assumeTrue(Character.isDefined(0x113CE)); // TULU-TIGALARI SIGN VIRAMA, Unicode 16
+        assertTrue(RFC5892.isValid(codePoints(0x0915, 0x113CE, 0x200D, 0x0915)));
+    }
+
+    @Test
+    void appliesTheBidiRuleToEveryLabelOfABidiDomainName() {
+        // RFC 5893 rule 1: in a name with a right-to-left label, no label may start with a digit.
+        assertFalse(RFC5892.isValid("1a.\u05D0\u05D1"));
+        assertFalse(RFC5892.isValid("\u05D0\u05D1.1"));
+        assertFalse(RFC5892.isValid("0a.\u05D0"));
+        // Rule 6: a left-to-right label may end with a digit.
+        assertTrue(RFC5892.isValid("\u05D0\u05D1.a1"));
+        assertTrue(RFC5892.isValid("\u05D0\u05D1.example1"));
+        // A name without right-to-left labels is not a Bidi domain name.
+        assertTrue(RFC5892.isValid("1a.b\u00FCcher"));
+        assertFalse(RFC5892.satisfiesBidiDomainRule(new String[] {"1a", "xn--4dbc"}));
+        assertTrue(RFC5892.satisfiesBidiDomainRule(new String[] {"a1", "xn--4dbc"}));
+    }
+
+    @Test
+    void loadsTheUnicodeTablesSafelyOnConcurrentFirstUse() throws Exception {
+        URL classes = RFC5892.class.getProtectionDomain().getCodeSource().getLocation();
+        for (int round = 0; round < 20; round++) {
+            // A fresh copy of the utils classes, so the lazily loaded tables start empty in every round.
+            try (URLClassLoader loader = new ChildFirstLoader(classes)) {
+                Method isValid = loader.loadClass(RFC5892.class.getName()).getMethod("isValid", String.class);
+                int threads = 8;
+                CountDownLatch start = new CountDownLatch(1);
+                ExecutorService pool = Executors.newFixedThreadPool(threads);
+                try {
+                    List<Future<Object>> results = new ArrayList<>();
+                    for (int t = 0; t < threads; t++) {
+                        // A ZWNJ between two dual-joining Arabic letters needs both the IDNA and the joining-type tables.
+                        String name = t % 2 == 0 ? "\u0628\u200C\u0628" : "b\u00FCcher.\u0628\u200C\u0628";
+                        results.add(pool.submit(() -> {
+                            start.await();
+                            return isValid.invoke(null, name);
+                        }));
+                    }
+                    start.countDown();
+                    for (Future<Object> result : results) assertEquals(Boolean.TRUE, result.get());
+                } finally {
+                    pool.shutdownNow();
+                }
+            }
+        }
+    }
+
+    /** Loads the utils package itself and delegates everything else, such as the bundled tables' anchor class. */
+    private static final class ChildFirstLoader extends URLClassLoader {
+        ChildFirstLoader(URL classes) {
+            super(new URL[] {classes}, RFC5892Test.class.getClassLoader());
+        }
+
+        @Override
+        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            if (!name.startsWith("com.networknt.schema.utils.")) return super.loadClass(name, resolve);
+            synchronized (getClassLoadingLock(name)) {
+                Class<?> c = findLoadedClass(name);
+                return null != c ? c : findClass(name);
+            }
+        }
     }
 }

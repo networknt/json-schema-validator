@@ -8,9 +8,24 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
-- The `hostname` format now rejects names longer than 253 characters, and checks labels that start with the ACE prefix `xn--` (in any case) as A-labels: each must be at most 63 characters of valid Punycode that encodes back to itself, and its U-label must pass the RFC 5891 hyphen, leading combining mark, contextual (CONTEXTJ/CONTEXTO), bidi and disallowed-character rules. This is stricter than before, when any LDH label passed: `xn--X` and `xn--hello-txk` are now rejected. In both `hostname` and `idn-hostname`, a code point that the bundled RFC 5892 Appendix B table (Unicode 5.2) lists as unassigned is classified with the JDK's Unicode data and an approximation of the RFC 5892 derivation: it is accepted only as a lowercase, modifier or other letter, a mark or a decimal digit that NFKC and lower-casing leave unchanged. Letters added since Unicode 5.2, such as Adlam, are valid; emoji, symbols, upper case and format controls added since are not, so `xn--ls8h.la` is rejected. Letters that case folding maps to another letter (such as U+1C80) and the default-ignorable U+180F are rejected, as are Cherokee small letters (Unicode 8), since case folding maps them to the capitals. Following RFC 6452, U+0CF1 and U+0CF2 are valid and U+19DA is not, overriding the Unicode 5.2 table. A label with an R, AL or AN character must satisfy RFC 5893 rules 1, 3 and 4 (for example `1א` is invalid). ZWJ and ZWNJ are accepted after any virama (Canonical_Combining_Class 9), not only U+094D, and the ZWNJ joining-type check steps over supplementary transparent marks such as Adlam's. The KATAKANA MIDDLE DOT, GREEK LOWER NUMERAL SIGN and Hebrew GERESH/GERSHAYIM rules use the Unicode script instead of code blocks, and KATAKANA MIDDLE DOT accepts a Hiragana, Katakana or Han character anywhere in the label, as RFC 5892 A.7 states. The hyphen-position check counts code points, and the Unicode tables load safely across threads.
-- `idn-hostname` decodes A-labels with an RFC 3492 Punycode decoder instead of `java.net.IDN` (IDNA2003), so A-labels with code points that IDNA2008 allows in context, such as U+00DF, U+03C2, U+200C and U+200D, are accepted when the RFC 5892 rules allow them. A-labels are case-insensitive, the 63-character label limit is measured in A-label form for U-labels too, names are limited to 253 characters in A-label form, and supplementary-plane code points are tested once instead of as two surrogates.
-- Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`.
+- `hostname` rejects names longer than 253 characters.
+- `hostname` checks a label that starts with `xn--`, in any case, as an A-label. It must be at most 63 characters of Punycode that encodes back to itself, and its U-label must pass the IDNA2008 rules listed below. `xn--X` and `xn--hello-txk` are now rejected; before, any LDH label passed.
+- `idn-hostname` decodes A-labels with an RFC 3492 Punycode decoder instead of `java.net.IDN` (IDNA2003). A-labels with characters IDNA2008 allows in context, such as U+00DF, U+03C2, U+200C and U+200D, are accepted when the RFC 5892 rules allow them. A-labels are case-insensitive.
+- `idn-hostname` measures the 63-character label limit in A-label form for U-labels too, and limits names to 253 characters in A-label form.
+- IDNA2008 rules, for both formats:
+  - Hyphen positions are counted in code points, and each supplementary code point is tested once rather than as two surrogates.
+  - ZWJ and ZWNJ are accepted after any virama (Canonical_Combining_Class 9, as of Unicode 16.0), not only U+094D. The ZWNJ joining-type check steps over supplementary transparent marks.
+  - The KATAKANA MIDDLE DOT, GREEK LOWER NUMERAL SIGN and Hebrew GERESH/GERSHAYIM rules use the Unicode script rather than code blocks. KATAKANA MIDDLE DOT accepts a Hiragana, Katakana or Han character anywhere in the label (RFC 5892 A.7).
+  - RFC 5893 Bidi Rule: once any label of a name contains an R, AL or AN character, every label must satisfy the rule. For example, `1a.אב` and `0ا` are invalid.
+  - Following RFC 6452, U+0CF1 and U+0CF2 are valid and U+19DA is not, overriding the bundled table.
+  - The Unicode tables load safely across threads.
+- Code points added after Unicode 5.2: the bundled RFC 5892 Appendix B table predates them, so they are classified with the running JDK's Unicode data, approximating the RFC 5892 derivation. Letters, marks and digits that are stable under NFKC and case folding are accepted, such as Adlam letters and new Cherokee capitals. Emoji, symbols, upper case, format controls, letters that fold to another letter (U+1C80) and the default-ignorable U+180F are rejected, as are Cherokee small letters.
+- Known limits:
+  - Verdicts for code points newer than the JDK's Unicode version depend on the JDK. For example, a Unicode 14 letter is rejected on Java 17 (Unicode 13) and accepted on Java 21.
+  - The virama list stops at Unicode 16.0.
+  - `idn-hostname` does not apply UTS 46 mapping, and still accepts a trailing label separator.
+- Removed the unused `UnicodeDatabase.isGreek`, `isHebrew` and `isKatakana`, which tested code blocks rather than scripts.
+- Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping or trailing-separator rejection are disabled with a reason.
 
 ## 3.0.9- 2026-11-03
 
