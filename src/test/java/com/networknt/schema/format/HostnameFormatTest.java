@@ -45,7 +45,14 @@ class HostnameFormatTest {
         "XN--BCHER-KVA.EXAMPLE",
         "xn--Bcher-kva.example",
         "xn--9d6hc.example",
-        "xn--3zc0eybz95j.example"
+        "xn--3zc0eybz95j.example",
+        // RFC 1123 labels beside a right-to-left A-label: the Bidi Rule applies within the A-label only.
+        "example.xn--mgbaam7a8h",
+        "3com.xn--mgbaam7a8h",
+        "123.xn--mgbaam7a8h",
+        "1a.xn--4dbc",
+        "a1.xn--4dbc",
+        "xn--4dbc.xn--mgbh0fb"
     })
     void accepts(String value) {
         assertTrue(matches(value), value);
@@ -66,7 +73,8 @@ class HostnameFormatTest {
         "xn--ls8h.la",
         "xn--e28h.example",
         "xn--bd6h.example",
-        "xn--11-88t.example"
+        "xn--11-88t.example",
+        "xn--1-0hc.example" // U-label "1\u05D0" breaks RFC 5893 rule 1 within the A-label
     })
     void rejects(String value) {
         assertFalse(matches(value), value);

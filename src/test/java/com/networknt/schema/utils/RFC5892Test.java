@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.text.Normalizer;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
@@ -226,6 +227,46 @@ class RFC5892Test {
     }
 
     @Test
+    void viramaTableMatchesTheCombiningClassesOfTheRunningJdk() throws Exception {
+        java.lang.reflect.Field field = RFC5892.class.getDeclaredField("VIRAMAS");
+        field.setAccessible(true);
+        java.util.Set<Integer> table = new java.util.TreeSet<>();
+        for (int virama : (int[]) field.get(null)) {
+            if (Character.isDefined(virama)) table.add(virama);
+        }
+        java.util.Set<Integer> derived = new java.util.TreeSet<>();
+        for (int c = 0; c <= Character.MAX_CODE_POINT; c++) {
+            int type = Character.getType(c);
+            if (Character.NON_SPACING_MARK != type && Character.COMBINING_SPACING_MARK != type) continue;
+            if (hasCombiningClassNine(c)) derived.add(c);
+        }
+        // Up to Java 25 the JDK's Unicode data is at most 16.0, the version of the table, so the sets must match.
+        // A later JDK may know newer viramas; then every table entry must still be one.
+        if (Runtime.version().feature() <= 25) {
+            assertEquals(derived, table);
+        } else {
+            assertTrue(derived.containsAll(table), "not Canonical_Combining_Class 9: " + diff(table, derived));
+        }
+    }
+
+    // Canonical ordering (UAX 15) swaps adjacent marks when the first has the higher non-zero class.
+    // U+3099 has class 8 and U+05B0 class 10, so X has class 9 exactly when "X U+3099" and "U+05B0 X" both reorder.
+    private static boolean hasCombiningClassNine(int c) {
+        String x = codePoints(c);
+        if (!x.equals(Normalizer.normalize(x, Normalizer.Form.NFD))) return false;
+        String above8 = "a" + x + "\u3099";
+        String below10 = "a\u05B0" + x;
+        return !above8.equals(Normalizer.normalize(above8, Normalizer.Form.NFD))
+            && !below10.equals(Normalizer.normalize(below10, Normalizer.Form.NFD));
+    }
+
+    private static java.util.Set<Integer> diff(java.util.Set<Integer> a, java.util.Set<Integer> b) {
+        java.util.Set<Integer> d = new java.util.TreeSet<>(a);
+        d.removeAll(b);
+        return d;
+    }
+
+    @Test
     void zeroWidthJoinersMayFollowUnicode16Viramas() {
         assumeTrue(Character.isDefined(0x113CE)); // TULU-TIGALARI SIGN VIRAMA, Unicode 16
         assertTrue(RFC5892.isValid(codePoints(0x0915, 0x113CE, 0x200D, 0x0915)));
@@ -242,8 +283,9 @@ class RFC5892Test {
         assertTrue(RFC5892.isValid("\u05D0\u05D1.example1"));
         // A name without right-to-left labels is not a Bidi domain name.
         assertTrue(RFC5892.isValid("1a.b\u00FCcher"));
-        assertFalse(RFC5892.satisfiesBidiDomainRule(new String[] {"1a", "xn--4dbc"}));
-        assertTrue(RFC5892.satisfiesBidiDomainRule(new String[] {"a1", "xn--4dbc"}));
+        // A-labels count as right-to-left labels once decoded.
+        assertFalse(RFC5892.isValid("1a.xn--4dbc"));
+        assertTrue(RFC5892.isValid("a1.xn--4dbc"));
     }
 
     @Test

@@ -12,8 +12,9 @@ import com.networknt.schema.utils.RFC5892;
  * each, separated by dots, with an overall length of at most 253 characters. A label that
  * starts with the ACE prefix {@code xn--}, in any case, is an A-label and must also be valid
  * Punycode that decodes to a valid U-label (RFC 5890, section 2.3.2.1); see
- * {@link RFC5892#isValidALabel(String)}. If an A-label contains right-to-left characters, every
- * label of the name must satisfy the RFC 5893 Bidi Rule.
+ * {@link RFC5892#isValidALabel(String)}. The RFC 5893 Bidi Rule applies within each A-label
+ * only: the other labels are RFC 1123 LDH labels, so a digit-first label such as {@code 3com} stays
+ * valid beside a right-to-left A-label. The cross-label Bidi Rule applies to {@code idn-hostname}.
  */
 public class HostnameFormat implements Format {
     private static final int MAX_LENGTH = 253;
@@ -31,18 +32,15 @@ public class HostnameFormat implements Format {
             return false;
         }
         // Walk the labels without splitting, so a name with no A-label allocates nothing.
-        boolean hasALabel = false;
         for (int start = 0; start < value.length(); ) {
             int end = value.indexOf('.', start);
             if (end < 0) end = value.length();
             if (value.regionMatches(true, start, ACE_PREFIX, 0, ACE_PREFIX.length())) {
                 if (!RFC5892.isValidALabel(value.substring(start, end))) return false;
-                hasALabel = true;
             }
             start = end + 1;
         }
-        // Only an A-label can make this a Bidi domain name, whose every label must then satisfy RFC 5893.
-        return !hasALabel || RFC5892.satisfiesBidiDomainRule(value.split("\\."));
+        return true;
     }
 
     @Override
