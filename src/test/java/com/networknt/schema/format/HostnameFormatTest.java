@@ -74,7 +74,10 @@ class HostnameFormatTest {
         "xn--e28h.example",
         "xn--bd6h.example",
         "xn--11-88t.example",
-        "xn--1-0hc.example" // U-label "1\u05D0" breaks RFC 5893 rule 1 within the A-label
+        // RFC 5893 Bidi Rule within an A-label
+        "xn--1-0hc.example", // "1\u05D0": rule 1, a right-to-left label starts with a digit
+        "xn--0-zhc74b.example", // "\u05D00\u0660": rule 4, European and Arabic-Indic digits mixed
+        "xn--a-0hc.example" // "a\u05D0": rule 5, a left-to-right label with a right-to-left character
     })
     void rejects(String value) {
         assertFalse(matches(value), value);

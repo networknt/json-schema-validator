@@ -170,7 +170,6 @@ public class RFC5892 {
             return false; // a value made up only of label separators (e.g. "." or "...") has no labels
         }
         int asciiLength = labels.length - 1; // the separators
-        String[] uLabels = new String[labels.length];
         boolean bidiDomainName = false;
         for (int n = 0; n < labels.length; n++) {
             String label = labels[n];
@@ -197,18 +196,20 @@ public class RFC5892 {
             asciiLength += aceLength;
             if (MAX_NAME_LENGTH < asciiLength) return false;
 
-            if (!isValidULabel(unicode)) return false;
-            if (hasRightToLeft(unicode)) {
-                bidiDomainName = true; // isValidULabel has already applied the Bidi Rule to this label
-            } else {
-                uLabels[n] = unicode;
-            }
-        }
-        // RFC 5893 2.  In a Bidi domain name every label must satisfy the Bidi Rule, so check the
-        // labels without right-to-left characters, which isValidULabel left unchecked.
-        if (bidiDomainName) {
-            for (String uLabel : uLabels) {
-                if (null != uLabel && !satisfiesBidiRule(uLabel)) return false;
+            int status = checkULabel(unicode);
+            if (INVALID == status) return false;
+            // RFC 5893 2.  Once a label has an R, AL or AN character, the name is a Bidi domain name and every
+            // label must satisfy the Bidi Rule. checkULabel has already applied it to right-to-left labels.
+            if (RIGHT_TO_LEFT == status) {
+                if (!bidiDomainName) {
+                    bidiDomainName = true;
+                    // The labels before this one have no right-to-left characters and were not checked yet.
+                    for (int m = 0; m < n; m++) {
+                        if (!satisfiesBidiRule(isACE(labels[m]) ? toUnicode(labels[m]) : labels[m])) return false;
+                    }
+                }
+            } else if (bidiDomainName && !satisfiesBidiRule(unicode)) {
+                return false;
             }
         }
         return true;
@@ -225,23 +226,32 @@ public class RFC5892 {
     public static boolean isValidALabel(String label) {
         if (MAX_LABEL_LENGTH < label.length() || !isACE(label)) return false;
         String unicode = toUnicode(label);
-        return null != unicode && isValidULabel(unicode);
+        return null != unicode && INVALID != checkULabel(unicode);
     }
 
-    private static boolean isValidULabel(String unicode) {
+    private static final int INVALID = 0;
+    private static final int LEFT_TO_RIGHT = 1;
+    private static final int RIGHT_TO_LEFT = 2;
+
+    /**
+     * Applies the per-label IDNA2008 rules.
+     *
+     * @return {@code INVALID}, or whether the valid label has an R, AL or AN character
+     */
+    private static int checkULabel(String unicode) {
         int len = unicode.length();
         BiPredicate<String, Integer> rules;
 
         // RFC 5891 5.4.  Validation and Character List Testing
-        if (!Normalizer.isNormalized(unicode, Normalizer.Form.NFC)) return false;
+        if (!Normalizer.isNormalized(unicode, Normalizer.Form.NFC)) return INVALID;
 
         // RFC 5891 4.2.3.1.  Hyphen Restrictions, by code point position
-        if ('-' == unicode.charAt(0) || '-' == unicode.codePointBefore(len)) return false;
+        if ('-' == unicode.charAt(0) || '-' == unicode.codePointBefore(len)) return INVALID;
         // Four chars hold at least two code points, so the offset exists.
-        if (4 <= len && unicode.startsWith("--", unicode.offsetByCodePoints(0, 2))) return false;
+        if (4 <= len && unicode.startsWith("--", unicode.offsetByCodePoints(0, 2))) return INVALID;
 
         // RFC 5891 4.2.3.2.  Leading Combining Marks
-        if (isCombiningMark(unicode.codePointAt(0))) return false;
+        if (isCombiningMark(unicode.codePointAt(0))) return INVALID;
 
         // RFC 5893 2.  The Bidi Rule
         switch (getDirectionality(unicode.codePointAt(0))) {
@@ -256,16 +266,17 @@ public class RFC5892 {
             case DIRECTIONALITY_OTHER_NEUTRALS:
                 rules = IDNA_RULES;
                 break;
-            default: return false;
+            default: return INVALID;
         }
 
         // Step by code point, so a supplementary character is tested once and never as a lone low surrogate.
         for (int i = 0; i < len; i += Character.charCount(unicode.codePointAt(i))) {
-            if (!rules.test(unicode, i)) return false;
+            if (!rules.test(unicode, i)) return INVALID;
         }
 
         // RFC 5893 2.  A label with an R, AL or AN character makes the name a Bidi domain name, so the full Bidi Rule applies to it.
-        return !hasRightToLeft(unicode) || satisfiesBidiRule(unicode);
+        if (!hasRightToLeft(unicode)) return LEFT_TO_RIGHT;
+        return satisfiesBidiRule(unicode) ? RIGHT_TO_LEFT : INVALID;
     }
 
     private static boolean hasRightToLeft(String label) {

@@ -20,12 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.text.Normalizer;
 import java.net.URLClassLoader;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -218,35 +221,31 @@ class RFC5892Test {
         assertFalse(RFC5892.isValid(codePoints('a', 0x180F)));
     }
 
+    private static int[] viramas() throws Exception {
+        Field field = RFC5892.class.getDeclaredField("VIRAMAS");
+        field.setAccessible(true);
+        return (int[]) field.get(null);
+    }
+
     @Test
     void viramaTableIsSortedForBinarySearch() throws Exception {
-        java.lang.reflect.Field field = RFC5892.class.getDeclaredField("VIRAMAS");
-        field.setAccessible(true);
-        int[] viramas = (int[]) field.get(null);
+        int[] viramas = viramas();
         for (int n = 1; n < viramas.length; n++) assertTrue(viramas[n - 1] < viramas[n], "unsorted at index " + n);
     }
 
     @Test
     void viramaTableMatchesTheCombiningClassesOfTheRunningJdk() throws Exception {
-        java.lang.reflect.Field field = RFC5892.class.getDeclaredField("VIRAMAS");
-        field.setAccessible(true);
-        java.util.Set<Integer> table = new java.util.TreeSet<>();
-        for (int virama : (int[]) field.get(null)) {
+        Set<Integer> table = new TreeSet<>();
+        for (int virama : viramas()) {
             if (Character.isDefined(virama)) table.add(virama);
         }
-        java.util.Set<Integer> derived = new java.util.TreeSet<>();
+        Set<Integer> derived = new TreeSet<>();
         for (int c = 0; c <= Character.MAX_CODE_POINT; c++) {
-            int type = Character.getType(c);
-            if (Character.NON_SPACING_MARK != type && Character.COMBINING_SPACING_MARK != type) continue;
-            if (hasCombiningClassNine(c)) derived.add(c);
+            if (Character.isDefined(c) && hasCombiningClassNine(c)) derived.add(c);
         }
-        // Up to Java 25 the JDK's Unicode data is at most 16.0, the version of the table, so the sets must match.
-        // A later JDK may know newer viramas; then every table entry must still be one.
-        if (Runtime.version().feature() <= 25) {
-            assertEquals(derived, table);
-        } else {
-            assertTrue(derived.containsAll(table), "not Canonical_Combining_Class 9: " + diff(table, derived));
-        }
+        // A JDK with newer Unicode data than the table (16.0) fails here if that version adds a virama,
+        // which is the signal to extend VIRAMAS.
+        assertEquals(derived, table, "VIRAMAS must list every Canonical_Combining_Class 9 code point");
     }
 
     // Canonical ordering (UAX 15) swaps adjacent marks when the first has the higher non-zero class.
@@ -258,12 +257,6 @@ class RFC5892Test {
         String below10 = "a\u05B0" + x;
         return !above8.equals(Normalizer.normalize(above8, Normalizer.Form.NFD))
             && !below10.equals(Normalizer.normalize(below10, Normalizer.Form.NFD));
-    }
-
-    private static java.util.Set<Integer> diff(java.util.Set<Integer> a, java.util.Set<Integer> b) {
-        java.util.Set<Integer> d = new java.util.TreeSet<>(a);
-        d.removeAll(b);
-        return d;
     }
 
     @Test
