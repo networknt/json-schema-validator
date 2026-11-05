@@ -218,6 +218,14 @@ class RFC5892Test {
     }
 
     @Test
+    void viramaTableIsSortedForBinarySearch() throws Exception {
+        java.lang.reflect.Field field = RFC5892.class.getDeclaredField("VIRAMAS");
+        field.setAccessible(true);
+        int[] viramas = (int[]) field.get(null);
+        for (int n = 1; n < viramas.length; n++) assertTrue(viramas[n - 1] < viramas[n], "unsorted at index " + n);
+    }
+
+    @Test
     void zeroWidthJoinersMayFollowUnicode16Viramas() {
         assumeTrue(Character.isDefined(0x113CE)); // TULU-TIGALARI SIGN VIRAMA, Unicode 16
         assertTrue(RFC5892.isValid(codePoints(0x0915, 0x113CE, 0x200D, 0x0915)));
