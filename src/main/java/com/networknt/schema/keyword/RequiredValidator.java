@@ -58,12 +58,15 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
                 Boolean writeOnly = executionContext.getExecutionConfig().getWriteOnly();
                 if (Boolean.TRUE.equals(readOnly)) {
                     JsonNode readOnlyNode = getFieldKeyword(fieldName, "readOnly");
-                    if (readOnlyNode != null && readOnlyNode.booleanValue()) {
+                    // The value asserts only when it is the boolean true. A value that
+                    // is not a boolean is not read only here either, rather than being
+                    // passed to booleanValue(), which throws for a string or a number.
+                    if (readOnlyNode != null && readOnlyNode.isBoolean() && readOnlyNode.booleanValue()) {
                         continue;
                     }
                 } else if(Boolean.TRUE.equals(writeOnly)) {
                     JsonNode writeOnlyNode = getFieldKeyword(fieldName, "writeOnly");
-                    if (writeOnlyNode != null && writeOnlyNode.booleanValue()) {
+                    if (writeOnlyNode != null && writeOnlyNode.isBoolean() && writeOnlyNode.booleanValue()) {
                         continue;
                     }
                 }

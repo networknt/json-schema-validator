@@ -6,6 +6,22 @@ This format is based on [Keep a Changelog](http://keepachangelog.com/).
 This project does not adhere to [Semantic Versioning](https://semver.org/) and minor version changes can have incompatible API changes. These incompatible API changes will largely affect those who have custom validator or walker implementations. Those who just use the library to validate using the standard JSON Schema Draft specifications may not need changes.
 ## [Unreleased]
 
+### Breaking changes
+
+- The value of an annotation is now the value the keyword holds, for every JSON value type. Boolean, array and null values used to be dropped, so a keyword whose value was a boolean, an array or `null` did not appear in the collected annotations at all. This applies to every annotation keyword, including the ones created for `readOnly` and `writeOnly`, for keywords that are not in the dialect, such as unknown keywords and root level fields, and for `deprecated`, `default`, `examples`, `example`, `xml` and `contentSchema`. `Annotation.getValue()` is a generic method, so existing code such as `String s = annotation.getValue()` still compiles but now throws `ClassCastException` where the value is not a string; read the value as the type the keyword holds. An object or an array is reported as a deep copy of the schema node, so a caller may keep or mutate the value without affecting the schema; the copy is made once per validator, not once per validation. A null value is reported as a `NullNode` rather than as the Java null that means there is no value. [#1376](https://github.com/networknt/json-schema-validator/pull/1376)
+
+### Added
+
+- `readOnly` and `writeOnly` are reported as annotations at the instance location they apply to when annotation collection is enabled. This is the keyword value in the schema; it has nothing to do with the `readOnly` and `writeOnly` execution config options. [#1376](https://github.com/networknt/json-schema-validator/pull/1376)
+
+### Changed
+
+- The `readOnly` and `writeOnly` execution policies no longer report an error when the keyword value is the boolean `false`, because the error contradicts the annotation reported for that value. This applies whether annotation collection is enabled or not. Every other value still reports the error, including `true` and a value that is not a boolean, so nothing that was accepted before is now rejected. [#1376](https://github.com/networknt/json-schema-validator/pull/1376)
+
+### Fixed
+
+- The `required` keyword reports a `readOnly` or `writeOnly` property with a value that is not a boolean as missing, instead of throwing `JsonNodeException` from `booleanValue()`. [#1376](https://github.com/networknt/json-schema-validator/pull/1376)
+
 ## 3.0.9- 2026-11-03
 
 ### Breaking changes
