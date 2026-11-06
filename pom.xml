@@ -87,7 +87,7 @@
     <version.maven-javadoc-plugin>3.12.0</version.maven-javadoc-plugin>
     <version.maven-source-plugin>3.4.0</version.maven-source-plugin> <!-- 3.3.0 and above is not Java 8 compatible -->
     <version.maven-surefire-junit5-tree-reporter>1.5.1</version.maven-surefire-junit5-tree-reporter>
-    <version.maven-surefire>3.6.0</version.maven-surefire>
+    <version.maven-surefire>3.6.1</version.maven-surefire>
     <version.moditect-maven-plugin>1.2.2.Final</version.moditect-maven-plugin>
     <version.nexus-staging-maven>1.7.0</version.nexus-staging-maven>
     <version.maven-gpg>3.2.8</version.maven-gpg>
