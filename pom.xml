@@ -81,7 +81,7 @@
     <version.hamcrest>3.0</version.hamcrest>
     <version.junit>5.11.3</version.junit>
     <version.jacoco-maven-plugin>0.8.12</version.jacoco-maven-plugin>
-    <version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
+    <version.maven-compiler-plugin>3.16.0</version.maven-compiler-plugin>
     <version.maven-bundle-plugin>5.1.9</version.maven-bundle-plugin>
     <version.maven-javadoc-plugin>3.6.3</version.maven-javadoc-plugin>
     <version.maven-source-plugin>3.2.1</version.maven-source-plugin> <!-- 3.3.0 and above is not Java 8 compatible -->
