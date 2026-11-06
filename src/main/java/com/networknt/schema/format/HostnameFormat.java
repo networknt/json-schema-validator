@@ -31,7 +31,7 @@ public class HostnameFormat implements Format {
         if (value.length() > MAX_LENGTH || !PATTERN.matcher(value).matches()) {
             return false;
         }
-        // Walk the labels without splitting, so a name with no A-label allocates nothing.
+        // Walk the labels without splitting, so only an A-label is copied out of the value.
         for (int start = 0; start < value.length(); ) {
             int end = value.indexOf('.', start);
             if (end < 0) end = value.length();

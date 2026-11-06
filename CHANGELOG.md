@@ -19,7 +19,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
   - RFC 5893 Bidi Rule: a label with an R, AL or AN character must satisfy the rule, so `0ا` is an invalid `idn-hostname` and `xn--1-0hc` (`1א`) an invalid `hostname` label. In `idn-hostname`, every other label of such a name must satisfy it too, so `1a.אב` and `1a.xn--4dbc` are invalid there.
   - Following RFC 6452, U+0CF1 and U+0CF2 are valid and U+19DA is not, overriding the bundled table.
   - The Unicode tables load safely across threads.
-- Code points added after Unicode 5.2: the bundled RFC 5892 Appendix B table predates them, so they are classified with the running JDK's Unicode data, approximating the RFC 5892 derivation. Letters, marks and digits that are stable under NFKC and case folding are accepted, such as Adlam letters and new Cherokee capitals. Emoji, symbols, upper case, format controls, letters that fold to another letter (U+1C80) and the default-ignorable U+180F are rejected, as are Cherokee small letters.
+- Code points added after Unicode 5.2: the bundled RFC 5892 Appendix B table predates them, so they are classified with the running JDK's Unicode data, approximating the RFC 5892 derivation. Letters, marks and digits that are stable under NFKC and case folding are accepted, such as Adlam small letters and new Cherokee capitals. Emoji, symbols, upper case, format controls, letters that fold to another letter (U+1C80) and the default-ignorable U+180F are rejected, as are Cherokee small letters.
 - Known limits:
   - Verdicts for code points newer than the JDK's Unicode version depend on the JDK. For example, a Unicode 14 letter is rejected on Java 17 (Unicode 13) and accepted on Java 21.
   - The virama list stops at Unicode 16.0.

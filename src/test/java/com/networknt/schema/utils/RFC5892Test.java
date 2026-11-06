@@ -35,12 +35,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests the {@code idn-hostname} rules in {@link RFC5892#isValid(String)} and the {@code hostname}
  * A-label rules in {@link RFC5892#isValidALabel(String)}.
  */
 class RFC5892Test {
+
+    // The scripts added in Unicode 16.0, the version of VIRAMAS. UnicodeScript lists new scripts before UNKNOWN, so a
+    // script after all of these means the JDK's Unicode data is newer than 16.0.
+    private static final String[] UNICODE_16_SCRIPTS = {
+        "GARAY", "GURUNG_KHEMA", "KIRAT_RAI", "OL_ONAL", "SUNUWAR", "TODHRI", "TULU_TIGALARI"
+    };
 
     private static String repeat(String s, int count) {
         StringBuilder sb = new StringBuilder();
@@ -243,9 +250,37 @@ class RFC5892Test {
         for (int c = 0; c <= Character.MAX_CODE_POINT; c++) {
             if (Character.isDefined(c) && hasCombiningClassNine(c)) derived.add(c);
         }
-        // A JDK with newer Unicode data than the table (16.0) fails here if that version adds a virama,
-        // which is the signal to extend VIRAMAS.
-        assertEquals(derived, table, "VIRAMAS must list every Canonical_Combining_Class 9 code point");
+        Set<Integer> extra = new TreeSet<>(table);
+        extra.removeAll(derived);
+        assertTrue(extra.isEmpty(), "VIRAMAS lists code points that are not Canonical_Combining_Class 9: " + hex(extra));
+        Set<Integer> missing = new TreeSet<>(derived);
+        missing.removeAll(table);
+        if (jdkUnicodeIsNewerThan16()) {
+            // The table is Unicode 16.0; a newer JDK may know newer viramas. Report them without failing unrelated builds.
+            if (!missing.isEmpty()) {
+                LoggerFactory.getLogger(RFC5892Test.class).warn("Viramas newer than Unicode 16.0 missing from VIRAMAS: {}", hex(missing));
+            }
+        } else {
+            assertTrue(missing.isEmpty(), "VIRAMAS is missing Canonical_Combining_Class 9 code points: " + hex(missing));
+        }
+    }
+
+    private static boolean jdkUnicodeIsNewerThan16() {
+        int last = -1;
+        for (String name : UNICODE_16_SCRIPTS) {
+            try {
+                last = Math.max(last, Character.UnicodeScript.valueOf(name).ordinal());
+            } catch (IllegalArgumentException e) {
+                return false; // Unicode data older than 16.0
+            }
+        }
+        return Character.UnicodeScript.UNKNOWN.ordinal() > last + 1;
+    }
+
+    private static String hex(Set<Integer> codePoints) {
+        StringBuilder sb = new StringBuilder();
+        for (int c : codePoints) sb.append(sb.length() == 0 ? "" : ", ").append(String.format("U+%04X", c));
+        return sb.toString();
     }
 
     // Canonical ordering (UAX 15) swaps adjacent marks when the first has the higher non-zero class.
@@ -279,6 +314,10 @@ class RFC5892Test {
         // A-labels count as right-to-left labels once decoded.
         assertFalse(RFC5892.isValid("1a.xn--4dbc"));
         assertTrue(RFC5892.isValid("a1.xn--4dbc"));
+        // An A-label before the first right-to-left label is checked against the Bidi Rule once that label is reached.
+        assertTrue(RFC5892.isValid("xn--bcher-kva.xn--4dbc"));
+        assertFalse(RFC5892.isValid("a.xn--1-eha.xn--4dbc")); // "1\u00FC" starts with a digit
+        assertTrue(RFC5892.isValid("xn--1-eha.example")); // not a Bidi domain name
     }
 
     @Test

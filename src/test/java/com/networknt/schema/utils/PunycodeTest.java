@@ -70,6 +70,12 @@ class PunycodeTest {
     }
 
     @Test
+    void rejectsSurrogatesAndCodePointsAboveTheUnicodeRange() {
+        assertNull(Punycode.decode("ib9b")); // U+D800, a lone surrogate
+        assertNull(Punycode.decode("bb00h")); // above U+10FFFF without overflowing an int
+    }
+
+    @Test
     void rejectsTruncatedInput() {
         // "k" is a digit that needs a following digit to complete the variable-length integer.
         assertNull(Punycode.decode("bcher-k"));
