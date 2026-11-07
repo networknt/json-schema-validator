@@ -1,0 +1,105 @@
+/*
+ * Copyright (c) 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.networknt.schema.format;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+class HostnameFormatTest {
+
+    private static final HostnameFormat FORMAT = new HostnameFormat();
+
+    private static String repeat(String s, int count) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < count; i++) sb.append(s);
+        return sb.toString();
+    }
+
+    private static boolean matches(String value) {
+        return FORMAT.matches(null, value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "example",
+        "example.com",
+        "a.b-c.d1",
+        "xn--bcher-kva.example",
+        "XN--BCHER-KVA.EXAMPLE",
+        "xn--Bcher-kva.example",
+        "xn--3zc0eybz95j.example",
+        // RFC 1123 labels beside a right-to-left A-label: the Bidi Rule applies within the A-label only.
+        "example.xn--mgbaam7a8h",
+        "3com.xn--mgbaam7a8h",
+        "123.xn--mgbaam7a8h",
+        "1a.xn--4dbc",
+        "a1.xn--4dbc",
+        "xn--4dbc.xn--mgbh0fb"
+    })
+    void accepts(String value) {
+        assertTrue(matches(value), value);
+    }
+
+    @Test
+    void adlamAcceptanceDependsOnTheJdksUnicodeData() {
+        assertEquals(Character.isDefined(0x1E922), matches("xn--9d6hc.example"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "",
+        "example.com.",
+        ".example.com",
+        "a..b",
+        "-example.com",
+        "example-.com",
+        "exa mple.com",
+        "xn--X",
+        "xn--abc-",
+        "xn--hello-txk.example",
+        "xn--ls8h.la",
+        "xn--e28h.example",
+        "xn--bd6h.example",
+        "xn--11-88t.example",
+        // RFC 5893 Bidi Rule within an A-label
+        "xn--1-0hc.example", // "1\u05D0": rule 1, a right-to-left label starts with a digit
+        "xn--0-zhc74b.example", // "\u05D00\u0660": rule 4, European and Arabic-Indic digits mixed
+        "xn--a-0hc.example" // "a\u05D0": rule 5, a left-to-right label with a right-to-left character
+    })
+    void rejects(String value) {
+        assertFalse(matches(value), value);
+    }
+
+    @Test
+    void limitsTheNameTo253Characters() {
+        String label = repeat("a", 63);
+        String name253 = label + "." + label + "." + label + "." + repeat("a", 61);
+        assertTrue(matches(name253));
+        assertFalse(matches(name253 + "a"));
+    }
+
+    @Test
+    void limitsEachLabelTo63Characters() {
+        assertTrue(matches(repeat("a", 63) + ".com"));
+        assertFalse(matches(repeat("a", 64) + ".com"));
+        assertFalse(matches("xn--" + repeat("a", 60) + ".com"));
+    }
+}

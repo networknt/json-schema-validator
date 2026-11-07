@@ -7,12 +7,30 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ## [Unreleased]
 
+### Breaking changes
+
+- `hostname` rejects names longer than 253 characters. [#1377](https://github.com/networknt/json-schema-validator/pull/1377)
+- `hostname` checks a label that starts with `xn--`, in any case, as an A-label. It must be at most 63 characters of Punycode that encodes back to itself, and its U-label must pass the IDNA2008 rules listed below. `xn--X`, `xn--hello-txk` and `xn--1-0hc` (U-label `1א`, which breaks the RFC 5893 Bidi Rule) are now rejected; before, any LDH label passed. The Bidi Rule applies within each A-label only: the other labels stay RFC 1123 LDH labels, so `3com.xn--mgbaam7a8h` remains valid.
+- `idn-hostname` decodes A-labels with an RFC 3492 Punycode decoder instead of `java.net.IDN` (IDNA2003). A-labels with characters IDNA2008 allows in context, such as U+00DF, U+03C2, U+200C and U+200D, are accepted when the RFC 5892 rules allow them. A-labels are case-insensitive.
+- `idn-hostname` measures the 63-character label limit in A-label form for U-labels too, and limits names to 253 characters in A-label form.
+- `idn-hostname` rejects more than one trailing label separator, such as `a..` and `xn--4dbc..`; before, any number was accepted. A single trailing separator is still accepted and does not count toward the 253 characters.
+- IDNA2008 rules, for both formats:
+  - Hyphen positions are counted in code points, and each supplementary code point is tested once rather than as two surrogates.
+  - ZWJ and ZWNJ are accepted after any virama (Canonical_Combining_Class 9, as of Unicode 16.0), not only U+094D. The ZWNJ joining-type check steps over supplementary transparent marks.
+  - The KATAKANA MIDDLE DOT, GREEK LOWER NUMERAL SIGN and Hebrew GERESH/GERSHAYIM rules use the Unicode script rather than code blocks. KATAKANA MIDDLE DOT accepts a Hiragana, Katakana or Han character anywhere in the label (RFC 5892 A.7).
+  - RFC 5893 Bidi Rule: a label with an R, AL or AN character must satisfy the rule, so `0ا` is an invalid `idn-hostname` and `xn--1-0hc` (`1א`) an invalid `hostname` label. In `idn-hostname`, every other label of such a name must satisfy it too, so `1a.אב` and `1a.xn--4dbc` are invalid there.
+  - Following RFC 6452, U+0CF1 and U+0CF2 are valid and U+19DA is not, overriding the bundled table.
+  - The Unicode tables load safely across threads.
+- Code points added after Unicode 5.2: the bundled RFC 5892 Appendix B table predates them, so they are classified with the running JDK's Unicode data, approximating the RFC 5892 derivation. Letters, marks and digits that are stable under NFKC and case folding are accepted, such as Adlam small letters and new Cherokee capitals. Emoji, symbols, upper case, format controls, letters that fold to another letter (U+1C80) and the default-ignorable U+180F are rejected, as are Cherokee small letters.
+- Known limits:
+  - Verdicts for code points newer than the JDK's Unicode version depend on the JDK. Java 8 uses Unicode 6.2 and rejects valid labels containing newer characters, including Adlam: `xn--9d6hc.example` is now rejected by `hostname` on Java 8, although the old LDH regex accepted it. Java 11 and later recognize Adlam. A Unicode 14 letter is rejected on Java 17 (Unicode 13) and accepted on Java 21.
+  - The virama list stops at Unicode 16.0.
+  - `idn-hostname` does not apply UTS 46 mapping, and still accepts a single trailing label separator (`example.`).
+- With Ethlo present, `date-time` now rejects space-separated values such as `2020-01-01 12:00:00Z` and leap-second strings without an offset such as `2016-12-31T23:59:60`. Ethlo previously accepted these forms. RFC 3339 requires `T`/`t` and an explicit `Z`/`z` or signed `HH:MM` offset; callers relying on those spellings must supply the required separator/offset. The fallback already rejected both forms. (#1316)
+
 ### Fixed
 
 - Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0 and 3.1. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
-
-### Breaking changes
-- With Ethlo present, `date-time` now rejects space-separated values such as `2020-01-01 12:00:00Z` and leap-second strings without an offset such as `2016-12-31T23:59:60`. Ethlo previously accepted these forms. RFC 3339 requires `T`/`t` and an explicit `Z`/`z` or signed `HH:MM` offset; callers relying on those spellings must supply the required separator/offset. The fallback already rejected both forms. (#1316)
 
 ### Added
 
@@ -20,6 +38,8 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+- Preserve the public legacy `UnicodeDatabase.isGreek`, `isHebrew` and `isKatakana` helpers on 2.x for compatibility, marked deprecated in favor of `Character.UnicodeScript`; hostname validation now uses Unicode scripts.
+- Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping or trailing-separator rejection are disabled with a reason.
 - Avoid duplicate numeric text-buffer reads when classifying JSON/YAML decimals; pin fast-path boundaries and randomized classification with regression tests. [#1368](https://github.com/networknt/json-schema-validator/issues/1368)
 - Reduce decimal-preserving tree parser overhead by caching per token and avoiding text and decimal allocations for lossless floats. [#1362](https://github.com/networknt/json-schema-validator/issues/1362)
 - `JsonMapperFactory.getInstance()` and `YamlMapperFactory.getInstance()` now return `DecimalNode` values for lossy finite floating-point spellings when reading trees, subject to explicit mapper settings and custom node factories. (#1357)
