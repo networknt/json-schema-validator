@@ -1,98 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794024845009,
+  "lastUpdate": 1794067637739,
   "repoUrl": "https://github.com/networknt/json-schema-validator",
   "entries": {
     "JSON Schema Validator Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "stevehu@gmail.com",
-            "name": "Steve Hu",
-            "username": "stevehu"
-          },
-          "committer": {
-            "email": "stevehu@gmail.com",
-            "name": "Steve Hu",
-            "username": "stevehu"
-          },
-          "distinct": true,
-          "id": "2575a025007dca1028df1105bb225e5f4397c3ea",
-          "message": "upgrade logback to 1.6.3 from 1.5.37",
-          "timestamp": "2026-09-18T11:59:10-04:00",
-          "tree_id": "4627defe475c7463321d7d2cb36033ddb0fd4f38",
-          "url": "https://github.com/networknt/json-schema-validator/commit/2575a025007dca1028df1105bb225e5f4397c3ea"
-        },
-        "date": 1789747544341,
-        "tool": "jmh",
-        "benches": [
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
-            "value": 4640.638604827695,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 1233.7832015062768,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 1305.1856231411748,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 1328.9573246751872,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 3042.8438528912816,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 3758.4138788359473,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 992.5359909531384,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 1107.893887168265,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 2935.0814591349076,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 3161.3206242022547,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 4686.527922057421,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -8302,6 +8212,324 @@ window.BENCHMARK_DATA = {
           {
             "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
             "value": 31.466896357442348,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "r.ravimeena@gmail.com",
+            "name": "ravismash",
+            "username": "ravismash"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9cde0ad5a3b99b6b74d7623d029745270e9a6436",
+          "message": "Reject over-long hostnames and invalid A-labels in the hostname format (#1377)\n\n* Reject over-long hostnames and invalid A-labels in the hostname format\n\n* Decode A-labels with Punycode instead of java.net.IDN\n\njava.net.IDN implements IDNA2003, so it rejects A-labels whose U-label has\ncode points that IDNA2008 allows in context (U+00DF, U+03C2, U+200C, U+200D).\nDecode the Punycode directly, require it to round-trip, and leave the\ncode points to the RFC 5892 rules.\n\n* Address review: keep hostname A-label checks lenient on newer code points\n\n- hostname: check A-labels with RFC5892.isValidALabel, which does not reject\n  code points that the bundled Unicode 5.2 table lists as unassigned when the\n  JDK assigns them (e.g. xn--ls8h.la, U+1F600, Adlam)\n- Lower-case A-labels before decoding, so XN--BCHER-KVA and xn--Bcher-kva pass\n- idn-hostname: measure the 63-character limit with Punycode.encode instead of\n  IDN.toASCII, and limit names to 253 characters in A-label form\n- Check label length before the quadratic Punycode decode\n- Test IDNA rules once per code point instead of once per char\n- Make Punycode package-private and drop the unreachable grow branch\n- Add PunycodeTest, RFC5892Test and HostnameFormatTest\n- Refresh idn-hostname.json, and draft-next hostname.json and idn-hostname.json\n\n* Disable the refreshed idn-hostname cases the validator does not support yet\n\nThe current suite adds idn-hostname cases for UTS 46 mapping, trailing label\nseparators and the RFC 5893 digit rules. These are existing gaps, not\nregressions, so mark them disabled with a reason instead of widening this PR.\n\n* Apply the same unassigned-code-point policy to idn-hostname\n\nhostname accepted xn--ls8h.la while idn-hostname rejected it, because only\nhostname ignored the Unicode 5.2 table's UNASSIGNED entries. Use one rule set\nfor both, so idn-hostname accepts every name hostname accepts.\n\n* Address second review: derive new code points, any virama, code point hyphens\n\n- Accept a code point the Unicode 5.2 table lists as unassigned only if the\n  JDK classifies it as Ll, Lm, Lo, Mn, Mc or Nd and NFKC and lower-casing\n  leave it unchanged, so emoji, symbols, upper case and bidi controls added\n  since are rejected (an approximation of the RFC 5892 derivation)\n- Accept ZWJ and ZWNJ after any Canonical_Combining_Class Virama code point,\n  not only U+094D, and read the preceding code point, not char\n- Count the RFC 5891 4.2.3.1 hyphen positions in code points\n- Apply RFC 5893 rules 1, 3 and 4 to any label with an R, AL or AN character\n- Reject Cherokee small letters, which case folding maps to the capitals\n- Publish the lazily loaded RFC 5892 and joining-type tables with a volatile\n  flag instead of checking BitSet.isEmpty() outside the lock\n- Walk hostname labels without splitting, and check ASCII without a stream\n- Replace the incorrect \"idn-hostname accepts everything hostname accepts\"\n  test with tests for the new rules\n\n* Judge CONTEXTO by script and step ZWNJ context by code point\n\nFound by comparing against Python idna 3.20 on every assigned code point:\n- KATAKANA MIDDLE DOT needs a Hiragana, Katakana or Han character\n  anywhere in the label (RFC 5892 A.7), not only right after it.\n- Greek, Hebrew and Kana/Han checks use Character.UnicodeScript, not\n  code blocks (Coptic in the Greek block, U+30FC is Common).\n- The ZWNJ joining-type scan steps over supplementary transparent\n  marks by code point instead of by UTF-16 char.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U6XXMPvkRmkr5kqQuxPXm4\n\n* Follow RFC 6452 and case folding for code points outside the 5.2 table\n\nFound by comparing against Python idna 3.20 on every assigned code point:\n- U+0CF1 and U+0CF2 are PVALID and U+19DA is DISALLOWED since Unicode\n  6.0 (RFC 6452), unlike the bundled Unicode 5.2 table.\n- New letters that case folding maps to another letter, such as\n  U+1C80..U+1C88, are rejected, using lower(upper(c)) as the fold.\n- U+180F, a default-ignorable mark, is rejected.\n- New Cherokee capitals such as U+13F5 are accepted.\n\nThe derivation now matches the idna PVALID table for all 41,890 code\npoints assigned after Unicode 5.2.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U6XXMPvkRmkr5kqQuxPXm4\n\n* Apply the Bidi rule to whole names and address the third review\n\n- RFC 5893: once a label has an R, AL or AN character, every label of\n  the name must satisfy the Bidi Rule, in idn-hostname and hostname.\n  Re-enables the three suite cases for rules 1 and 4.\n- Virama list updated to Unicode 16.0 (Tulu-Tigalari, Gurung Khema).\n- Hyphen-position check no longer allocates.\n- Removes the unused block-based isGreek/isHebrew/isKatakana.\n- Tests: concurrent first use of the tables in a fresh class loader,\n  name-wide Bidi, Unicode 16 virama; U+180F is skipped on JDKs that\n  do not know it.\n- CHANGELOG split per change, with the known limits.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U6XXMPvkRmkr5kqQuxPXm4\n\n* Keep the virama table sorted\n\nThe Unicode 16 additions were appended out of order, so the binary search\nmissed U+11D45 and U+11D97. Adds a test that the table is sorted.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U6XXMPvkRmkr5kqQuxPXm4\n\n* Keep hostname RFC 1123 and address the fourth review\n\n- hostname applies the RFC 5893 Bidi Rule within each A-label only, so\n  3com.xn--mgbaam7a8h and 1a.xn--4dbc are valid again, as on 3.0.9.\n- Remove the public satisfiesBidiDomainRule. The cross-label rule stays\n  private to idn-hostname, which checks only the labels without\n  right-to-left characters, since isValidULabel already checked the rest.\n- HostnameFormat walks the labels once, with no split or second decode.\n- The hyphen check is one startsWith at the third code point.\n- Test the virama table against the JDK's combining classes, derived from\n  NFD reordering, on any JDK.\n- HostnameFormat tests for RTL A-labels; CHANGELOG states the stricter\n  hostname behaviour and which format applies the cross-label rule.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U6XXMPvkRmkr5kqQuxPXm4\n\n* Address the fifth review\n\n- idn-hostname checks each label once: checkULabel reports whether a\n  valid label is right-to-left, so isValid needs no second scan and no\n  label array. Earlier labels are re-checked only when a name turns out\n  to be a Bidi domain name.\n- The virama test scans every defined code point and requires an exact\n  match with the JDK's combining classes, with no JDK version cutoff.\n- Pin RFC 5893 rules 4 and 5 for hostname A-labels.\n- CHANGELOG: use an A-label as the hostname Bidi example.\n- Share the reflective VIRAMAS read and tidy the test imports.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U6XXMPvkRmkr5kqQuxPXm4\n\n* Address the sixth review\n\n- The virama test always fails on a code point the table wrongly lists.\n  A missing virama fails only when the JDK's Unicode data is not newer\n  than the table's 16.0; on a newer JDK it is logged instead.\n- checkULabel returns a LabelStatus enum (INVALID, NO_RTL, HAS_RTL),\n  declared with the other constants.\n- Keep the U-labels of A-labels, allocated only when a name has one, so\n  an earlier A-label is not decoded again when the first right-to-left\n  label appears.\n- Test the Punycode decoder's surrogate and out-of-range branches.\n- CHANGELOG: only Adlam small letters are accepted, not the capitals.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U6XXMPvkRmkr5kqQuxPXm4\n\n* Address the seventh review\n\n- Report missing post-16.0 viramas through JUnit (assumeTrue) instead of\n  an slf4j warning, and detect a JDK newer than Unicode 16.0 from the\n  scripts added in 17.0 (documented UnicodeScript.valueOf behaviour)\n  rather than enum ordering, with a test for the detection.\n- Keep one source of truth for U-labels in isValid: each label is\n  replaced by its U-label in place, so the Bidi back-check reads labels[m]\n  with no fallback and no extra array.\n\n* Address the eighth review\n\n- idn-hostname accepts at most one trailing label separator (split with\n  limit -1); a.. and xn--4dbc.. are now rejected, and the single root\n  separator still does not count toward 253 characters. CHANGELOG updated.\n- Make the Unicode-version detection testable: the script lookup is a\n  parameter, so both results are exercised on every JDK, and the\n  missing-virama decision is extracted and tested for both branches.\n- isACE uses regionMatches instead of allocating a substring, and the\n  LTR/RTL rule predicates are composed once instead of per label.\n- isValid Javadoc covers the cross-label Bidi rule and the trailing\n  separator.\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>\nCo-authored-by: Steve Hu <stevehu@gmail.com>",
+          "timestamp": "2026-11-07T10:22:46-05:00",
+          "tree_id": "e18a0ac9dba33e7142ffe5a96e0c7eeb3a6d30be",
+          "url": "https://github.com/networknt/json-schema-validator/commit/9cde0ad5a3b99b6b74d7623d029745270e9a6436"
+        },
+        "date": 1794067636933,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
+            "value": 8594.359383360605,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 2087.8833863334007,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 2104.2789410792248,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 2264.3401256353627,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 6087.334955442017,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 8569.566307653962,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1897.9671167664694,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1912.7713652028726,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 5122.753623406603,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 5621.598313309922,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 8287.290053677441,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"decimal\"} )",
+            "value": 11994.258406774543,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"bigInteger\"} )",
+            "value": 6659.266956235512,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"double\"} )",
+            "value": 40495.4175310033,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"nestedDecimal\"} )",
+            "value": 10044.388908810373,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"decimal\"} )",
+            "value": 11644.500764152806,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"bigInteger\"} )",
+            "value": 6453.455553635792,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"double\"} )",
+            "value": 41767.50821252904,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"nestedDecimal\"} )",
+            "value": 10365.195169121895,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"integer\"} )",
+            "value": 0.23593702139184977,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"plain\"} )",
+            "value": 0.4627093531248177,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"machine\"} )",
+            "value": 1.1634175656740784,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal19\"} )",
+            "value": 1.1898388528088328,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal40\"} )",
+            "value": 1.7473399882267102,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"integer\"} )",
+            "value": 5.043785624914832,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"plain\"} )",
+            "value": 7.234380353258765,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"machine\"} )",
+            "value": 10.723353290908875,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal19\"} )",
+            "value": 10.837393890361483,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
+            "value": 12.544466539521801,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"integer\"} )",
+            "value": 0.29159429931947584,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"plain\"} )",
+            "value": 0.6123884152542806,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"machine\"} )",
+            "value": 2.5039742216851923,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal19\"} )",
+            "value": 4.982195633357164,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal40\"} )",
+            "value": 6.927396435966629,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"integer\"} )",
+            "value": 4.956833180847343,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"plain\"} )",
+            "value": 8.750938237344961,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"machine\"} )",
+            "value": 14.829337300977974,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal19\"} )",
+            "value": 16.452236703716334,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
+            "value": 22.049196611170014,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"integer\"} )",
+            "value": 0.2849119878731225,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"plain\"} )",
+            "value": 0.6096722988654862,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"machine\"} )",
+            "value": 2.5327659485673393,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal19\"} )",
+            "value": 4.805142660988133,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal40\"} )",
+            "value": 7.511143638356006,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"integer\"} )",
+            "value": 4.6781871069923575,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"plain\"} )",
+            "value": 8.629301111178357,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"machine\"} )",
+            "value": 14.5416195490933,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal19\"} )",
+            "value": 17.6313424098713,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
+            "value": 21.59118106567843,
             "unit": "ms/op",
             "extra": "iterations: 3\nforks: 1\nthreads: 1"
           }
