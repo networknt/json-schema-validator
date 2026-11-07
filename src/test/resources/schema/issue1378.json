@@ -1,0 +1,88 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "discriminator repro", "version": "1" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Container": {
+        "oneOf": [
+          { "$ref": "#/components/schemas/KindA" },
+          { "$ref": "#/components/schemas/KindB" }
+        ]
+      },
+      "KindA": {
+        "type": "object",
+        "required": ["kind", "items"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["A"] },
+          "items": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "$ref": "#/components/schemas/XList" },
+                { "$ref": "#/components/schemas/YItem" }
+              ],
+              "discriminator": {
+                "propertyName": "type",
+                "mapping": {
+                  "x": "#/components/schemas/XList",
+                  "y": "#/components/schemas/YItem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "KindB": {
+        "type": "object",
+        "required": ["kind", "items"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["B"] },
+          "items": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "$ref": "#/components/schemas/XString" },
+                { "$ref": "#/components/schemas/YItem" }
+              ],
+              "discriminator": {
+                "propertyName": "type",
+                "mapping": {
+                  "x": "#/components/schemas/XString",
+                  "y": "#/components/schemas/YItem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "XList": {
+        "type": "object",
+        "required": ["type", "values"],
+        "properties": {
+          "type": { "type": "string" },
+          "values": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      },
+      "XString": {
+        "type": "object",
+        "required": ["type", "value"],
+        "properties": {
+          "type": { "type": "string" },
+          "value": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "YItem": {
+        "type": "object",
+        "required": ["type", "count"],
+        "properties": {
+          "type": { "type": "string" },
+          "count": { "type": "integer" }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
