@@ -17,7 +17,9 @@
 package com.networknt.schema.keyword;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
@@ -74,6 +76,8 @@ public class AnyOfValidator extends BaseKeywordValidator {
             int schemaIndex = 0;
             executionContext.setFailFast(false);
             for (Schema schema : this.schemas) {
+                Set<NodePath> before = this.schemaContext.isDiscriminatorKeywordEnabled()
+                        ? new HashSet<>(executionContext.getDiscriminatorMapping().keySet()) : null;
                 subSchemaErrors.clear(); // Reuse and clear for each run
                 executionContext.evaluationPathAddLast(schemaIndex);
                 try {
@@ -84,6 +88,9 @@ public class AnyOfValidator extends BaseKeywordValidator {
                     }
                 } finally {
                     executionContext.evaluationPathRemoveLast();
+                }
+                if (before != null) {
+                    executionContext.discardDiscriminatorsBelow(instanceLocation, before);
                 }
                 schemaIndex++;
 
@@ -194,11 +201,16 @@ public class AnyOfValidator extends BaseKeywordValidator {
         }
         int schemaIndex = 0;
         for (Schema schema : this.schemas) {
+            Set<NodePath> before = this.schemaContext.isDiscriminatorKeywordEnabled()
+                    ? new HashSet<>(executionContext.getDiscriminatorMapping().keySet()) : null;
             executionContext.evaluationPathAddLast(schemaIndex);
             try {
                 schema.walk(executionContext, node, rootNode, instanceLocation, false);
             } finally {
                 executionContext.evaluationPathRemoveLast();
+            }
+            if (before != null) {
+                executionContext.discardDiscriminatorsBelow(instanceLocation, before);
             }
             schemaIndex++;
         }
