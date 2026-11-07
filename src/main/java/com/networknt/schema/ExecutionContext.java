@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import com.networknt.schema.annotation.Annotations;
@@ -75,6 +76,20 @@ public class ExecutionContext {
     public Map<NodePath, DiscriminatorState> getDiscriminatorMapping() {
 		return discriminatorMapping;
 	}
+
+    /**
+     * Discards discriminator state newly recorded below an alternative branch.
+     * A branch of oneOf or anyOf is an alternative, so discriminator state below
+     * the validator's location must not reach a sibling branch. State at the
+     * validator's own location and state present before the branch are retained.
+     *
+     * @param location the validator's instance location
+     * @param before discriminator locations present before evaluating the branch
+     */
+    public void discardDiscriminatorsBelow(NodePath location, Set<NodePath> before) {
+        discriminatorMapping.keySet().removeIf(path -> !before.contains(path)
+                && path.getNameCount() > location.getNameCount() && path.startsWith(location));
+    }
 
 	/**
      * This is used during the execution to determine if the validator should fail fast.

@@ -7,6 +7,8 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ## [Unreleased]
 
+- Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
+
 ### Breaking changes
 - With Ethlo present, `date-time` now rejects space-separated values such as `2020-01-01 12:00:00Z` and leap-second strings without an offset such as `2016-12-31T23:59:60`. Ethlo previously accepted these forms. RFC 3339 requires `T`/`t` and an explicit `Z`/`z` or signed `HH:MM` offset; callers relying on those spellings must supply the required separator/offset. The fallback already rejected both forms. (#1316)
 
