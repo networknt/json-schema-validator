@@ -8,6 +8,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+- `uri-template` rejects a space or a backslash in a literal, such as `a b` or `a\b`, as RFC 6570 section 2.1 excludes both. The vendored `uri-template.json` suite files are updated to the current JSON-Schema-Test-Suite.
 - `hostname` rejects names longer than 253 characters.
 - `hostname` checks a label that starts with `xn--`, in any case, as an A-label. It must be at most 63 characters of Punycode that encodes back to itself, and its U-label must pass the IDNA2008 rules listed below. `xn--X`, `xn--hello-txk` and `xn--1-0hc` (U-label `1א`, which breaks the RFC 5893 Bidi Rule) are now rejected; before, any LDH label passed. The Bidi Rule applies within each A-label only: the other labels stay RFC 1123 LDH labels, so `3com.xn--mgbaam7a8h` remains valid.
 - `idn-hostname` decodes A-labels with an RFC 3492 Punycode decoder instead of `java.net.IDN` (IDNA2003). A-labels with characters IDNA2008 allows in context, such as U+00DF, U+03C2, U+200C and U+200D, are accepted when the RFC 5892 rules allow them. A-labels are case-insensitive.
