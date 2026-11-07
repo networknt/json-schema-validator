@@ -6,6 +6,8 @@ This format is based on [Keep a Changelog](http://keepachangelog.com/).
 This project does not adhere to [Semantic Versioning](https://semver.org/) and minor version changes can have incompatible API changes. These incompatible API changes will largely affect those who have custom validator or walker implementations. Those who just use the library to validate using the standard JSON Schema Draft specifications may not need changes.
 ## [Unreleased]
 
+- Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
+
 ## 3.0.9- 2026-11-03
 
 ### Breaking changes
