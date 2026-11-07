@@ -89,8 +89,7 @@ class RFC5892Test {
         String name253 = label + "." + label + "." + label + "." + repeat("a", 61);
         assertTrue(RFC5892.isValid(name253));
         assertFalse(RFC5892.isValid(name253 + "a"));
-        assertTrue(RFC5892.isValid(name253 + ".")); // the root separator does not count
-        assertFalse(RFC5892.isValid(name253 + ".."));
+        assertFalse(RFC5892.isValid(name253 + ".")); // a trailing separator is invalid, so no length exemption
     }
 
     @Test
@@ -345,10 +344,14 @@ class RFC5892Test {
     }
 
     @Test
-    void acceptsAtMostOneTrailingLabelSeparator() {
-        assertTrue(RFC5892.isValid("a."));
-        assertTrue(RFC5892.isValid("a.b\u3002"));
-        assertTrue(RFC5892.isValid("xn--4dbc."));
+    void rejectsTrailingLabelSeparators() {
+        // Each of the four label separators, after an ASCII label, a U-label and an A-label.
+        assertFalse(RFC5892.isValid("a."));
+        assertFalse(RFC5892.isValid("a.b\u3002"));
+        assertFalse(RFC5892.isValid("b\u00FCcher\uff0e"));
+        assertFalse(RFC5892.isValid("xn--4dbc\uff61"));
+        assertTrue(RFC5892.isValid("a.b"));
+        assertTrue(RFC5892.isValid("xn--4dbc"));
         assertFalse(RFC5892.isValid("a.."));
         assertFalse(RFC5892.isValid("a.\uff0e"));
         assertFalse(RFC5892.isValid("xn--4dbc.."));
