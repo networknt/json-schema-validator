@@ -555,29 +555,21 @@
             },
             {
                 "description": "trailing dot",
-                "disabled": true,
-                "reason": "A trailing label separator is still accepted",
                 "data": "example.",
                 "valid": false
             },
             {
                 "description": "trailing ideographic full stop",
-                "disabled": true,
-                "reason": "A trailing label separator is still accepted",
                 "data": "example\u3002",
                 "valid": false
             },
             {
                 "description": "trailing fullwidth full stop",
-                "disabled": true,
-                "reason": "A trailing label separator is still accepted",
                 "data": "example\uff0e",
                 "valid": false
             },
             {
                 "description": "trailing halfwidth ideographic full stop",
-                "disabled": true,
-                "reason": "A trailing label separator is still accepted",
                 "data": "example\uff61",
                 "valid": false
             },
