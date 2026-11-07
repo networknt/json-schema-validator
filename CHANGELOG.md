@@ -26,8 +26,6 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
   - Verdicts for code points newer than the JDK's Unicode version depend on the JDK. Java 8 uses Unicode 6.2 and rejects valid labels containing newer characters, including Adlam: `xn--9d6hc.example` is now rejected by `hostname` on Java 8, although the old LDH regex accepted it. Java 11 and later recognize Adlam. A Unicode 14 letter is rejected on Java 17 (Unicode 13) and accepted on Java 21.
   - The virama list stops at Unicode 16.0.
   - `idn-hostname` does not apply UTS 46 mapping, and still accepts a single trailing label separator (`example.`).
-- Preserve the public legacy `UnicodeDatabase.isGreek`, `isHebrew` and `isKatakana` helpers on 2.x for compatibility, marked deprecated in favor of `Character.UnicodeScript`; hostname validation now uses Unicode scripts.
-- Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping or trailing-separator rejection are disabled with a reason.
 - With Ethlo present, `date-time` now rejects space-separated values such as `2020-01-01 12:00:00Z` and leap-second strings without an offset such as `2016-12-31T23:59:60`. Ethlo previously accepted these forms. RFC 3339 requires `T`/`t` and an explicit `Z`/`z` or signed `HH:MM` offset; callers relying on those spellings must supply the required separator/offset. The fallback already rejected both forms. (#1316)
 
 ### Fixed
@@ -40,6 +38,8 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+- Preserve the public legacy `UnicodeDatabase.isGreek`, `isHebrew` and `isKatakana` helpers on 2.x for compatibility, marked deprecated in favor of `Character.UnicodeScript`; hostname validation now uses Unicode scripts.
+- Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping or trailing-separator rejection are disabled with a reason.
 - Avoid duplicate numeric text-buffer reads when classifying JSON/YAML decimals; pin fast-path boundaries and randomized classification with regression tests. [#1368](https://github.com/networknt/json-schema-validator/issues/1368)
 - Reduce decimal-preserving tree parser overhead by caching per token and avoiding text and decimal allocations for lossless floats. [#1362](https://github.com/networknt/json-schema-validator/issues/1362)
 - `JsonMapperFactory.getInstance()` and `YamlMapperFactory.getInstance()` now return `DecimalNode` values for lossy finite floating-point spellings when reading trees, subject to explicit mapper settings and custom node factories. (#1357)
