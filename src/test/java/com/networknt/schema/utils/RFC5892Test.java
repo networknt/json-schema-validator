@@ -35,7 +35,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 /**
  * Tests the {@code idn-hostname} rules in {@link RFC5892#isValid(String)} and the {@code hostname}
@@ -43,11 +42,9 @@ import org.slf4j.LoggerFactory;
  */
 class RFC5892Test {
 
-    // The scripts added in Unicode 16.0, the version of VIRAMAS. UnicodeScript lists new scripts before UNKNOWN, so a
-    // script after all of these means the JDK's Unicode data is newer than 16.0.
-    private static final String[] UNICODE_16_SCRIPTS = {
-        "GARAY", "GURUNG_KHEMA", "KIRAT_RAI", "OL_ONAL", "SUNUWAR", "TODHRI", "TULU_TIGALARI"
-    };
+    // Scripts added in Unicode 17.0, the version after VIRAMAS (16.0). The JDK has no public API for its Unicode
+    // version, but UnicodeScript.valueOf throws for an unknown name, so any of these resolving means newer than 16.0.
+    private static final String[] UNICODE_17_SCRIPTS = { "BERIA_ERFE", "SIDETIC", "TAI_YO", "TOLONG_SIKI" };
 
     private static String repeat(String s, int count) {
         StringBuilder sb = new StringBuilder();
@@ -256,25 +253,36 @@ class RFC5892Test {
         Set<Integer> missing = new TreeSet<>(derived);
         missing.removeAll(table);
         if (jdkUnicodeIsNewerThan16()) {
-            // The table is Unicode 16.0; a newer JDK may know newer viramas. Report them without failing unrelated builds.
-            if (!missing.isEmpty()) {
-                LoggerFactory.getLogger(RFC5892Test.class).warn("Viramas newer than Unicode 16.0 missing from VIRAMAS: {}", hex(missing));
-            }
+            // The table is Unicode 16.0; a newer JDK may know newer viramas. Abort with the list, so it shows in the
+            // test report as a skipped test, without failing unrelated builds.
+            assumeTrue(missing.isEmpty(), () -> "Viramas newer than Unicode 16.0 missing from VIRAMAS: " + hex(missing));
         } else {
             assertTrue(missing.isEmpty(), "VIRAMAS is missing Canonical_Combining_Class 9 code points: " + hex(missing));
         }
     }
 
+    @Test
+    void detectsUnicodeNewerThan16FromTheScriptsAddedIn17() {
+        // The blocks of the Unicode 17.0 scripts are unassigned in 16.0, so the JDK defines code points there exactly
+        // when its Unicode data is 17.0 or newer.
+        int[] blockStarts = { 0x16EA0, 0x10940, 0x1E6C0, 0x11DB0 }; // Beria Erfe, Sidetic, Tai Yo, Tolong Siki
+        boolean defined = false;
+        for (int start : blockStarts) {
+            for (int c = start; c < start + 16; c++) defined |= Character.isDefined(c);
+        }
+        assertEquals(defined, jdkUnicodeIsNewerThan16());
+    }
+
     private static boolean jdkUnicodeIsNewerThan16() {
-        int last = -1;
-        for (String name : UNICODE_16_SCRIPTS) {
+        for (String name : UNICODE_17_SCRIPTS) {
             try {
-                last = Math.max(last, Character.UnicodeScript.valueOf(name).ordinal());
+                Character.UnicodeScript.valueOf(name);
+                return true;
             } catch (IllegalArgumentException e) {
-                return false; // Unicode data older than 16.0
+                // not in this JDK's Unicode data
             }
         }
-        return Character.UnicodeScript.UNKNOWN.ordinal() > last + 1;
+        return false;
     }
 
     private static String hex(Set<Integer> codePoints) {

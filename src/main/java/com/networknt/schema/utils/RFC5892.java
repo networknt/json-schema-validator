@@ -180,7 +180,6 @@ public class RFC5892 {
         }
         int asciiLength = labels.length - 1; // the separators
         boolean bidiDomainName = false;
-        String[] decoded = null; // the U-labels of the A-labels, allocated only when the name has one
         for (int n = 0; n < labels.length; n++) {
             String label = labels[n];
             // String.split() drops trailing empty strings, so a trailing label
@@ -195,8 +194,6 @@ public class RFC5892 {
                 if (MAX_LABEL_LENGTH < aceLength) return false; // checked before the quadratic decode
                 unicode = toUnicode(label);
                 if (null == unicode) return false;
-                if (null == decoded) decoded = new String[labels.length];
-                decoded[n] = unicode;
             } else {
                 // An A-label is at least as long as its U-label has code points.
                 if (MAX_LABEL_LENGTH < label.codePointCount(0, label.length())) return false;
@@ -208,6 +205,8 @@ public class RFC5892 {
             asciiLength += aceLength;
             if (MAX_NAME_LENGTH < asciiLength) return false;
 
+            labels[n] = unicode; // from here on, labels[0..n] hold U-labels; the Bidi check below reads them back
+
             LabelStatus status = checkULabel(unicode);
             if (LabelStatus.INVALID == status) return false;
             // RFC 5893 2.  Once a label has an R, AL or AN character, the name is a Bidi domain name and every
@@ -217,8 +216,7 @@ public class RFC5892 {
                     bidiDomainName = true;
                     // The labels before this one have no right-to-left characters and were not checked yet.
                     for (int m = 0; m < n; m++) {
-                        String earlier = null != decoded && null != decoded[m] ? decoded[m] : labels[m];
-                        if (!satisfiesBidiRule(earlier)) return false;
+                        if (!satisfiesBidiRule(labels[m])) return false;
                     }
                 }
             } else if (bidiDomainName && !satisfiesBidiRule(unicode)) {
