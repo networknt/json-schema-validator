@@ -17,6 +17,7 @@ package com.networknt.schema.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -33,8 +34,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
+import org.opentest4j.TestAbortedException;
 
 /**
  * Tests the {@code idn-hostname} rules in {@link RFC5892#isValid(String)} and the {@code hostname}
@@ -85,6 +89,8 @@ class RFC5892Test {
         String name253 = label + "." + label + "." + label + "." + repeat("a", 61);
         assertTrue(RFC5892.isValid(name253));
         assertFalse(RFC5892.isValid(name253 + "a"));
+        assertTrue(RFC5892.isValid(name253 + ".")); // the root separator does not count
+        assertFalse(RFC5892.isValid(name253 + ".."));
     }
 
     @Test
@@ -252,9 +258,14 @@ class RFC5892Test {
         assertTrue(extra.isEmpty(), "VIRAMAS lists code points that are not Canonical_Combining_Class 9: " + hex(extra));
         Set<Integer> missing = new TreeSet<>(derived);
         missing.removeAll(table);
-        if (jdkUnicodeIsNewerThan16()) {
-            // The table is Unicode 16.0; a newer JDK may know newer viramas. Abort with the list, so it shows in the
-            // test report as a skipped test, without failing unrelated builds.
+        checkMissingViramas(missing, unicodeIsNewerThan16(RFC5892Test::jdkHasScript));
+    }
+
+    private static void checkMissingViramas(Set<Integer> missing, boolean jdkNewerThan16) {
+        if (jdkNewerThan16) {
+            // The table is Unicode 16.0; a newer JDK may know newer viramas (17.0 adds none, so in practice from
+            // 18.0). Abort with the list, so it shows in the test report as a skipped test, without failing
+            // unrelated builds.
             assumeTrue(missing.isEmpty(), () -> "Viramas newer than Unicode 16.0 missing from VIRAMAS: " + hex(missing));
         } else {
             assertTrue(missing.isEmpty(), "VIRAMAS is missing Canonical_Combining_Class 9 code points: " + hex(missing));
@@ -262,27 +273,52 @@ class RFC5892Test {
     }
 
     @Test
-    void detectsUnicodeNewerThan16FromTheScriptsAddedIn17() {
+    void missingViramasAreSkippedOnNewerJdksAndFailOtherwise() {
+        Set<Integer> none = new TreeSet<>();
+        Set<Integer> one = new TreeSet<>(List.of(0x1E6F5));
+        checkMissingViramas(none, true);
+        checkMissingViramas(none, false);
+        TestAbortedException skipped = assertThrows(TestAbortedException.class, () -> checkMissingViramas(one, true));
+        assertTrue(skipped.getMessage().contains("U+1E6F5"));
+        assertThrows(AssertionFailedError.class, () -> checkMissingViramas(one, false));
+    }
+
+    @Test
+    void detectsUnicodeNewerThan16WhenAnyUnicode17ScriptIsKnown() {
+        assertTrue(unicodeIsNewerThan16(name -> true));
+        assertTrue(unicodeIsNewerThan16("TOLONG_SIKI"::equals));
+        assertFalse(unicodeIsNewerThan16(name -> false));
+        assertFalse(unicodeIsNewerThan16("TULU_TIGALARI"::equals)); // a Unicode 16.0 script
+    }
+
+    @Test
+    void jdkScriptLookupMatchesTheCodePointsTheJdkDefines() {
         // The blocks of the Unicode 17.0 scripts are unassigned in 16.0, so the JDK defines code points there exactly
-        // when its Unicode data is 17.0 or newer.
+        // when it knows those scripts. On JDKs before 26 both sides are false; the test above covers the true result.
         int[] blockStarts = { 0x16EA0, 0x10940, 0x1E6C0, 0x11DB0 }; // Beria Erfe, Sidetic, Tai Yo, Tolong Siki
         boolean defined = false;
         for (int start : blockStarts) {
             for (int c = start; c < start + 16; c++) defined |= Character.isDefined(c);
         }
-        assertEquals(defined, jdkUnicodeIsNewerThan16());
+        assertEquals(defined, unicodeIsNewerThan16(RFC5892Test::jdkHasScript));
+        assertTrue(jdkHasScript("LATIN"));
+        assertFalse(jdkHasScript("NOT_A_SCRIPT"));
     }
 
-    private static boolean jdkUnicodeIsNewerThan16() {
+    private static boolean unicodeIsNewerThan16(Predicate<String> hasScript) {
         for (String name : UNICODE_17_SCRIPTS) {
-            try {
-                Character.UnicodeScript.valueOf(name);
-                return true;
-            } catch (IllegalArgumentException e) {
-                // not in this JDK's Unicode data
-            }
+            if (hasScript.test(name)) return true;
         }
         return false;
+    }
+
+    private static boolean jdkHasScript(String name) {
+        try {
+            Character.UnicodeScript.valueOf(name);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private static String hex(Set<Integer> codePoints) {
@@ -306,6 +342,20 @@ class RFC5892Test {
     void zeroWidthJoinersMayFollowUnicode16Viramas() {
         assumeTrue(Character.isDefined(0x113CE)); // TULU-TIGALARI SIGN VIRAMA, Unicode 16
         assertTrue(RFC5892.isValid(codePoints(0x0915, 0x113CE, 0x200D, 0x0915)));
+    }
+
+    @Test
+    void acceptsAtMostOneTrailingLabelSeparator() {
+        assertTrue(RFC5892.isValid("a."));
+        assertTrue(RFC5892.isValid("a.b\u3002"));
+        assertTrue(RFC5892.isValid("xn--4dbc."));
+        assertFalse(RFC5892.isValid("a.."));
+        assertFalse(RFC5892.isValid("a.\uff0e"));
+        assertFalse(RFC5892.isValid("xn--4dbc.."));
+        assertFalse(RFC5892.isValid("."));
+        assertFalse(RFC5892.isValid("..."));
+        assertFalse(RFC5892.isValid(".a"));
+        assertFalse(RFC5892.isValid("a..b"));
     }
 
     @Test

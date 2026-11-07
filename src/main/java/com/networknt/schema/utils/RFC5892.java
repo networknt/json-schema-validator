@@ -82,6 +82,9 @@ public class RFC5892 {
             .and(RULE_MIDDLE_DOT)
             .and(RULE_ZERO_WIDTH_JOINER)
             .and(RULE_ZERO_WIDTH_NON_JOINER);
+    // Composed once, so checking a label allocates no predicate.
+    private static final BiPredicate<String, Integer> IDNA_RULES_LTR = IDNA_RULES.and(LTR);
+    private static final BiPredicate<String, Integer> IDNA_RULES_RTL = IDNA_RULES.and(RTL);
 
     private static boolean isContextJ(int codepoint) {
         if (!loaded) loadDerivedProperties();
@@ -166,25 +169,26 @@ public class RFC5892 {
      * Validates an internationalized host name (the {@code idn-hostname} format).
      *
      * @param value the host name
-     * @return whether every label is a valid U-label or A-label and the name is at most 253
-     * characters in A-label form
+     * @return whether every label is a valid U-label or A-label, the name is at most 253 characters in
+     * A-label form, and, if any label has an R, AL or AN character, every label satisfies the RFC 5893 Bidi
+     * Rule (so {@code 1a.xn--4dbc}, whose second label is Hebrew, is invalid); a single trailing label
+     * separator is accepted and not counted
      */
     public static boolean isValid(String value) {
         if ("".equals(value)) {
             return false; // empty string should fail
         }
         // RFC 5892 calls each segment in a host name a label. They are separated by all the recognized label separators.
-        String[] labels = value.split(LABEL_SEPARATOR_REGEX);
-        if (labels.length == 0) {
-            return false; // a value made up only of label separators (e.g. "." or "...") has no labels
-        }
-        int asciiLength = labels.length - 1; // the separators
+        // A limit of -1 keeps trailing empty strings. A single trailing separator (the root, "example.")
+        // is allowed and its empty label is dropped; any other empty label (".example", "a..b", "a..",
+        // "." or "...") is invalid.
+        String[] labels = value.split(LABEL_SEPARATOR_REGEX, -1);
+        int labelCount = labels.length;
+        if (1 < labelCount && labels[labelCount - 1].isEmpty()) labelCount--;
+        int asciiLength = labelCount - 1; // the separators between labels
         boolean bidiDomainName = false;
-        for (int n = 0; n < labels.length; n++) {
+        for (int n = 0; n < labelCount; n++) {
             String label = labels[n];
-            // String.split() drops trailing empty strings, so a trailing label
-            // separator never produces an empty label here. A leading or interior
-            // empty label (e.g. ".example" or "a..b") is invalid.
             if (label.isEmpty()) return false;
 
             String unicode;
@@ -264,11 +268,11 @@ public class RFC5892 {
         // RFC 5893 2.  The Bidi Rule
         switch (getDirectionality(unicode.codePointAt(0))) {
             case DIRECTIONALITY_LEFT_TO_RIGHT:
-                rules = IDNA_RULES.and(LTR);
+                rules = IDNA_RULES_LTR;
                 break;
             case DIRECTIONALITY_RIGHT_TO_LEFT:
             case DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC:
-                rules = IDNA_RULES.and(RTL);
+                rules = IDNA_RULES_RTL;
                 break;
             case DIRECTIONALITY_EUROPEAN_NUMBER:
             case DIRECTIONALITY_OTHER_NEUTRALS:
@@ -356,8 +360,7 @@ public class RFC5892 {
     }
 
     private static boolean isACE(String value) {
-        return ACE_PREFIX_LENGTH <= value.length() &&
-            ACE_PREFIX.equalsIgnoreCase(value.substring(0, ACE_PREFIX_LENGTH));
+        return value.regionMatches(true, 0, ACE_PREFIX, 0, ACE_PREFIX_LENGTH);
     }
 
     private static boolean isCombiningMark(int codepoint) {
