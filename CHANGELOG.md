@@ -6,6 +6,27 @@ This format is based on [Keep a Changelog](http://keepachangelog.com/).
 This project does not adhere to [Semantic Versioning](https://semver.org/) and minor version changes can have incompatible API changes. These incompatible API changes will largely affect those who have custom validator or walker implementations. Those who just use the library to validate using the standard JSON Schema Draft specifications may not need changes.
 ## [Unreleased]
 
+### Changed
+
+- `hostname` rejects names longer than 253 characters.
+- `hostname` checks a label that starts with `xn--`, in any case, as an A-label. It must be at most 63 characters of Punycode that encodes back to itself, and its U-label must pass the IDNA2008 rules listed below. `xn--X`, `xn--hello-txk` and `xn--1-0hc` (U-label `1א`, which breaks the RFC 5893 Bidi Rule) are now rejected; before, any LDH label passed. The Bidi Rule applies within each A-label only: the other labels stay RFC 1123 LDH labels, so `3com.xn--mgbaam7a8h` remains valid.
+- `idn-hostname` decodes A-labels with an RFC 3492 Punycode decoder instead of `java.net.IDN` (IDNA2003). A-labels with characters IDNA2008 allows in context, such as U+00DF, U+03C2, U+200C and U+200D, are accepted when the RFC 5892 rules allow them. A-labels are case-insensitive.
+- `idn-hostname` measures the 63-character label limit in A-label form for U-labels too, and limits names to 253 characters in A-label form.
+- `idn-hostname` rejects more than one trailing label separator, such as `a..` and `xn--4dbc..`; before, any number was accepted. A single trailing separator is still accepted and does not count toward the 253 characters.
+- IDNA2008 rules, for both formats:
+  - Hyphen positions are counted in code points, and each supplementary code point is tested once rather than as two surrogates.
+  - ZWJ and ZWNJ are accepted after any virama (Canonical_Combining_Class 9, as of Unicode 16.0), not only U+094D. The ZWNJ joining-type check steps over supplementary transparent marks.
+  - The KATAKANA MIDDLE DOT, GREEK LOWER NUMERAL SIGN and Hebrew GERESH/GERSHAYIM rules use the Unicode script rather than code blocks. KATAKANA MIDDLE DOT accepts a Hiragana, Katakana or Han character anywhere in the label (RFC 5892 A.7).
+  - RFC 5893 Bidi Rule: a label with an R, AL or AN character must satisfy the rule, so `0ا` is an invalid `idn-hostname` and `xn--1-0hc` (`1א`) an invalid `hostname` label. In `idn-hostname`, every other label of such a name must satisfy it too, so `1a.אב` and `1a.xn--4dbc` are invalid there.
+  - Following RFC 6452, U+0CF1 and U+0CF2 are valid and U+19DA is not, overriding the bundled table.
+  - The Unicode tables load safely across threads.
+- Code points added after Unicode 5.2: the bundled RFC 5892 Appendix B table predates them, so they are classified with the running JDK's Unicode data, approximating the RFC 5892 derivation. Letters, marks and digits that are stable under NFKC and case folding are accepted, such as Adlam small letters and new Cherokee capitals. Emoji, symbols, upper case, format controls, letters that fold to another letter (U+1C80) and the default-ignorable U+180F are rejected, as are Cherokee small letters.
+- Known limits:
+  - Verdicts for code points newer than the JDK's Unicode version depend on the JDK. For example, a Unicode 14 letter is rejected on Java 17 (Unicode 13) and accepted on Java 21.
+  - The virama list stops at Unicode 16.0.
+  - `idn-hostname` does not apply UTS 46 mapping, and still accepts a single trailing label separator (`example.`).
+- Removed the unused `UnicodeDatabase.isGreek`, `isHebrew` and `isKatakana`, which tested code blocks rather than scripts.
+- Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping or trailing-separator rejection are disabled with a reason.
 ### Fixed
 
 - Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0 and 3.1. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
