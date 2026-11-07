@@ -27,6 +27,9 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
   - `idn-hostname` does not apply UTS 46 mapping, and still accepts a single trailing label separator (`example.`).
 - Removed the unused `UnicodeDatabase.isGreek`, `isHebrew` and `isKatakana`, which tested code blocks rather than scripts.
 - Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping or trailing-separator rejection are disabled with a reason.
+### Fixed
+
+- Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0 and 3.1. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
 
 ## 3.0.9- 2026-11-03
 

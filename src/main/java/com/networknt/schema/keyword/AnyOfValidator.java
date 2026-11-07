@@ -22,6 +22,7 @@ import java.util.List;
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.ExecutionContext.DiscriminatorScope;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaException;
@@ -76,11 +77,12 @@ public class AnyOfValidator extends BaseKeywordValidator {
             for (Schema schema : this.schemas) {
                 subSchemaErrors.clear(); // Reuse and clear for each run
                 executionContext.evaluationPathAddLast(schemaIndex);
-                try {
-                    if (!walk) {
-                        schema.validate(executionContext, node, rootNode, instanceLocation);
-                    } else {
+                try (DiscriminatorScope scope = executionContext.openDiscriminatorScope(instanceLocation,
+                        this.schemaContext.isDiscriminatorKeywordEnabled())) {
+                    if (walk) {
                         schema.walk(executionContext, node, rootNode, instanceLocation, true);
+                    } else {
+                        schema.validate(executionContext, node, rootNode, instanceLocation);
                     }
                 } finally {
                     executionContext.evaluationPathRemoveLast();

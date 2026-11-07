@@ -158,8 +158,8 @@ public class ExecutionContext {
 //    private InstanceResults instanceResults = null;
     private List<Error> errors = new ArrayList<>();
 
-    private final Map<NodePath, DiscriminatorState> discriminatorMapping = new HashMap<>();
-    
+    private final DiscriminatorMapping discriminatorMapping;
+
     NodePath evaluationPath;
     final ArrayDeque<Schema> evaluationSchema = new ArrayDeque<>();
     final ArrayDeque<Object> evaluationSchemaPath = new ArrayDeque<>();
@@ -192,6 +192,52 @@ public class ExecutionContext {
     public Map<NodePath, DiscriminatorState> getDiscriminatorMapping() {
 		return discriminatorMapping;
 	}
+
+    /**
+     * Opens an alternative branch's discriminator scope. Newly inserted descendant
+     * states are discarded on close; existing states and states at this location
+     * are retained. Use with try-with-resources so exceptional exits also unwind.
+     *
+     * @param location the alternative's instance location
+     * @param enabled whether discriminator isolation is enabled by the validator
+     * @return the scope to close after evaluating the branch, or a shared no-op scope
+     */
+    public DiscriminatorScope openDiscriminatorScope(NodePath location, boolean enabled) {
+        return enabled ? new DiscriminatorScope(discriminatorMapping, location) : DiscriminatorScope.NONE;
+    }
+
+    /**
+     * Lifetime of discriminator state introduced by an alternative branch.
+     */
+    public static final class DiscriminatorScope implements AutoCloseable {
+        private static final DiscriminatorScope NONE = new DiscriminatorScope();
+
+        private final DiscriminatorMapping mapping;
+        private final NodePath location;
+        private final int start;
+        private boolean closed;
+
+        private DiscriminatorScope() {
+            this.mapping = null;
+            this.location = null;
+            this.start = 0;
+            this.closed = true;
+        }
+
+        private DiscriminatorScope(DiscriminatorMapping mapping, NodePath location) {
+            this.mapping = mapping;
+            this.location = location;
+            this.start = mapping.begin();
+        }
+
+        @Override
+        public void close() {
+            if (!closed) {
+                closed = true;
+                mapping.end(location, start);
+            }
+        }
+    }
 
 	/**
      * This is used during the execution to determine if the validator should fail fast.
@@ -234,6 +280,7 @@ public class ExecutionContext {
     public ExecutionContext(ExecutionConfig executionConfig, CollectorContext collectorContext) {
         this.collectorContext = collectorContext;
         this.executionConfig = executionConfig;
+        this.discriminatorMapping = new DiscriminatorMapping(new HashMap<>());
     }
 
     /**
