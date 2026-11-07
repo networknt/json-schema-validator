@@ -17,13 +17,12 @@
 package com.networknt.schema.keyword;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.ExecutionContext.DiscriminatorScope;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaException;
@@ -76,21 +75,17 @@ public class AnyOfValidator extends BaseKeywordValidator {
             int schemaIndex = 0;
             executionContext.setFailFast(false);
             for (Schema schema : this.schemas) {
-                Set<NodePath> before = this.schemaContext.isDiscriminatorKeywordEnabled()
-                        ? new HashSet<>(executionContext.getDiscriminatorMapping().keySet()) : null;
                 subSchemaErrors.clear(); // Reuse and clear for each run
                 executionContext.evaluationPathAddLast(schemaIndex);
-                try {
-                    if (!walk) {
-                        schema.validate(executionContext, node, rootNode, instanceLocation);
-                    } else {
+                try (DiscriminatorScope scope = executionContext.openDiscriminatorScope(instanceLocation,
+                        this.schemaContext.isDiscriminatorKeywordEnabled())) {
+                    if (walk) {
                         schema.walk(executionContext, node, rootNode, instanceLocation, true);
+                    } else {
+                        schema.validate(executionContext, node, rootNode, instanceLocation);
                     }
                 } finally {
                     executionContext.evaluationPathRemoveLast();
-                }
-                if (before != null) {
-                    executionContext.discardDiscriminatorsBelow(instanceLocation, before);
                 }
                 schemaIndex++;
 
@@ -202,16 +197,11 @@ public class AnyOfValidator extends BaseKeywordValidator {
         }
         int schemaIndex = 0;
         for (Schema schema : this.schemas) {
-            Set<NodePath> before = this.schemaContext.isDiscriminatorKeywordEnabled()
-                    ? new HashSet<>(executionContext.getDiscriminatorMapping().keySet()) : null;
             executionContext.evaluationPathAddLast(schemaIndex);
             try {
                 schema.walk(executionContext, node, rootNode, instanceLocation, false);
             } finally {
                 executionContext.evaluationPathRemoveLast();
-            }
-            if (before != null) {
-                executionContext.discardDiscriminatorsBelow(instanceLocation, before);
             }
             schemaIndex++;
         }
