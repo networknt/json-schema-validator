@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.util.Collections;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -38,7 +38,7 @@ class Issue1378Test {
         doc = doc.replaceFirst("oneOf", keyword);
         String document = doc;
         SchemaRegistry registry = SchemaRegistry.withDialect(Dialects.getOpenApi30(),
-                builder -> builder.schemas(Map.of("https://example.com/openapi.json", document)));
+                builder -> builder.schemas(Collections.singletonMap("https://example.com/openapi.json", document)));
         Schema schema = registry.getSchema(
                 SchemaLocation.of("https://example.com/openapi.json#/components/schemas/Container"));
         assertEquals(0, schema.validate("{\"kind\":\"B\",\"items\":[{\"type\":\"x\",\"value\":\"hello\"}]}", InputFormat.JSON).size());
