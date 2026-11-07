@@ -1,9 +1,9 @@
 package com.networknt.schema.utils;
 
-import java.net.IDN;
 import java.text.Normalizer;
-import java.text.ParseException;
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Locale;
 import java.util.function.BiPredicate;
 
 import static com.networknt.schema.utils.UnicodeDatabase.*;
@@ -21,13 +21,34 @@ public class RFC5892 {
 
     private static final String ACE_PREFIX = "xn--";
     private static final int ACE_PREFIX_LENGTH = ACE_PREFIX.length();
+    private static final int MAX_LABEL_LENGTH = 63;
+    private static final int MAX_NAME_LENGTH = 253;
+
+    /** The result of {@link #checkULabel(String)}. */
+    private enum LabelStatus {
+        INVALID,
+        /** Valid, without R, AL or AN characters. */
+        NO_RTL,
+        /** Valid, with an R, AL or AN character, and it satisfies the Bidi Rule. */
+        HAS_RTL
+    }
 
     private static final int GREEK_LOWER_NUMERAL_SIGN = 0x0375;
     private static final int HEBREW_GERESH = 0x05F3;
     private static final int HEBREW_GERSHAYIM = 0x05F4;
     private static final int KATAKANA_MIDDLE_DOT = 0x30FB;
     private static final int MIDDLE_DOT = 0x00B7;
-    private static final int VIRAMA = 0x94D;
+    /**
+     * Code points with Canonical_Combining_Class Virama (9), from Unicode 16.0.0. Sorted, for binary search.
+     */
+    private static final int[] VIRAMAS = {
+        0x094D, 0x09CD, 0x0A4D, 0x0ACD, 0x0B4D, 0x0BCD, 0x0C4D, 0x0CCD, 0x0D3B, 0x0D3C, 0x0D4D, 0x0DCA,
+        0x0E3A, 0x0EBA, 0x0F84, 0x1039, 0x103A, 0x1714, 0x1715, 0x1734, 0x17D2, 0x1A60, 0x1B44, 0x1BAA,
+        0x1BAB, 0x1BF2, 0x1BF3, 0x2D7F, 0xA806, 0xA82C, 0xA8C4, 0xA953, 0xA9C0, 0xAAF6, 0xABED, 0x10A3F,
+        0x11046, 0x11070, 0x1107F, 0x110B9, 0x11133, 0x11134, 0x111C0, 0x11235, 0x112EA, 0x1134D, 0x113CE,
+        0x113CF, 0x113D0, 0x11442, 0x114C2, 0x115BF, 0x1163F, 0x116B6, 0x1172B, 0x11839, 0x1193D, 0x1193E,
+        0x119E0, 0x11A34, 0x11A47, 0x11A99, 0x11C3F, 0x11D44, 0x11D45, 0x11D97, 0x11F41, 0x11F42, 0x1612F
+    };
     private static final int ZERO_WIDTH_JOINER = 0x200D;
     private static final int ZERO_WIDTH_NON_JOINER = 0x200C;
 
@@ -35,6 +56,7 @@ public class RFC5892 {
     private static final BitSet CONTEXTO = new BitSet(0x110000);
     private static final BitSet DISALLOWED = new BitSet(0x110000);
     private static final BitSet UNASSIGNED = new BitSet(0x110000);
+    private static volatile boolean loaded;
 
     private static final BiPredicate<String, Integer> RULE_ARABIC_INDIC_DIGITS_RULE = RFC5892::testArabicIndicDigit;
     private static final BiPredicate<String, Integer> RULE_EXTENDED_ARABIC_INDIC_DIGITS_RULE = RFC5892::testExtendedArabicIndicDigit;
@@ -52,40 +74,88 @@ public class RFC5892 {
 
     private static final BiPredicate<String, Integer> IDNA_RULES =
         ALLOWED_CHARACTER
-        .and(RULE_ARABIC_INDIC_DIGITS_RULE)
-        .and(RULE_EXTENDED_ARABIC_INDIC_DIGITS_RULE)
-        .and(RULE_GREEK_LOWER_NUMERAL_SIGN)
-        .and(RULE_HEBREW_GERESH_GERSHAYIM)
-        .and(RULE_KATAKANA_MIDDLE_DOT)
-        .and(RULE_MIDDLE_DOT)
-        .and(RULE_ZERO_WIDTH_JOINER)
-        .and(RULE_ZERO_WIDTH_NON_JOINER)
-        ;
+            .and(RULE_ARABIC_INDIC_DIGITS_RULE)
+            .and(RULE_EXTENDED_ARABIC_INDIC_DIGITS_RULE)
+            .and(RULE_GREEK_LOWER_NUMERAL_SIGN)
+            .and(RULE_HEBREW_GERESH_GERSHAYIM)
+            .and(RULE_KATAKANA_MIDDLE_DOT)
+            .and(RULE_MIDDLE_DOT)
+            .and(RULE_ZERO_WIDTH_JOINER)
+            .and(RULE_ZERO_WIDTH_NON_JOINER);
+    // Composed once, so checking a label allocates no predicate.
+    private static final BiPredicate<String, Integer> IDNA_RULES_LTR = IDNA_RULES.and(LTR);
+    private static final BiPredicate<String, Integer> IDNA_RULES_RTL = IDNA_RULES.and(RTL);
 
     private static boolean isContextJ(int codepoint) {
-        if (CONTEXTJ.isEmpty()) loadDerivedProperties();
+        if (!loaded) loadDerivedProperties();
         return CONTEXTJ.get(codepoint);
     }
 
     private static boolean isContextO(int codepoint) {
-        if (CONTEXTO.isEmpty()) loadDerivedProperties();
+        if (!loaded) loadDerivedProperties();
         return CONTEXTO.get(codepoint);
     }
 
     private static boolean isDisallowed(int codepoint) {
-        if (DISALLOWED.isEmpty()) loadDerivedProperties();
+        if (!loaded) loadDerivedProperties();
         return DISALLOWED.get(codepoint);
     }
 
     private static boolean isUnassigned(int codepoint) {
-        if (UNASSIGNED.isEmpty()) loadDerivedProperties();
+        if (!loaded) loadDerivedProperties();
         return UNASSIGNED.get(codepoint);
     }
 
     private static boolean testAllowedCharacter(String s, int i) {
         int c = s.codePointAt(i);
-        return !isDisallowed(c) && !isUnassigned(c) // RFC 5891 4.2.2.  Rejection of Characters That Are Not Permitted
+        return isPermitted(c) // RFC 5891 4.2.2.  Rejection of Characters That Are Not Permitted
             && !isContextJ(c)   && !isContextO(c);  // RFC 5891 4.2.3.3.  Contextual Rules
+    }
+
+    private static boolean isPermitted(int c) {
+        switch (c) {
+            // RFC 6452: Unicode 6.0 changed the general category of these three, and IDNA2008 kept the newly
+            // derived values instead of adding exceptions, so they differ from the Unicode 5.2 table.
+            case 0x0CF1: // KANNADA SIGN JIHVAMULIYA, now Lo
+            case 0x0CF2: // KANNADA SIGN UPADHMANIYA, now Lo
+                return true;
+            case 0x19DA: // NEW TAI LUE THAM DIGIT ONE, now No
+                return false;
+            default:
+                return !isDisallowed(c) && (!isUnassigned(c) || isDerivedPValid(c));
+        }
+    }
+
+    /**
+     * Classifies a code point that the bundled RFC 5892 table (Unicode 5.2) lists as unassigned, using
+     * the running JDK's Unicode data and an approximation of the RFC 5892 section 3 derivation: it is
+     * PVALID only if it is a lowercase, modifier or other letter, a nonspacing or spacing mark, or a
+     * decimal digit (LetterDigits without Lu), and NFKC and lower-casing leave it unchanged (Unstable).
+     * Symbols such as emoji, punctuation, upper case and format controls added since stay rejected.
+     */
+    private static boolean isDerivedPValid(int c) {
+        int type = getType(c);
+        // Cherokee is the one script whose case folding maps small letters to capitals, so its small
+        // letters (Unicode 8) are unstable under NFKC_Casefold while its capitals stay PVALID.
+        if (UnicodeScript.CHEROKEE == UnicodeScript.of(c)) return UPPERCASE_LETTER == type;
+        // MONGOLIAN FREE VARIATION SELECTOR FOUR (Unicode 14) is a Default_Ignorable_Code_Point, so it is DISALLOWED.
+        if (0x180F == c) return false;
+        switch (type) {
+            case LOWERCASE_LETTER:
+            case MODIFIER_LETTER:
+            case OTHER_LETTER:
+            case NON_SPACING_MARK:
+            case COMBINING_SPACING_MARK:
+            case DECIMAL_DIGIT_NUMBER:
+                break;
+            default:
+                return false;
+        }
+        String s = new String(Character.toChars(c));
+        // Case folding approximated as lower(upper(c)): it catches letters that fold to another letter,
+        // such as CYRILLIC SMALL LETTER ROUNDED VE (U+1C80), which folds to U+0432.
+        return s.equals(Normalizer.normalize(s, Normalizer.Form.NFKC)) && s.equals(s.toLowerCase(Locale.ROOT))
+            && c == Character.toLowerCase(Character.toUpperCase(c));
     }
 
     /**
@@ -95,78 +165,202 @@ public class RFC5892 {
      */
     private static String LABEL_SEPARATOR_REGEX = "[\\.\\u3002\\uff0e\\uff61]";
 
+    /**
+     * Validates an internationalized host name (the {@code idn-hostname} format).
+     *
+     * @param value the host name
+     * @return whether every label is a valid U-label or A-label, the name is at most 253 characters in
+     * A-label form, and, if any label has an R, AL or AN character, every label satisfies the RFC 5893 Bidi
+     * Rule (so {@code 1a.xn--4dbc}, whose second label is Hebrew, is invalid); a single trailing label
+     * separator is accepted and not counted
+     */
     public static boolean isValid(String value) {
         if ("".equals(value)) {
             return false; // empty string should fail
         }
-        if (value.length() == 1 && value.matches(LABEL_SEPARATOR_REGEX)) {
-            return false; // single label separator should fail
-        }
         // RFC 5892 calls each segment in a host name a label. They are separated by all the recognized label separators.
-        String[] labels = value.split(LABEL_SEPARATOR_REGEX);
-        for (String label : labels) {
-            if (label.isEmpty()) continue; // A DNS entry may contain a trailing '.'.
+        // A limit of -1 keeps trailing empty strings. A single trailing separator (the root, "example.")
+        // is allowed and its empty label is dropped; any other empty label (".example", "a..b", "a..",
+        // "." or "...") is invalid.
+        String[] labels = value.split(LABEL_SEPARATOR_REGEX, -1);
+        int labelCount = labels.length;
+        if (1 < labelCount && labels[labelCount - 1].isEmpty()) labelCount--;
+        int asciiLength = labelCount - 1; // the separators between labels
+        boolean bidiDomainName = false;
+        for (int n = 0; n < labelCount; n++) {
+            String label = labels[n];
+            if (label.isEmpty()) return false;
 
-            String unicode = label;
+            String unicode;
+            int aceLength;
             if (isACE(label)) {
-                // IDN returns the original value when it encounters an issue converting to Unicode
-                unicode = IDN.toUnicode(label, IDN.USE_STD3_ASCII_RULES);
-                if (unicode.equalsIgnoreCase(label)) return false;
+                aceLength = label.length();
+                if (MAX_LABEL_LENGTH < aceLength) return false; // checked before the quadratic decode
+                unicode = toUnicode(label);
+                if (null == unicode) return false;
+            } else {
+                // An A-label is at least as long as its U-label has code points.
+                if (MAX_LABEL_LENGTH < label.codePointCount(0, label.length())) return false;
+                unicode = label;
+                aceLength = isAscii(label) ? label.length() : ACE_PREFIX_LENGTH + Punycode.encode(label).length();
             }
+            // RFC 5891 4.2.4.  Registration Validation Requirements
+            if (MAX_LABEL_LENGTH < aceLength) return false;
+            asciiLength += aceLength;
+            if (MAX_NAME_LENGTH < asciiLength) return false;
 
-            int len = unicode.length();
-            BiPredicate<String, Integer> rules;
+            labels[n] = unicode; // from here on, labels[0..n] hold U-labels; the Bidi check below reads them back
 
-            // RFC 5891 5.4.  Validation and Character List Testing
-            if (!Normalizer.isNormalized(unicode, Normalizer.Form.NFC)) return false;
-
-            // RFC 5891 4.2.3.1.  Hyphen Restrictions
-            if ('-' == unicode.charAt(0) || '-' == unicode.codePointBefore(len)) return false;
-            if (4 <= len && '-' == unicode.codePointAt(2) && '-' == unicode.codePointAt(3)) return false;
-
-            // RFC 5891 4.2.3.2.  Leading Combining Marks
-            if (isCombiningMark(unicode.codePointAt(0))) return false;
-
-            // RFC 5893 2.  The Bidi Rule
-            switch (getDirectionality(unicode.codePointAt(0))) {
-                case DIRECTIONALITY_LEFT_TO_RIGHT:
-                    rules = IDNA_RULES.and(LTR);
-                    break;
-                case DIRECTIONALITY_RIGHT_TO_LEFT:
-                case DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC:
-                    rules = IDNA_RULES.and(RTL);
-                    break;
-                case DIRECTIONALITY_EUROPEAN_NUMBER:
-                case DIRECTIONALITY_OTHER_NEUTRALS:
-                    rules = IDNA_RULES;
-                    break;
-                default: return false;
-            }
-
-            for (int i = 0; i < len; ++i) {
-                if (!rules.test(unicode, i)) return false;
-            }
-
-            try {
-                String ace = IDN.toASCII(unicode, IDN.USE_STD3_ASCII_RULES);
-                if (63 < ace.length()) return false; // RFC 5891 4.2.4.  Registration Validation Requirements
-            } catch (IllegalArgumentException e) {
-                Throwable t = e.getCause();
-                if (t instanceof ParseException) {
-                    String m = t.getMessage();
-                    // Ignore this. Java does not have the latest spec.
-                    return m.startsWith("The input does not conform to the rules for BiDi code points");
+            LabelStatus status = checkULabel(unicode);
+            if (LabelStatus.INVALID == status) return false;
+            // RFC 5893 2.  Once a label has an R, AL or AN character, the name is a Bidi domain name and every
+            // label must satisfy the Bidi Rule. checkULabel has already applied it to right-to-left labels.
+            if (LabelStatus.HAS_RTL == status) {
+                if (!bidiDomainName) {
+                    bidiDomainName = true;
+                    // The labels before this one have no right-to-left characters and were not checked yet.
+                    for (int m = 0; m < n; m++) {
+                        if (!satisfiesBidiRule(labels[m])) return false;
+                    }
                 }
+            } else if (bidiDomainName && !satisfiesBidiRule(unicode)) {
                 return false;
             }
         }
+        return true;
+    }
 
+    /**
+     * Validates an A-label in a {@code hostname}: it must be valid Punycode that encodes back to
+     * itself, at most 63 characters, and its U-label must pass the RFC 5891 hyphen, combining mark,
+     * contextual, bidi and disallowed-character rules.
+     *
+     * @param label the label, including the ACE prefix
+     * @return whether the label is a valid A-label
+     */
+    public static boolean isValidALabel(String label) {
+        if (MAX_LABEL_LENGTH < label.length() || !isACE(label)) return false;
+        String unicode = toUnicode(label);
+        return null != unicode && LabelStatus.INVALID != checkULabel(unicode);
+    }
+
+    /**
+     * Applies the per-label IDNA2008 rules, including the RFC 5893 Bidi Rule when the label has an R, AL or AN character.
+     *
+     * @param unicode the U-label
+     * @return {@link LabelStatus#INVALID} if a rule fails, otherwise whether the label has an R, AL or AN character
+     */
+    private static LabelStatus checkULabel(String unicode) {
+        int len = unicode.length();
+        BiPredicate<String, Integer> rules;
+
+        // RFC 5891 5.4.  Validation and Character List Testing
+        if (!Normalizer.isNormalized(unicode, Normalizer.Form.NFC)) return LabelStatus.INVALID;
+
+        // RFC 5891 4.2.3.1.  Hyphen Restrictions, by code point position
+        if ('-' == unicode.charAt(0) || '-' == unicode.codePointBefore(len)) return LabelStatus.INVALID;
+        // Four chars hold at least two code points, so the offset exists.
+        if (4 <= len && unicode.startsWith("--", unicode.offsetByCodePoints(0, 2))) return LabelStatus.INVALID;
+
+        // RFC 5891 4.2.3.2.  Leading Combining Marks
+        if (isCombiningMark(unicode.codePointAt(0))) return LabelStatus.INVALID;
+
+        // RFC 5893 2.  The Bidi Rule
+        switch (getDirectionality(unicode.codePointAt(0))) {
+            case DIRECTIONALITY_LEFT_TO_RIGHT:
+                rules = IDNA_RULES_LTR;
+                break;
+            case DIRECTIONALITY_RIGHT_TO_LEFT:
+            case DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC:
+                rules = IDNA_RULES_RTL;
+                break;
+            case DIRECTIONALITY_EUROPEAN_NUMBER:
+            case DIRECTIONALITY_OTHER_NEUTRALS:
+                rules = IDNA_RULES;
+                break;
+            default: return LabelStatus.INVALID;
+        }
+
+        // Step by code point, so a supplementary character is tested once and never as a lone low surrogate.
+        for (int i = 0; i < len; i += Character.charCount(unicode.codePointAt(i))) {
+            if (!rules.test(unicode, i)) return LabelStatus.INVALID;
+        }
+
+        // RFC 5893 2.  A label with an R, AL or AN character makes the name a Bidi domain name, so the full Bidi Rule applies to it.
+        if (!hasRightToLeft(unicode)) return LabelStatus.NO_RTL;
+        return satisfiesBidiRule(unicode) ? LabelStatus.HAS_RTL : LabelStatus.INVALID;
+    }
+
+    private static boolean hasRightToLeft(String label) {
+        for (int i = 0; i < label.length(); i += Character.charCount(label.codePointAt(i))) {
+            switch (getDirectionality(label.codePointAt(i))) {
+                case DIRECTIONALITY_RIGHT_TO_LEFT:
+                case DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC:
+                case DIRECTIONALITY_ARABIC_NUMBER:
+                    return true;
+                default:
+                    break;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * RFC 5893 2, rules 1, 3, 4 and 6. Rules 2 and 5, the allowed character classes, are checked by the
+     * LTR and RTL predicates.
+     */
+    private static boolean satisfiesBidiRule(String label) {
+        byte first = getDirectionality(label.codePointAt(0));
+        boolean rtl = first == DIRECTIONALITY_RIGHT_TO_LEFT || first == DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;
+        // Rule 1: the first character must have the Bidi property L, R or AL.
+        if (!rtl && first != DIRECTIONALITY_LEFT_TO_RIGHT) return false;
+
+        boolean europeanNumber = false;
+        boolean arabicNumber = false;
+        byte last = first;
+        for (int i = 0; i < label.length(); i += Character.charCount(label.codePointAt(i))) {
+            byte d = getDirectionality(label.codePointAt(i));
+            if (d == DIRECTIONALITY_EUROPEAN_NUMBER) europeanNumber = true;
+            if (d == DIRECTIONALITY_ARABIC_NUMBER) arabicNumber = true;
+            if (d != DIRECTIONALITY_NONSPACING_MARK) last = d;
+        }
+        if (rtl) {
+            // Rule 4: an RTL label must not contain both EN and AN.
+            if (europeanNumber && arabicNumber) return false;
+            // Rule 3: an RTL label must end with R, AL, EN or AN, followed by zero or more NSM.
+            return last == DIRECTIONALITY_RIGHT_TO_LEFT || last == DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+                || last == DIRECTIONALITY_EUROPEAN_NUMBER || last == DIRECTIONALITY_ARABIC_NUMBER;
+        }
+        // Rule 6: an LTR label must end with L or EN, followed by zero or more NSM.
+        return last == DIRECTIONALITY_LEFT_TO_RIGHT || last == DIRECTIONALITY_EUROPEAN_NUMBER;
+    }
+
+    /**
+     * Converts an A-label to its U-label (RFC 5890 2.3.2.1). The label is lower-cased first, since
+     * the ACE prefix and the basic code points of an A-label are case-insensitive.
+     *
+     * @param label the A-label, including the ACE prefix
+     * @return the U-label, or {@code null} if the label is not a valid A-label: the Punycode
+     * does not decode, does not encode back to the same label, or decodes to ASCII only
+     */
+    private static String toUnicode(String label) {
+        if (!isAscii(label)) return null;
+        String punycode = label.substring(ACE_PREFIX_LENGTH).toLowerCase(Locale.ROOT);
+        String unicode = Punycode.decode(punycode);
+        if (null == unicode || unicode.isEmpty() || isAscii(unicode)) return null;
+        if (!Punycode.encode(unicode).equals(punycode)) return null;
+        return unicode;
+    }
+
+    private static boolean isAscii(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            if (value.charAt(i) >= 0x80) return false;
+        }
         return true;
     }
 
     private static boolean isACE(String value) {
-        return ACE_PREFIX_LENGTH <= value.length() &&
-            ACE_PREFIX.equalsIgnoreCase(value.substring(0, ACE_PREFIX_LENGTH));
+        return value.regionMatches(true, 0, ACE_PREFIX, 0, ACE_PREFIX_LENGTH);
     }
 
     private static boolean isCombiningMark(int codepoint) {
@@ -247,8 +441,7 @@ public class RFC5892 {
         if (GREEK_LOWER_NUMERAL_SIGN == c) {
             // There must be a Greek character after this symbol
             if (s.length() == 1 + i) return false;
-            int following = s.codePointAt(i + 1);
-	        return isGreek(following);
+            return UnicodeScript.GREEK == UnicodeScript.of(s.codePointAt(i + 1));
         }
         return true;
     }
@@ -266,8 +459,7 @@ public class RFC5892 {
         if (HEBREW_GERESH == c || HEBREW_GERSHAYIM == c) {
             // There must be a Hebrew character before this symbol
             if (0 == i) return false;
-            int preceding = s.codePointAt(i - 1);
-	        return isHebrew(preceding);
+            return UnicodeScript.HEBREW == UnicodeScript.of(s.codePointBefore(i));
         }
         return true;
     }
@@ -283,10 +475,12 @@ public class RFC5892 {
     private static boolean testKatakanaMiddleDot(String s, int i) {
         int c = s.codePointAt(i);
         if (KATAKANA_MIDDLE_DOT == c) {
-            // There must be a Katakana, Hiragana or Han character after this symbol
-            if (s.length() == 1 + i) return false;
-            int following = s.codePointAt(i + 1);
-	        return isKatakana(following);
+            // The label must contain a Hiragana, Katakana or Han character anywhere, not just after this symbol
+            return s.codePoints().anyMatch(cp -> {
+                if (KATAKANA_MIDDLE_DOT == cp) return false;
+                UnicodeScript script = UnicodeScript.of(cp);
+                return UnicodeScript.HIRAGANA == script || UnicodeScript.KATAKANA == script || UnicodeScript.HAN == script;
+            });
         }
         return true;
     }
@@ -305,11 +499,13 @@ public class RFC5892 {
             // There must be a 'l' character before and after this symbol
             if (0 == i) return false;
             if (s.length() == 1 + i) return false;
-            int preceding = s.codePointAt(i - 1);
-            int following = s.codePointAt(i + 1);
-	        return 'l' == preceding && 'l' == following;
+            return 'l' == s.codePointBefore(i) && 'l' == s.codePointAt(i + 1);
         }
         return true;
+    }
+
+    private static boolean isVirama(int codepoint) {
+        return Arrays.binarySearch(VIRAMAS, codepoint) >= 0;
     }
 
     /**
@@ -325,8 +521,7 @@ public class RFC5892 {
         if (ZERO_WIDTH_JOINER == c) {
             // There must be a virama character before this symbol.
             if (0 == i) return false;
-            int preceding = s.codePointAt(i - 1);
-	        return VIRAMA == preceding;
+            return isVirama(s.codePointBefore(i));
         }
         return true;
     }
@@ -347,10 +542,11 @@ public class RFC5892 {
 
             if (0 == i) return false;
             int preceding = s.codePointBefore(i);
-            if (VIRAMA == preceding) return true;
+            if (isVirama(preceding)) return true;
 
+            // Step by code point, as several scripts have supplementary transparent marks.
             int j = i;
-            while (0 < j && isJoinTypeTransparent(s.codePointBefore(j))) --j;
+            while (0 < j && isJoinTypeTransparent(s.codePointBefore(j))) j -= Character.charCount(s.codePointBefore(j));
             if (0 == j) return false;
 
             preceding = s.codePointBefore(j);
@@ -360,7 +556,7 @@ public class RFC5892 {
             int len = s.length();
             if (len == j) return false;
 
-            while (j < len && isJoinTypeTransparent(s.codePointAt(j))) ++j;
+            while (j < len && isJoinTypeTransparent(s.codePointAt(j))) j += Character.charCount(s.codePointAt(j));
             if (len == j) return false;
 
             int following = s.codePointAt(j);
@@ -386,7 +582,7 @@ public class RFC5892 {
     }
 
     private static synchronized void loadDerivedProperties() {
-        if (DISALLOWED.isEmpty()) {
+        if (!loaded) {
             UCDLoader.loadMapping("/ucd/RFC5892-appendix-B.txt", v -> {
                 switch (v) {
                     case "CONTEXTJ": return CONTEXTJ;
@@ -407,6 +603,8 @@ public class RFC5892 {
             CONTEXTO.clear(HEBREW_GERSHAYIM);
             CONTEXTO.clear(KATAKANA_MIDDLE_DOT);
             CONTEXTO.clear(MIDDLE_DOT);
+            // The volatile write publishes the filled tables to threads that read loaded without the lock.
+            loaded = true;
         }
     }
 

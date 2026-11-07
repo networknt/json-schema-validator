@@ -15,6 +15,8 @@ public class UnicodeDatabase {
     private static final BitSet JOIN_TYPE_RIGHT = new BitSet(0x110000);
     private static final BitSet JOIN_TYPE_TRANSPARENT = new BitSet(0x110000);
 
+    private static volatile boolean joiningTypesLoaded;
+
     static {
         // TODO: Should we initialize this lazily?
         ARABIC_INDIC_DIGITS.set(0x0660, 0x066A);
@@ -62,32 +64,32 @@ public class UnicodeDatabase {
     }
 
     public static boolean isJoinTypeCausing(int codepoint) {
-        if (JOIN_TYPE_CAUSING.isEmpty()) loadJoiningTypes();
+        if (!joiningTypesLoaded) loadJoiningTypes();
         return JOIN_TYPE_CAUSING.get(codepoint);
     }
 
     public static boolean isJoinTypeDual(int codepoint) {
-        if (JOIN_TYPE_DUAL.isEmpty()) loadJoiningTypes();
+        if (!joiningTypesLoaded) loadJoiningTypes();
         return JOIN_TYPE_DUAL.get(codepoint);
     }
 
     public static boolean isJoinTypeLeft(int codepoint) {
-        if (JOIN_TYPE_LEFT.isEmpty()) loadJoiningTypes();
+        if (!joiningTypesLoaded) loadJoiningTypes();
         return JOIN_TYPE_LEFT.get(codepoint);
     }
 
     public static boolean isJoinTypeRight(int codepoint) {
-        if (JOIN_TYPE_RIGHT.isEmpty()) loadJoiningTypes();
+        if (!joiningTypesLoaded) loadJoiningTypes();
         return JOIN_TYPE_RIGHT.get(codepoint);
     }
 
     public static boolean isJoinTypeTransparent(int codepoint) {
-        if (JOIN_TYPE_TRANSPARENT.isEmpty()) loadJoiningTypes();
+        if (!joiningTypesLoaded) loadJoiningTypes();
         return JOIN_TYPE_TRANSPARENT.get(codepoint);
     }
 
     private static synchronized void loadJoiningTypes() {
-        if (JOIN_TYPE_DUAL.isEmpty()) {
+        if (!joiningTypesLoaded) {
             UCDLoader.loadMapping("/ucd/extracted/DerivedJoiningType.txt", v -> {
                 switch (v) {
                     case "C": return JOIN_TYPE_CAUSING;
@@ -98,6 +100,8 @@ public class UnicodeDatabase {
                     default: return null;
                 }
             });
+            // The volatile write publishes the filled tables to threads that read the flag without the lock.
+            joiningTypesLoaded = true;
         }
     }
 

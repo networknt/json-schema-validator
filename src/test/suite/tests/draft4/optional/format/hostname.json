@@ -44,6 +44,11 @@
                 "valid": true
             },
             {
+                "description": "hostname with consecutive hyphens (RFC1123)",
+                "data": "ab--cd.example",
+                "valid": true
+            },
+            {
                 "description": "a host name starting with an illegal character",
                 "data": "-a-host-name-that-starts-with--",
                 "valid": false
@@ -84,6 +89,11 @@
                 "valid": false
             },
             {
+                "description": "exceeds maximum overall length (256)",
+                "data": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.com",
+                "valid": false
+            },
+            {
                 "description": "maximum label length",
                 "data": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.com",
                 "valid": true
@@ -121,6 +131,41 @@
             {
                 "description": "single dot",
                 "data": ".",
+                "valid": false
+            },
+            {
+                "description": "leading dot",
+                "data": ".example",
+                "valid": false
+            },
+            {
+                "description": "trailing dot",
+                "data": "example.",
+                "valid": false
+            },
+            {
+                "description": "IDN label separator",
+                "data": "example\uff0ecom",
+                "valid": false
+            },
+            {
+                "description": "trailing newline is invalid",
+                "data": "example.com\n",
+                "valid": false
+            },
+            {
+                "description": "leading space is invalid",
+                "data": " example.com",
+                "valid": false
+            },
+            {
+                "description": "space inside a label is invalid",
+                "data": "ex ample.com",
+                "valid": false
+            },
+            {
+                "description": "invalid non-ASCII KELVIN SIGN (U+212A)",
+                "data": "\u212Aelvin.example.com",
                 "valid": false
             }
         ]
