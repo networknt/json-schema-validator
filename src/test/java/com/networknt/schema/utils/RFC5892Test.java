@@ -220,8 +220,14 @@ class RFC5892Test {
 
     @Test
     void rejectsNewCodePointsThatAreUnstableUnderCaseFoldingOrIgnorable() {
+        // Exercise case folding only when the JDK knows the character (Unicode 9).
+        assumeTrue(Character.isDefined(0x1C80));
         assertFalse(RFC5892.isValid(codePoints('a', 0x1C80))); // CYRILLIC SMALL LETTER ROUNDED VE folds to U+0432
         assertFalse(RFC5892.isValidALabel("xn--a-wyl"));
+    }
+
+    @Test
+    void cherokeeCapitalAcceptanceDependsOnTheJdksUnicodeData() {
         assertEquals(Character.isDefined(0x13F5), RFC5892.isValid(codePoints(0x13F5))); // CHEROKEE LETTER MV, a capital added in Unicode 8
     }
 

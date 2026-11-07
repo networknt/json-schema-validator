@@ -51,14 +51,29 @@ public class UnicodeDatabase {
         return EXTENDED_ARABIC_INDIC_DIGITS.get(codepoint);
     }
 
+    /**
+     * @deprecated Tests legacy code-block ranges, not Unicode scripts. Use
+     *             {@link Character.UnicodeScript#of(int)} for script classification.
+     */
+    @Deprecated
     public static boolean isGreek(int codepoint) {
         return GREEK_CHARACTERS.get(codepoint);
     }
 
+    /**
+     * @deprecated Tests legacy code-block ranges, not Unicode scripts. Use
+     *             {@link Character.UnicodeScript#of(int)} for script classification.
+     */
+    @Deprecated
     public static boolean isHebrew(int codepoint) {
         return HEBREW_CHARACTERS.get(codepoint);
     }
 
+    /**
+     * @deprecated Tests legacy code-block ranges, not Unicode scripts. Use
+     *             {@link Character.UnicodeScript#of(int)} for script classification.
+     */
+    @Deprecated
     public static boolean isKatakana(int codepoint) {
         return KATAKANA_CHARACTERS.get(codepoint);
     }

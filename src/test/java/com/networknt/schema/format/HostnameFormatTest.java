@@ -15,6 +15,7 @@
  */
 package com.networknt.schema.format;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,7 +45,6 @@ class HostnameFormatTest {
         "xn--bcher-kva.example",
         "XN--BCHER-KVA.EXAMPLE",
         "xn--Bcher-kva.example",
-        "xn--9d6hc.example",
         "xn--3zc0eybz95j.example",
         // RFC 1123 labels beside a right-to-left A-label: the Bidi Rule applies within the A-label only.
         "example.xn--mgbaam7a8h",
@@ -55,11 +55,12 @@ class HostnameFormatTest {
         "xn--4dbc.xn--mgbh0fb"
     })
     void accepts(String value) {
-        if ("xn--9d6hc.example".equals(value) && !Character.isDefined(0x1E922)) {
-            assertFalse(matches(value), value); // Adlam is unassigned in Java 8's Unicode data.
-        } else {
-            assertTrue(matches(value), value);
-        }
+        assertTrue(matches(value), value);
+    }
+
+    @Test
+    void adlamAcceptanceDependsOnTheJdksUnicodeData() {
+        assertEquals(Character.isDefined(0x1E922), matches("xn--9d6hc.example"));
     }
 
     @ParameterizedTest
