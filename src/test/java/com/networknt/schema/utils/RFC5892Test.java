@@ -346,12 +346,15 @@ class RFC5892Test {
     @Test
     void rejectsTrailingLabelSeparators() {
         // Each of the four label separators, after an ASCII label, a U-label and an A-label.
-        assertFalse(RFC5892.isValid("a."));
-        assertFalse(RFC5892.isValid("a.b\u3002"));
-        assertFalse(RFC5892.isValid("b\u00FCcher\uff0e"));
-        assertFalse(RFC5892.isValid("xn--4dbc\uff61"));
+        for (String label : new String[] {"example", "b\u00FCcher", "xn--4dbc"}) {
+            assertTrue(RFC5892.isValid(label), label);
+            assertTrue(RFC5892.isValid("a." + label), "a." + label);
+            for (String separator : new String[] {".", "\u3002", "\uff0e", "\uff61"}) {
+                assertFalse(RFC5892.isValid(label + separator), label + separator);
+                assertFalse(RFC5892.isValid("a." + label + separator), "a." + label + separator);
+            }
+        }
         assertTrue(RFC5892.isValid("a.b"));
-        assertTrue(RFC5892.isValid("xn--4dbc"));
         assertFalse(RFC5892.isValid("a.."));
         assertFalse(RFC5892.isValid("a.\uff0e"));
         assertFalse(RFC5892.isValid("xn--4dbc.."));

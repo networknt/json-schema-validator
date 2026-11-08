@@ -183,10 +183,9 @@ public class RFC5892 {
         // or doubled separator (".example", "a..b"), only separators ("." or "...") and a trailing
         // separator ("example."), which the JSON-Schema-Test-Suite treats as invalid for idn-hostname.
         String[] labels = value.split(LABEL_SEPARATOR_REGEX, -1);
-        int labelCount = labels.length;
-        int asciiLength = labelCount - 1; // the separators between labels
+        int asciiLength = labels.length - 1; // the separators between labels
         boolean bidiDomainName = false;
-        for (int n = 0; n < labelCount; n++) {
+        for (int n = 0; n < labels.length; n++) {
             String label = labels[n];
             if (label.isEmpty()) return false;
 
