@@ -1,98 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794067637739,
+  "lastUpdate": 1794196317512,
   "repoUrl": "https://github.com/networknt/json-schema-validator",
   "entries": {
     "JSON Schema Validator Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "stevehu@gmail.com",
-            "name": "Steve Hu",
-            "username": "stevehu"
-          },
-          "committer": {
-            "email": "stevehu@gmail.com",
-            "name": "Steve Hu",
-            "username": "stevehu"
-          },
-          "distinct": true,
-          "id": "f26327c64430a93ee2765c7877e9fd377a958bd2",
-          "message": "upgrade maven-surefire to 3.6.0",
-          "timestamp": "2026-09-28T09:30:46-04:00",
-          "tree_id": "f488b9bc54b4f3e52c7d3942ecb5ec15df49afb9",
-          "url": "https://github.com/networknt/json-schema-validator/commit/f26327c64430a93ee2765c7877e9fd377a958bd2"
-        },
-        "date": 1790602644891,
-        "tool": "jmh",
-        "benches": [
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
-            "value": 8245.643756458025,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 2242.8735987436744,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 2393.4000815083023,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 2520.978294124108,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 5697.408904420551,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 6973.692810882029,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
-            "value": 1916.7330329324031,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
-            "value": 2062.6647321230594,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
-            "value": 5193.318277787302,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
-            "value": 5659.802560258452,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          },
-          {
-            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
-            "value": 8915.348409970786,
-            "unit": "ops/s",
-            "extra": "iterations: 3\nforks: 1\nthreads: 1"
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -8530,6 +8440,324 @@ window.BENCHMARK_DATA = {
           {
             "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
             "value": 21.59118106567843,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "r.ravimeena@gmail.com",
+            "name": "ravismash",
+            "username": "ravismash"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c0b24510aeae6e7a035bdc16d5cd15ab736a647",
+          "message": "Reject a trailing label separator in idn-hostname (#1384)\n\n* Reject a trailing label separator in idn-hostname\n\nThe JSON-Schema-Test-Suite treats a trailing label separator (example., example。, example．, example｡) as an invalid idn-hostname, and hostname already rejects a trailing dot. #1377 still accepted one trailing separator. Reject it, and re-enable the 16 upstream cases that were disabled for it.\n\n* Address review: list as a breaking change, drop labelCount, test every separator and label kind\n\nThe trailing-separator rejection gets its own Breaking changes entry\nin Unreleased, because 3.0.9 and earlier accepted example. and an\nupgrade now rejects it. It no longer reads as part of the #1377\nentry.\n\nlabelCount was only needed to drop one trailing empty label, so\nlabels.length is used directly.\n\nrejectsTrailingLabelSeparators now tries all four separators after an\nASCII label, a U-label and an A-label, alone and as the last label of\na two-label name. Each name is first asserted valid without the\nseparator, so the rejection is caused by the trailing separator alone.\n\n* Address review: list the idn-hostname rules, test the format class\n\nThe isValid Javadoc lists the rules instead of joining them in the\n@return sentence, and names leading and doubled separators along with\nthe trailing one.\n\nidnHostnameFormatRejectsTrailingLabelSeparator checks the\nIdnHostnameFormat contract directly, not only RFC5892.isValid.",
+          "timestamp": "2026-11-08T22:07:22-05:00",
+          "tree_id": "aadd0237a45d85edff595186ca25ff95849525de",
+          "url": "https://github.com/networknt/json-schema-validator/commit/2c0b24510aeae6e7a035bdc16d5cd15ab736a647"
+        },
+        "date": 1794196316632,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
+            "value": 6395.259092676086,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1474.9433020277818,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1535.5841618688466,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 1645.855029679402,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 4580.227071290354,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 5916.24855279717,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1368.6091585921743,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1470.6234134024824,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 3790.657666777815,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 4069.706208745247,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 6052.109554776244,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"decimal\"} )",
+            "value": 9032.366966216274,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"bigInteger\"} )",
+            "value": 5119.554626516805,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"double\"} )",
+            "value": 29150.93681276251,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"false\",\"kind\":\"nestedDecimal\"} )",
+            "value": 7676.779102710869,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"decimal\"} )",
+            "value": 8846.43243679408,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"bigInteger\"} )",
+            "value": 5157.527331561389,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"double\"} )",
+            "value": 30388.654574034455,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NumericUniqueItemsBenchmark.validate ( {\"duplicate\":\"true\",\"kind\":\"nestedDecimal\"} )",
+            "value": 7657.6055822383105,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"integer\"} )",
+            "value": 0.3663173047280294,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"plain\"} )",
+            "value": 0.6498408247087072,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"machine\"} )",
+            "value": 1.6118863802260097,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal19\"} )",
+            "value": 1.7382236042659571,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal40\"} )",
+            "value": 2.4794839903025565,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"integer\"} )",
+            "value": 6.432700537100612,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"plain\"} )",
+            "value": 10.075350727980394,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"machine\"} )",
+            "value": 14.103392064483955,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal19\"} )",
+            "value": 12.93679877234205,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.nativeTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
+            "value": 16.859106764839172,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"integer\"} )",
+            "value": 0.43011849464298724,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"plain\"} )",
+            "value": 0.8689360674426779,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"machine\"} )",
+            "value": 3.1705640301609948,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal19\"} )",
+            "value": 6.900141473079196,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal40\"} )",
+            "value": 9.710886771942306,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"integer\"} )",
+            "value": 6.932892209720414,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"plain\"} )",
+            "value": 10.844580219253224,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"machine\"} )",
+            "value": 17.29355018176232,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal19\"} )",
+            "value": 19.60964783131638,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.selectiveTree ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
+            "value": 26.38027343788907,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"integer\"} )",
+            "value": 0.43289539448076403,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"plain\"} )",
+            "value": 0.869814693111032,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"machine\"} )",
+            "value": 3.1792332965284547,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal19\"} )",
+            "value": 7.057255147638251,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"JSON\",\"payload\":\"decimal40\"} )",
+            "value": 10.096050127743473,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"integer\"} )",
+            "value": 6.768990791141275,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"plain\"} )",
+            "value": 11.75744251156101,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"machine\"} )",
+            "value": 16.810003287326495,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal19\"} )",
+            "value": 20.18927509475174,
+            "unit": "ms/op",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.DecimalTreeBenchmark.validate ( {\"count\":\"20000\",\"format\":\"YAML\",\"payload\":\"decimal40\"} )",
+            "value": 26.251285404105815,
             "unit": "ms/op",
             "extra": "iterations: 3\nforks: 1\nthreads: 1"
           }
