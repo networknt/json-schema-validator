@@ -40,6 +40,8 @@ import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 import org.opentest4j.TestAbortedException;
 
+import com.networknt.schema.format.IdnHostnameFormat;
+
 /**
  * Tests the {@code idn-hostname} rules in {@link RFC5892#isValid(String)} and the {@code hostname}
  * A-label rules in {@link RFC5892#isValidALabel(String)}.
@@ -341,6 +343,13 @@ class RFC5892Test {
     void zeroWidthJoinersMayFollowUnicode16Viramas() {
         assumeTrue(Character.isDefined(0x113CE)); // TULU-TIGALARI SIGN VIRAMA, Unicode 16
         assertTrue(RFC5892.isValid(codePoints(0x0915, 0x113CE, 0x200D, 0x0915)));
+    }
+
+    @Test
+    void idnHostnameFormatRejectsTrailingLabelSeparator() {
+        IdnHostnameFormat format = new IdnHostnameFormat();
+        assertTrue(format.matches(null, "example"));
+        assertFalse(format.matches(null, "example."));
     }
 
     @Test
