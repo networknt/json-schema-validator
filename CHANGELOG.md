@@ -9,10 +9,10 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Breaking changes
 
 - `idn-hostname` rejects a trailing label separator, such as `example.`, `example。` or `a..`. Released versions up to 3.0.9 accepted any number of them, so a fully-qualified name written with the root dot, such as `example.`, now fails; strip the trailing dot before validating such input. This follows the JSON-Schema-Test-Suite and matches `hostname`, which already rejects a trailing dot.
+- `uri-template` limits literals to the characters RFC 6570 section 2.1 allows. A space or a backslash (`a b`, `a\b`), C1 control characters, lone surrogates, noncharacters, U+FFF0 to U+FFFD and U+E0000 to U+E0FFF are now rejected in a literal; 3.0.9 and earlier accepted any character other than ASCII controls and ``" < > ^ ` { | }``. The apostrophe is still accepted, as in the JSON-Schema-Test-Suite. The vendored `uri-template.json` suite files are updated to the current JSON-Schema-Test-Suite.
 
 ### Changed
 
-- `uri-template` limits literals to the characters RFC 6570 section 2.1 allows. A space or a backslash (`a b`, `a\b`), C1 control characters, lone surrogates, noncharacters, U+FFF0 to U+FFFD and U+E0000 to U+E0FFF are now rejected in a literal; before, any character other than ASCII controls and ``" < > ^ ` { | }`` was accepted. The apostrophe is still accepted, as in the JSON-Schema-Test-Suite. The vendored `uri-template.json` suite files are updated to the current JSON-Schema-Test-Suite.
 - `hostname` rejects names longer than 253 characters.
 - `hostname` checks a label that starts with `xn--`, in any case, as an A-label. It must be at most 63 characters of Punycode that encodes back to itself, and its U-label must pass the IDNA2008 rules listed below. `xn--X`, `xn--hello-txk` and `xn--1-0hc` (U-label `1א`, which breaks the RFC 5893 Bidi Rule) are now rejected; before, any LDH label passed. The Bidi Rule applies within each A-label only: the other labels stay RFC 1123 LDH labels, so `3com.xn--mgbaam7a8h` remains valid.
 - `idn-hostname` decodes A-labels with an RFC 3492 Punycode decoder instead of `java.net.IDN` (IDNA2003). A-labels with characters IDNA2008 allows in context, such as U+00DF, U+03C2, U+200C and U+200D, are accepted when the RFC 5892 rules allow them. A-labels are case-insensitive.
@@ -33,6 +33,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 - Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping are disabled with a reason.
 ### Fixed
 
+- `uri-template` no longer throws `StackOverflowError` on long templates, such as a 5,000-character literal or an expression with a 1,000-character variable name. Runs of literal and variable-name characters are matched without recursion.
 - Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0 and 3.1. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
 
 ## 3.0.9- 2026-11-03
