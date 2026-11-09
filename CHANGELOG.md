@@ -9,6 +9,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Breaking changes
 
 - `idn-hostname` rejects a trailing label separator, such as `example.`, `example。` or `a..`. Released versions up to 3.0.9 accepted any number of them, so a fully-qualified name written with the root dot, such as `example.`, now fails; strip the trailing dot before validating such input. This follows the JSON-Schema-Test-Suite and matches `hostname`, which already rejects a trailing dot.
+- `uri-template` limits literals to the characters RFC 6570 section 2.1 allows. A space or a backslash (`a b`, `a\b`), C1 control characters, lone surrogates, noncharacters, U+FFF0 to U+FFFD and U+E0000 to U+E0FFF are now rejected in a literal; 3.0.9 and earlier accepted any character other than ASCII controls and ``" < > ^ ` { | }``. The apostrophe is still accepted, as in the JSON-Schema-Test-Suite. The vendored `uri-template.json` suite files are updated to the current JSON-Schema-Test-Suite.
 
 ### Changed
 
@@ -32,6 +33,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 - Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping are disabled with a reason.
 ### Fixed
 
+- `uri-template` no longer throws `StackOverflowError` on long templates, such as a 5,000-character literal or an expression with a 1,000-character variable name. Runs of literal and variable-name characters are matched without recursion.
 - Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0 and 3.1. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
 
 ## 3.0.9- 2026-11-03
