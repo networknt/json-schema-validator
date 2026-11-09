@@ -70,6 +70,29 @@ class UriTemplateFormatTest {
         }
     }
 
+    private static String repeat(String s, int count) {
+        StringBuilder sb = new StringBuilder(s.length() * count);
+        for (int i = 0; i < count; i++) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    @Test
+    void longTemplatesDoNotOverflowTheStack() {
+        // Each of these threw StackOverflowError when the pattern recursed once per character or escape.
+        assertTrue(matches(repeat("a", 1_000_000)));
+        assertTrue(matches(repeat("a\u00e9\ud83d\ude00", 100_000))); // ASCII, BMP and supplementary runs
+        assertTrue(matches("{" + repeat("a", 1_000_000) + "}"));
+        assertTrue(matches("{" + repeat("a.", 100_000) + "a}"));
+        assertTrue(matches("{" + repeat("%41", 100_000) + "}"));
+        assertTrue(matches("{" + repeat("a,", 100_000) + "a}"));
+        assertTrue(matches(repeat("%20", 100_000)));
+        assertTrue(matches(repeat("{a}", 100_000)));
+        assertTrue(matches(repeat("ab{c}%20", 100_000)));
+        assertFalse(matches(repeat("a", 1_000_000) + " "));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
         "a b", // space
@@ -84,7 +107,17 @@ class UriTemplateFormatTest {
         "a\ud83f\udffeb", // U+1FFFE, a noncharacter
         "a\ufffdb", // U+FFFD, in the Specials block outside ucschar
         "a\udb40\udc41b", // U+E0041, a tag character
-        "a\udb40\udd00b" // U+E0100, a variation selector
+        "a\udb40\udd00b", // U+E0100, a variation selector
+        "a{b", // a brace or percent sign outside an expression or pct-encoded triplet
+        "a}b",
+        "a%b",
+        "a%2",
+        "a%g0",
+        "{",
+        "}",
+        "{}",
+        "{a",
+        "{a b}"
     })
     void rejects(String value) {
         assertFalse(matches(value), value);
