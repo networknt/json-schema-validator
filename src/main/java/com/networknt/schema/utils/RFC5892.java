@@ -166,13 +166,18 @@ public class RFC5892 {
     private static String LABEL_SEPARATOR_REGEX = "[\\.\\u3002\\uff0e\\uff61]";
 
     /**
-     * Validates an internationalized host name (the {@code idn-hostname} format).
+     * Validates an internationalized host name (the {@code idn-hostname} format). A name is valid when:
+     * <ul>
+     * <li>every label is a valid U-label or A-label;</li>
+     * <li>the name is at most 253 characters in A-label form;</li>
+     * <li>if any label has an R, AL or AN character, every label satisfies the RFC 5893 Bidi Rule, so
+     * {@code 1a.xn--4dbc}, whose second label is Hebrew, is invalid;</li>
+     * <li>no label is empty, so a leading, doubled or trailing label separator, as in {@code .example},
+     * {@code a..b} or {@code example.}, makes the name invalid.</li>
+     * </ul>
      *
      * @param value the host name
-     * @return whether every label is a valid U-label or A-label, the name is at most 253 characters in
-     * A-label form, and, if any label has an R, AL or AN character, every label satisfies the RFC 5893 Bidi
-     * Rule (so {@code 1a.xn--4dbc}, whose second label is Hebrew, is invalid); a trailing label
-     * separator, as in {@code example.}, makes the name invalid
+     * @return whether the name is a valid {@code idn-hostname}
      */
     public static boolean isValid(String value) {
         if ("".equals(value)) {
