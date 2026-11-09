@@ -166,28 +166,31 @@ public class RFC5892 {
     private static String LABEL_SEPARATOR_REGEX = "[\\.\\u3002\\uff0e\\uff61]";
 
     /**
-     * Validates an internationalized host name (the {@code idn-hostname} format).
+     * Validates an internationalized host name (the {@code idn-hostname} format). A name is valid when:
+     * <ul>
+     * <li>every label is a valid U-label or A-label;</li>
+     * <li>the name is at most 253 characters in A-label form;</li>
+     * <li>if any label has an R, AL or AN character, every label satisfies the RFC 5893 Bidi Rule, so
+     * {@code 1a.xn--4dbc}, whose second label is Hebrew, is invalid;</li>
+     * <li>no label is empty, so a leading, doubled or trailing label separator, as in {@code .example},
+     * {@code a..b} or {@code example.}, makes the name invalid.</li>
+     * </ul>
      *
      * @param value the host name
-     * @return whether every label is a valid U-label or A-label, the name is at most 253 characters in
-     * A-label form, and, if any label has an R, AL or AN character, every label satisfies the RFC 5893 Bidi
-     * Rule (so {@code 1a.xn--4dbc}, whose second label is Hebrew, is invalid); a single trailing label
-     * separator is accepted and not counted
+     * @return whether the name is a valid {@code idn-hostname}
      */
     public static boolean isValid(String value) {
         if ("".equals(value)) {
             return false; // empty string should fail
         }
         // RFC 5892 calls each segment in a host name a label. They are separated by all the recognized label separators.
-        // A limit of -1 keeps trailing empty strings. A single trailing separator (the root, "example.")
-        // is allowed and its empty label is dropped; any other empty label (".example", "a..b", "a..",
-        // "." or "...") is invalid.
+        // A limit of -1 keeps trailing empty strings, so every empty label is rejected below: a leading
+        // or doubled separator (".example", "a..b"), only separators ("." or "...") and a trailing
+        // separator ("example."), which the JSON-Schema-Test-Suite treats as invalid for idn-hostname.
         String[] labels = value.split(LABEL_SEPARATOR_REGEX, -1);
-        int labelCount = labels.length;
-        if (1 < labelCount && labels[labelCount - 1].isEmpty()) labelCount--;
-        int asciiLength = labelCount - 1; // the separators between labels
+        int asciiLength = labels.length - 1; // the separators between labels
         boolean bidiDomainName = false;
-        for (int n = 0; n < labelCount; n++) {
+        for (int n = 0; n < labels.length; n++) {
             String label = labels[n];
             if (label.isEmpty()) return false;
 
