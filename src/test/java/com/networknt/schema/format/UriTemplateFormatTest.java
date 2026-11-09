@@ -70,27 +70,19 @@ class UriTemplateFormatTest {
         }
     }
 
-    private static String repeat(String s, int count) {
-        StringBuilder sb = new StringBuilder(s.length() * count);
-        for (int i = 0; i < count; i++) {
-            sb.append(s);
-        }
-        return sb.toString();
-    }
-
     @Test
     void longTemplatesDoNotOverflowTheStack() {
         // Each of these threw StackOverflowError when the pattern recursed once per character or escape.
-        assertTrue(matches(repeat("a", 1_000_000)));
-        assertTrue(matches(repeat("a\u00e9\ud83d\ude00", 100_000))); // ASCII, BMP and supplementary runs
-        assertTrue(matches("{" + repeat("a", 1_000_000) + "}"));
-        assertTrue(matches("{" + repeat("a.", 100_000) + "a}"));
-        assertTrue(matches("{" + repeat("%41", 100_000) + "}"));
-        assertTrue(matches("{" + repeat("a,", 100_000) + "a}"));
-        assertTrue(matches(repeat("%20", 100_000)));
-        assertTrue(matches(repeat("{a}", 100_000)));
-        assertTrue(matches(repeat("ab{c}%20", 100_000)));
-        assertFalse(matches(repeat("a", 1_000_000) + " "));
+        assertTrue(matches("a".repeat(1_000_000)));
+        assertTrue(matches("a\u00e9\ud83d\ude00".repeat(100_000))); // ASCII, BMP and supplementary runs
+        assertTrue(matches("{" + "a".repeat(1_000_000) + "}"));
+        assertTrue(matches("{" + "a.".repeat(100_000) + "a}"));
+        assertTrue(matches("{" + "%41".repeat(100_000) + "}"));
+        assertTrue(matches("{" + "a,".repeat(100_000) + "a}"));
+        assertTrue(matches("%20".repeat(100_000)));
+        assertTrue(matches("{a}".repeat(100_000)));
+        assertTrue(matches("ab{c}%20".repeat(100_000)));
+        assertFalse(matches("a".repeat(1_000_000) + " "));
     }
 
     @ParameterizedTest
