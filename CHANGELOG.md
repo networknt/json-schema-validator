@@ -33,6 +33,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Fixed
 
 - Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0 and 3.1. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
+- Report the `oneOf` error, the `oneOf` and `anyOf` discriminator errors and the `propertyNames` errors through `ExecutionContext.addError`. With fail fast, these errors now stop the evaluation and are the error returned. Before, a later error replaced the `oneOf` and discriminator errors, and `propertyNames` returned the error of its inner schema, such as `maxLength`. An `ExecutionContext` that overrides `addError` now sees these errors too.
 
 ## 3.0.9- 2026-11-03
 

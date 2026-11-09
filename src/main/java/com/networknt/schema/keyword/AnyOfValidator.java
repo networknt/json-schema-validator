@@ -165,7 +165,9 @@ public class AnyOfValidator extends BaseKeywordValidator {
                 // Note that this is related to the DiscriminatorValidator by default not
                 // generating an assertion
                 // if the discriminatingValue is not set in the payload
-                existingErrors.add(error().keyword("discriminator").instanceNode(node)
+                // Report through the execution context so fail fast and execution
+                // contexts that override addError see the error
+                executionContext.addError(error().keyword("discriminator").instanceNode(node)
                         .instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .messageKey("discriminator.anyOf.no_match_found").arguments(state.getDiscriminatingValue())
                         .build());

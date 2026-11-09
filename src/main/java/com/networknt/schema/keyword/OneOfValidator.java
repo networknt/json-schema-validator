@@ -171,37 +171,39 @@ public class OneOfValidator extends BaseKeywordValidator {
                 }
                 index++;
             }
-
-            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-                /*
-                 * The only case where the discriminator can change the outcome of the result is
-                 * if the discriminator value does not match an implicit or explicit mapping
-                 */
-                /*
-                 * If the discriminator value does not match an implicit or explicit mapping, no
-                 * schema can be determined and validation SHOULD fail. Mapping keys MUST be
-                 * string values, but tooling MAY convert response values to strings for
-                 * comparison.
-                 * 
-                 * https://spec.openapis.org/oas/v3.1.2#examples-0
-                 */
-                DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
-                if (state != null && !state.hasMatchedSchema() && state.hasDiscriminatingValue()) {
-                    // The check for state.hasDiscriminatingValue is due to issue 988
-                    // Note that this is related to the DiscriminatorValidator by default not
-                    // generating an assertion
-                    // if the discriminatingValue is not set in the payload
-                    existingErrors
-                            .add(error().keyword("discriminator").instanceNode(node).instanceLocation(instanceLocation)
-                                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                                    .messageKey("discriminator.oneOf.no_match_found")
-                                    .arguments(state.getDiscriminatingValue()).build());
-                }
-            }
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);
             executionContext.setErrors(existingErrors);
+        }
+
+        if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
+            /*
+             * The only case where the discriminator can change the outcome of the result is
+             * if the discriminator value does not match an implicit or explicit mapping
+             */
+            /*
+             * If the discriminator value does not match an implicit or explicit mapping, no
+             * schema can be determined and validation SHOULD fail. Mapping keys MUST be
+             * string values, but tooling MAY convert response values to strings for
+             * comparison.
+             *
+             * https://spec.openapis.org/oas/v3.1.2#examples-0
+             */
+            DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
+            if (state != null && !state.hasMatchedSchema() && state.hasDiscriminatingValue()) {
+                // The check for state.hasDiscriminatingValue is due to issue 988
+                // Note that this is related to the DiscriminatorValidator by default not
+                // generating an assertion
+                // if the discriminatingValue is not set in the payload
+                // Report through the execution context so fail fast and execution
+                // contexts that override addError see the error
+                executionContext.addError(error().keyword("discriminator").instanceNode(node)
+                        .instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath())
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .messageKey("discriminator.oneOf.no_match_found")
+                        .arguments(state.getDiscriminatingValue()).build());
+            }
         }
 
         boolean nullMatchedMoreThanOneBranch = nullableNode && numberOfValidSchema > 1;
@@ -216,7 +218,10 @@ public class OneOfValidator extends BaseKeywordValidator {
                     .arguments(Integer.toString(numberOfValidSchema),
                             numberOfValidSchema > 1 ? String.join(", ", indexes) : "")
                     .build();
-            existingErrors.add(message);
+            // Report through the execution context so fail fast and execution
+            // contexts that override addError see the error. The branch errors
+            // below were already reported when the branches ran.
+            executionContext.addError(message);
 
             if (discriminatorErrors != null) {
                 existingErrors.addAll(discriminatorErrors);
