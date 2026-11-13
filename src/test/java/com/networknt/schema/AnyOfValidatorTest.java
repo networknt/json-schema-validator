@@ -192,4 +192,28 @@ class AnyOfValidatorTest {
         assertTrue(messages.stream().anyMatch(message -> "discriminator".equals(message.getKeyword())));
         assertTrue(reported.containsAll(messages));
     }
+
+    // The Kitchen branch is the one the discriminator selects, but it misses
+    // hasMicrowaveOven, so no branch matches.
+    private static final String DISCRIMINATED_BRANCH_FAILING_INPUT = """
+            [ { "@type": "Kitchen" } ]
+            """;
+
+    @Test
+    void reportsDiscriminatedBranchErrors() {
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31()).getSchema(DISCRIMINATOR_SCHEMA);
+        List<Error> messages = schema.validate(DISCRIMINATED_BRANCH_FAILING_INPUT, InputFormat.JSON);
+        assertEquals(List.of("required"), messages.stream().map(Error::getKeyword).toList());
+    }
+
+    @Test
+    void failFastWithDiscriminatorReturnsFirstDiscriminatedBranchError() {
+        // anyOf has no error of its own, so fail fast returns the first error of
+        // the discriminated branch, where oneOf returns its own error.
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31(),
+                builder -> builder.schemaRegistryConfig(config)).getSchema(DISCRIMINATOR_SCHEMA);
+        List<Error> messages = schema.validate(DISCRIMINATED_BRANCH_FAILING_INPUT, InputFormat.JSON);
+        assertEquals(List.of("required"), messages.stream().map(Error::getKeyword).toList());
+    }
 }
