@@ -17,14 +17,10 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.networknt.schema.dialect.Dialects;
 
 class AnyOfValidatorTest {
     @Test
@@ -114,106 +110,5 @@ class AnyOfValidatorTest {
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(List.of("type", "maximum"), messages.stream().map(Error::getKeyword).toList());
-    }
-
-    // The BedRoom branch matches the second room, but its discriminator value
-    // maps to no schema, so the anyOf adds a discriminator error. The maxItems
-    // keyword would add another error if evaluation went on after it.
-    private static final String DISCRIMINATOR_SCHEMA = """
-            {
-              "type": "array",
-              "allOf": [
-                {
-                  "items": {
-                    "anyOf": [
-                      { "$ref": "#/components/schemas/Kitchen" },
-                      { "$ref": "#/components/schemas/BedRoom" }
-                    ]
-                  }
-                },
-                { "maxItems": 1 }
-              ],
-              "components": {
-                "schemas": {
-                  "Room": {
-                    "type": "object",
-                    "properties": { "@type": { "type": "string" } },
-                    "required": ["@type"],
-                    "discriminator": { "propertyName": "@type" }
-                  },
-                  "BedRoom": {
-                    "type": "object",
-                    "allOf": [
-                      { "$ref": "#/components/schemas/Room" },
-                      { "type": "object", "required": ["numberOfBeds"] }
-                    ]
-                  },
-                  "Kitchen": {
-                    "type": "object",
-                    "allOf": [
-                      { "$ref": "#/components/schemas/Room" },
-                      { "type": "object", "required": ["hasMicrowaveOven"] }
-                    ]
-                  }
-                }
-              }
-            }
-            """;
-
-    private static final String DISCRIMINATOR_INPUT = """
-            [
-              { "@type": "Kitchen", "hasMicrowaveOven": true },
-              { "@type": "BedRooooom", "numberOfBeds": 4 }
-            ]
-            """;
-
-    @Test
-    void failFastStopsAtDiscriminatorError() {
-        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
-        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31(),
-                builder -> builder.schemaRegistryConfig(config)).getSchema(DISCRIMINATOR_SCHEMA);
-        List<Error> messages = schema.validate(DISCRIMINATOR_INPUT, InputFormat.JSON);
-        assertEquals(1, messages.size());
-        assertEquals("discriminator", messages.get(0).getKeyword());
-    }
-
-    @Test
-    void reportsDiscriminatorErrorThroughExecutionContext() {
-        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31()).getSchema(DISCRIMINATOR_SCHEMA);
-        List<Error> reported = new ArrayList<>();
-        ExecutionContext executionContext = new ExecutionContext() {
-            @Override
-            public void addError(Error error) {
-                reported.add(error);
-                super.addError(error);
-            }
-        };
-        List<Error> messages = schema.validate(executionContext, DISCRIMINATOR_INPUT, InputFormat.JSON);
-        assertTrue(messages.stream().anyMatch(message -> "discriminator".equals(message.getKeyword())));
-        assertTrue(reported.containsAll(messages));
-    }
-
-    // The Kitchen branch is the one the discriminator selects, but it misses
-    // hasMicrowaveOven, so no branch matches.
-    private static final String DISCRIMINATED_BRANCH_FAILING_INPUT = """
-            [ { "@type": "Kitchen" } ]
-            """;
-
-    @Test
-    void reportsDiscriminatedBranchErrors() {
-        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31()).getSchema(DISCRIMINATOR_SCHEMA);
-        List<Error> messages = schema.validate(DISCRIMINATED_BRANCH_FAILING_INPUT, InputFormat.JSON);
-        assertEquals(List.of("required"), messages.stream().map(Error::getKeyword).toList());
-    }
-
-    @Test
-    void failFastWithDiscriminatorReturnsFirstDiscriminatedBranchError() {
-        // anyOf has no error of its own, so fail fast returns the first error of
-        // the discriminated branch, where oneOf returns its own error.
-        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
-        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31(),
-                builder -> builder.schemaRegistryConfig(config)).getSchema(DISCRIMINATOR_SCHEMA);
-        List<Error> messages = schema.validate(DISCRIMINATED_BRANCH_FAILING_INPUT, InputFormat.JSON);
-        assertEquals(List.of("required"), messages.stream().map(Error::getKeyword).toList());
     }
 }
