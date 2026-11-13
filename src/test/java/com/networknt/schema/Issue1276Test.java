@@ -79,10 +79,12 @@ class Issue1276Test {
         long leafErrors = 1L << (depth + 1);
         assertEquals(leafErrors, context.typeErrors);
         assertEquals(2, context.typeErrorLocations.size());
-        // oneOf can discard child diagnostics at the root when fail-fast is on,
-        // but the counter above still observes all repeated leaf failures.
-        long expectedErrors = "anyOf".equals(keyword) ? leafErrors
-                : failFast || !"DEFAULT".equals(format) ? 1 : 2 * leafErrors - 1;
+        // With fail fast, which the BOOLEAN and FLAG formats turn on, oneOf and
+        // anyOf stop at their first error, but the counter above still observes
+        // all repeated leaf failures. Without it, oneOf also reports its own
+        // error at each level.
+        long expectedErrors = failFast || !"DEFAULT".equals(format) ? 1
+                : "anyOf".equals(keyword) ? leafErrors : 2 * leafErrors - 1;
         assertEquals(expectedErrors, context.getErrors().size());
     }
 

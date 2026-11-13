@@ -36,26 +36,38 @@ public class PropertyNamesValidator extends BaseKeywordValidator implements Keyw
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-        
-
         List<Error> existingErrors = executionContext.getErrors();
         List<Error> schemaErrors = new ArrayList<>();
+        List<Error> propertyNameErrors = new ArrayList<>();
         executionContext.setErrors(schemaErrors);
+        // The errors of the inner schema only describe a property name, so they
+        // must not trigger fail fast
+        boolean failFast = executionContext.isFailFast();
         try {
+            executionContext.setFailFast(false);
             for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext(); ) {
                 final String pname = it.next();
                 final StringNode pnameText = StringNode.valueOf(pname);
                 innerSchema.validate(executionContext, pnameText, node, instanceLocation.append(pname));
                 for (final Error schemaError : schemaErrors) {
-                    existingErrors.add(
+                    propertyNameErrors.add(
                             error().property(pname).instanceNode(node).instanceLocation(instanceLocation)
                                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                                     .arguments(pname, schemaError.getMessage()).build());
                 }
                 schemaErrors.clear();
+                if (failFast && !propertyNameErrors.isEmpty()) {
+                    break;
+                }
             }
         } finally {
+            executionContext.setFailFast(failFast);
             executionContext.setErrors(existingErrors);
+        }
+        // Report through the execution context so fail fast and execution
+        // contexts that override addError see the errors
+        for (Error propertyNameError : propertyNameErrors) {
+            executionContext.addError(propertyNameError);
         }
     }
 

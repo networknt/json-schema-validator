@@ -552,4 +552,59 @@ class OneOfValidatorTest {
         assertTrue(messages.stream().anyMatch(message -> "oneOf".equals(message.getKeyword())));
     }
 
+    @Test
+    void failFastStopsAtFailingOneOf() {
+        // The second allOf branch would add a type error if evaluation went on
+        // after the oneOf failed.
+        String schemaData = """
+                {
+                  "allOf": [
+                    { "oneOf": [ { "required": ["a"] }, { "required": ["b"] } ] },
+                    { "properties": { "c": { "type": "string" } } }
+                  ]
+                }
+                """;
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        List<Error> messages = schema.validate("{ \"c\": 1 }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("oneOf", messages.get(0).getKeyword());
+    }
+
+    @Test
+    void walkWithFailFastReturnsOneOfError() {
+        String schemaData = """
+                {
+                  "oneOf": [ { "type": "string" }, { "type": "number" } ]
+                }
+                """;
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        Result result = schema.walk("true", InputFormat.JSON, true);
+        assertEquals(1, result.getErrors().size());
+        assertEquals("oneOf", result.getErrors().get(0).getKeyword());
+    }
+
+    @Test
+    void reportsOneOfErrorThroughExecutionContext() {
+        String schemaData = """
+                {
+                  "oneOf": [ { "required": ["a"] }, { "required": ["b"] } ]
+                }
+                """;
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> reported = new ArrayList<>();
+        ExecutionContext executionContext = new ExecutionContext() {
+            @Override
+            public void addError(Error error) {
+                reported.add(error);
+                super.addError(error);
+            }
+        };
+        List<Error> messages = schema.validate(executionContext, "{}", InputFormat.JSON);
+        assertTrue(messages.stream().anyMatch(message -> "oneOf".equals(message.getKeyword())));
+        assertTrue(reported.containsAll(messages));
+    }
 }

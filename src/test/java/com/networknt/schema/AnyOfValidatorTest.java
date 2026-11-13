@@ -18,6 +18,8 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 class AnyOfValidatorTest {
@@ -61,5 +63,52 @@ class AnyOfValidatorTest {
         Schema schema = factory.getSchema(schemaContents);
         Result result = schema.walk(jsonContents, InputFormat.JSON, true);
         assertEquals(true, result.getErrors().isEmpty());
+    }
+
+    @Test
+    void failFastStopsAtFailingAnyOf() {
+        // The second allOf branch would add a type error if evaluation went on
+        // after the anyOf failed.
+        String schemaData = """
+                {
+                  "allOf": [
+                    { "anyOf": [ { "required": ["a"] }, { "required": ["b"] } ] },
+                    { "properties": { "c": { "type": "string" } } }
+                  ]
+                }
+                """;
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        List<Error> messages = schema.validate("{ \"c\": 1 }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("required", messages.get(0).getKeyword());
+    }
+
+    @Test
+    void failFastReturnsFirstBranchErrorOfFailingAnyOf() {
+        String schemaData = """
+                {
+                  "anyOf": [ { "type": "string" }, { "maximum": 0 } ]
+                }
+                """;
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        List<Error> messages = schema.validate("1", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("type", messages.get(0).getKeyword());
+    }
+
+    @Test
+    void reportsFailingAnyOfBranchErrorsWithoutFailFast() {
+        String schemaData = """
+                {
+                  "anyOf": [ { "type": "string" }, { "maximum": 0 } ]
+                }
+                """;
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("1", InputFormat.JSON);
+        assertEquals(List.of("type", "maximum"), messages.stream().map(Error::getKeyword).toList());
     }
 }
