@@ -23,12 +23,12 @@ public class WriteOnlyValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-        
-        if (Boolean.TRUE.equals(executionContext.getExecutionConfig().getWriteOnly())) {
+        if (ReadOnlyWriteOnlyPolicy.asserts(executionContext.getExecutionConfig().getWriteOnly(), this.schemaNode)) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                    .build());
-        } 
+                    .evaluationPath(executionContext.getEvaluationPath())
+                    .locale(executionContext.getExecutionConfig().getLocale()).build());
+        }
+        putSchemaNodeAnnotation(executionContext, instanceLocation);
     }
 
 }

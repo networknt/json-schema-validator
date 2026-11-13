@@ -24,6 +24,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.annotation.Annotation;
+import com.networknt.schema.path.NodePath;
 
 /**
  * Abstract {@link KeywordValidator}.
@@ -114,8 +115,60 @@ public abstract class AbstractKeywordValidator implements KeywordValidator {
         executionContext.getAnnotations().put(builder.build());
     }
 
-    
-    
+    /**
+     * Puts the value of the schema node of the keyword as an annotation at the
+     * instance location, if annotation collection is enabled and the keyword is not
+     * filtered out.
+     * <p>
+     * This is shared by the keywords that only contribute an annotation, and by the
+     * keywords that assert in addition to being an annotation.
+     * 
+     * @param executionContext the execution context
+     * @param instanceLocation the instance location
+     */
+    void putSchemaNodeAnnotation(ExecutionContext executionContext, NodePath instanceLocation) {
+        if (collectAnnotations(executionContext)) {
+            Object value = getAnnotationValue(this.schemaNode);
+            if (value != null) {
+                putAnnotation(executionContext,
+                        annotation -> annotation.instanceLocation(instanceLocation).value(value));
+            }
+        }
+    }
+
+    /**
+     * Gets the value to report as an annotation from the schema node of a keyword.
+     * <p>
+     * The keywords that contribute an annotation do not all use the same value type.
+     * The meta-data, content and OpenAPI vocabularies use strings, numbers, booleans,
+     * arrays and objects, and a meta-data keyword can also be null, so every JSON value
+     * type is mapped. Strings, numbers and booleans are unwrapped to their Java type.
+     * An object, an array or null is reported as the schema's own node, not as a copy:
+     * a copy for every annotation retains memory proportional to the number of
+     * annotated instance locations times the size of the node, which reaches hundreds
+     * of megabytes on a large array with a large object default, and a single copy
+     * shared by every annotation is mutated by the first caller and seen by all of
+     * them. The value must therefore be treated as read-only.
+     * <p>
+     * The returned null in this method means that there is no value to report, which
+     * is different from an annotation whose value is the JSON null.
+     *
+     * @param schemaNode the schema node of the keyword
+     * @return the annotation value, or null if there is no value to report
+     */
+    private static Object getAnnotationValue(JsonNode schemaNode) {
+        if (schemaNode.isString()) {
+            return schemaNode.asString();
+        } else if (schemaNode.isNumber()) {
+            return schemaNode.numberValue();
+        } else if (schemaNode.isBoolean()) {
+            return schemaNode.booleanValue();
+        } else if (schemaNode.isObject() || schemaNode.isArray() || schemaNode.isNull()) {
+            return schemaNode;
+        }
+        return null;
+    }
+
     /**
      * Determines if the keyword exists adjacent in the evaluation path.
      * <p>

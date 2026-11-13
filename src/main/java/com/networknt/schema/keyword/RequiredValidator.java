@@ -56,16 +56,17 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
             if (propertyNode == null) {
                 Boolean readOnly = executionContext.getExecutionConfig().getReadOnly();
                 Boolean writeOnly = executionContext.getExecutionConfig().getWriteOnly();
-                if (Boolean.TRUE.equals(readOnly)) {
-                    JsonNode readOnlyNode = getFieldKeyword(fieldName, "readOnly");
-                    if (readOnlyNode != null && readOnlyNode.booleanValue()) {
-                        continue;
-                    }
-                } else if(Boolean.TRUE.equals(writeOnly)) {
-                    JsonNode writeOnlyNode = getFieldKeyword(fieldName, "writeOnly");
-                    if (writeOnlyNode != null && writeOnlyNode.booleanValue()) {
-                        continue;
-                    }
+                // Mirror the readOnly and writeOnly execution policies: each asserts for
+                // every value except the boolean false, so a property it would assert for
+                // must not be demanded here. The two are checked independently so that
+                // both are honoured when both policies are on.
+                if (Boolean.TRUE.equals(readOnly)
+                        && isExemptFromRequired(readOnly, getFieldKeyword(fieldName, "readOnly"))) {
+                    continue;
+                }
+                if (Boolean.TRUE.equals(writeOnly)
+                        && isExemptFromRequired(writeOnly, getFieldKeyword(fieldName, "writeOnly"))) {
+                    continue;
                 }
                 /**
                  * Note that for the required validation the instanceLocation does not contain the missing property
@@ -88,5 +89,22 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
             }
         }
         return null;
+    }
+
+    /**
+     * Whether the readOnly or writeOnly keyword of a property exempts it from required.
+     * <p>
+     * The question is asked of {@link ReadOnlyWriteOnlyPolicy}, so the rule the two
+     * validators apply and the rule here cannot drift apart. A keyword that is not
+     * declared directly on the property schema does not exempt it, because this only
+     * looks at {@code properties/<name>} and does not resolve {@code $ref} or
+     * {@code allOf} into the property schema.
+     *
+     * @param policy      the config value of the policy
+     * @param keywordNode the value of the readOnly or writeOnly keyword, may be null
+     * @return whether the property is exempt from required
+     */
+    private static boolean isExemptFromRequired(Boolean policy, JsonNode keywordNode) {
+        return keywordNode != null && ReadOnlyWriteOnlyPolicy.asserts(policy, keywordNode);
     }
 }
