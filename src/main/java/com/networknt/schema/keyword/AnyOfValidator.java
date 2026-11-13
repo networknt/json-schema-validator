@@ -23,6 +23,7 @@ import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.ExecutionContext.DiscriminatorScope;
+import com.networknt.schema.FailFastAssertionException;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaException;
@@ -178,13 +179,17 @@ public class AnyOfValidator extends BaseKeywordValidator {
             // Successful so return only the existing errors, ie. no new errors
             executionContext.setErrors(existingErrors);
         } else {
-            if (discriminatorErrors != null) {
-                // If errors are present matching the discriminator, only these errors should be
-                // reported
-                existingErrors.addAll(discriminatorErrors);
-            } else if (allErrors != null) {
-                // As the anyOf has failed, report all the errors
-                existingErrors.addAll(allErrors);
+            // If errors are present matching the discriminator, only these errors should be
+            // reported. Otherwise, as the anyOf has failed, report all the errors.
+            List<Error> branchErrors = discriminatorErrors != null ? discriminatorErrors : allErrors;
+            if (branchErrors != null && !branchErrors.isEmpty()) {
+                existingErrors.addAll(branchErrors);
+                if (failFast) {
+                    // The branches ran with fail fast off, so their errors went through
+                    // addError without stopping the evaluation. Stop it at the first, as
+                    // addError would, without reporting it to the execution context again.
+                    throw new FailFastAssertionException(branchErrors.get(0));
+                }
             }
             executionContext.setErrors(existingErrors);
         }
