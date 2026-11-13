@@ -573,6 +573,21 @@ class OneOfValidatorTest {
     }
 
     @Test
+    void walkWithFailFastReturnsOneOfError() {
+        String schemaData = """
+                {
+                  "oneOf": [ { "type": "string" }, { "type": "number" } ]
+                }
+                """;
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        Result result = schema.walk("true", InputFormat.JSON, true);
+        assertEquals(1, result.getErrors().size());
+        assertEquals("oneOf", result.getErrors().get(0).getKeyword());
+    }
+
+    @Test
     void reportsOneOfErrorThroughExecutionContext() {
         String schemaData = """
                 {
