@@ -8,6 +8,9 @@ import java.net.URI;
 public class IriFormat extends AbstractRFC3986Format {
     @Override
     protected boolean validate(URI uri) {
+        if (containsBidiFormatting(uri.toString())) {
+            return false;
+        }
         boolean result = uri.isAbsolute();
         if (result) {
             String query = uri.getRawQuery();

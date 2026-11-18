@@ -86,6 +86,12 @@ class UriAuthorityFormatTest {
             "iri-reference | http://example.com/?q=\u200F | false",
             "iri-reference | http://example.com/#\u202A | false",
             "uri | http://example.com/a\u202Eb | false",
+            "iri | http://a\u202Eb@example.com/ | false",
+            "iri | http://example.com/a%E2%80%AEb | true",
+            // Unicode bidi characters added after RFC 3987: ALM and the isolates
+            "iri | http://ex\u2067ample/ | false",
+            "iri-reference | /a\u061Cb | false",
+            "iri | http://example.com/a\u2069b | false",
             "uri | http://example.com/a%E2%80%AEb | true",
     })
     void authority(String format, String value, boolean valid) {

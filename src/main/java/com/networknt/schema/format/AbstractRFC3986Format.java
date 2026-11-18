@@ -14,10 +14,6 @@ public abstract class AbstractRFC3986Format implements Format {
 
     @Override
     public final boolean matches(ExecutionContext executionContext, String value) {
-        if (isInternationalized() && value.codePoints().anyMatch(AbstractRFC3986Format::isBidiFormatting)) {
-            // RFC 3987 section 4.1: IRIs must not contain bidirectional formatting characters
-            return false;
-        }
         try {
             URI uri = new URI(value);
             String authority = uri.getRawAuthority();
@@ -83,7 +79,8 @@ public abstract class AbstractRFC3986Format implements Format {
             // java.net.URI returns a bracketed host only after parsing the authority as a server, which guarantees
             // "[" IPv6address "]" [ ":" *DIGIT ]; it throws on an IPvFuture. RFC 3986 has no zone id, and its
             // dec-octet has no leading zeros, as in the ipv6 format.
-            return IPv6Format.isValid(hostAndPort.substring(1, hostAndPort.indexOf(']')));
+            int end = hostAndPort.indexOf(']');
+            return end > 0 && IPv6Format.isValid(hostAndPort.substring(1, end));
         }
         // A reg-name or an IPv4address cannot contain ":", so the first ":" starts the port; an IPv6 address without
         // brackets leaves a port that is not a number
@@ -134,11 +131,22 @@ public abstract class AbstractRFC3986Format implements Format {
     }
 
     /**
-     * The bidirectional formatting characters that RFC 3987 section 4.1 forbids in an IRI: LRM, RLM, LRE, RLE, PDF,
-     * LRO and RLO.
+     * Determines if the value contains a bidirectional formatting character: the ones RFC 3987 section 4.1 forbids in
+     * an IRI (LRM, RLM, LRE, RLE, PDF, LRO and RLO), and the ones Unicode added later that can reorder the displayed
+     * text the same way (ALM and the isolates LRI, RLI, FSI and PDI).
+     *
+     * @param value the value
+     * @return true if the value contains one
      */
-    private static boolean isBidiFormatting(int cp) {
-        return cp == 0x200E || cp == 0x200F || (cp >= 0x202A && cp <= 0x202E);
+    static boolean containsBidiFormatting(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            char ch = value.charAt(i);
+            if (ch == '\u061C' || ch == '\u200E' || ch == '\u200F' || (ch >= '\u202A' && ch <= '\u202E')
+                    || (ch >= '\u2066' && ch <= '\u2069')) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

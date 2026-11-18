@@ -8,6 +8,9 @@ import java.net.URI;
 public class IriReferenceFormat extends AbstractRFC3986Format {
     @Override
     protected boolean validate(URI uri) {
+        if (containsBidiFormatting(uri.toString())) {
+            return false;
+        }
         String query = uri.getRawQuery();
         if (query != null) {
             // [ and ] must be percent encoded
