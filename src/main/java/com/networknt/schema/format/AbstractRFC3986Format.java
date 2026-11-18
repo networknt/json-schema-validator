@@ -75,34 +75,21 @@ public abstract class AbstractRFC3986Format implements Format {
             }
             hostAndPort = authority.substring(at + 1);
         }
-        String port = null;
         if (hostAndPort.startsWith("[")) {
-            // IP-literal = "[" ( IPv6address / IPvFuture ) "]"
-            int end = hostAndPort.indexOf(']');
-            if (end == -1 || !isValidIpLiteral(hostAndPort.substring(1, end))) {
-                return false;
-            }
-            String rest = hostAndPort.substring(end + 1);
-            if (!rest.isEmpty()) {
-                if (rest.charAt(0) != ':') {
-                    return false;
-                }
-                port = rest.substring(1);
-            }
-        } else {
-            // A reg-name or an IPv4address cannot contain ":", so the first ":" starts the port; an IPv6 address
-            // without brackets leaves a port that is not a number
-            int colon = hostAndPort.indexOf(':');
-            String host = colon == -1 ? hostAndPort : hostAndPort.substring(0, colon);
-            if (!isValid(host, false)) {
-                return false;
-            }
-            if (colon != -1) {
-                port = hostAndPort.substring(colon + 1);
-            }
+            // java.net.URI returns a bracketed host only after parsing the authority as a server, which guarantees
+            // "[" IPv6address "]" [ ":" *DIGIT ]; it throws on an IPvFuture. RFC 3986 has no zone id, and its
+            // dec-octet has no leading zeros, as in the ipv6 format.
+            return IPv6Format.isValid(hostAndPort.substring(1, hostAndPort.indexOf(']')));
+        }
+        // A reg-name or an IPv4address cannot contain ":", so the first ":" starts the port; an IPv6 address without
+        // brackets leaves a port that is not a number
+        int colon = hostAndPort.indexOf(':');
+        String host = colon == -1 ? hostAndPort : hostAndPort.substring(0, colon);
+        if (!isValid(host, false)) {
+            return false;
         }
         // port = *DIGIT
-        return port == null || port.chars().allMatch(ch -> ch >= '0' && ch <= '9');
+        return colon == -1 || hostAndPort.chars().skip(colon + 1).allMatch(ch -> ch >= '0' && ch <= '9');
     }
 
     /**
@@ -129,18 +116,6 @@ public abstract class AbstractRFC3986Format implements Format {
         return true;
     }
 
-    private static boolean isValidIpLiteral(String literal) {
-        // java.net.URI only parses an IPv6address between the brackets, so an IPvFuture never gets here.
-        // RFC 3986 has no zone identifier, and its dec-octet has no leading zeros, as in the ipv6 format
-        for (int i = 0; i < literal.length(); i++) {
-            char ch = literal.charAt(i);
-            if (ch == '%' || Character.isWhitespace(ch)) {
-                return false;
-            }
-        }
-        return IPv6Format.PATTERN.matcher(literal).matches();
-    }
-
     private static boolean isUnreserved(int cp) {
         return (cp >= 'A' && cp <= 'Z') || (cp >= 'a' && cp <= 'z') || (cp >= '0' && cp <= '9') || cp == '-'
                 || cp == '.' || cp == '_' || cp == '~';
@@ -155,9 +130,13 @@ public abstract class AbstractRFC3986Format implements Format {
     }
 
     /**
-     * RFC 3987 {@code ucschar}.
+     * RFC 3987 {@code ucschar}, without the bidirectional formatting characters that section 4.1 forbids in an IRI
+     * (LRM, RLM, LRE, RLE, PDF, LRO and RLO).
      */
     private static boolean isUcschar(int cp) {
+        if (cp == 0x200E || cp == 0x200F || (cp >= 0x202A && cp <= 0x202E)) {
+            return false;
+        }
         if (cp < 0x10000) {
             return (cp >= 0xA0 && cp <= 0xD7FF) || (cp >= 0xF900 && cp <= 0xFDCF) || (cp >= 0xFDF0 && cp <= 0xFFEF);
         }

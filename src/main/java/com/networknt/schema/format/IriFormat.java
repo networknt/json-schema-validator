@@ -10,13 +10,6 @@ public class IriFormat extends AbstractRFC3986Format {
     protected boolean validate(URI uri) {
         boolean result = uri.isAbsolute();
         if (result) {
-            String authority = uri.getAuthority();
-            if (authority != null) {
-                if (IPv6Format.PATTERN.matcher(authority).matches() ) {
-                    return false;
-                }
-            }
-
             String query = uri.getRawQuery();
             if (query != null) {
                 // [ and ] must be percent encoded

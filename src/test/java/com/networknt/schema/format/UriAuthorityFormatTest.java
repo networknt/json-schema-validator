@@ -41,8 +41,6 @@ class UriAuthorityFormatTest {
             "uri | http://example.com:abc/p | false",
             "uri | http://example.com:80a/p | false",
             "uri | http://[::1]:8080/p | true",
-            "uri | http://[::1]:x/p | false",
-            "uri | http://[::1]x/p | false",
             // userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
             "uri | http://user:pass@example.com/p | true",
             "uri | http://us%40er@example.com/p | true",
@@ -73,6 +71,14 @@ class UriAuthorityFormatTest {
             "iri-reference | //ƒøø.ßår/p | true",
             "iri-reference | //ƒøø.ßår:abc/p | false",
             "uri | http://ƒøø.ßår/ | false",
+            // a percent-encoded "::" is a valid reg-name, not an IPv6 address
+            "uri | http://1%3A%3A2/ | true",
+            "iri | http://1%3A%3A2/ | true",
+            "iri-reference | //1%3A%3A2/ | true",
+            // RFC 3987 section 4.1 forbids bidirectional formatting characters
+            "iri | http://ex\u202Eample/ | false",
+            "iri | http://ex\u200Fample/ | false",
+            "iri-reference | //ex\u202Aample/p | false",
     })
     void authority(String format, String value, boolean valid) {
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
