@@ -67,6 +67,21 @@
                 "description": "an invalid IRI fragment",
                 "data": "#ƒräg\\mênt",
                 "valid": false
+            },
+            {
+                "description": "an embedded IPv4 with a leading zero is invalid",
+                "data": "//[::ffff:192.168.0.01]/p",
+                "valid": false
+            },
+            {
+                "description": "a non-numeric port in a network-path reference is invalid",
+                "data": "//ƒøø.ßår:abc/p",
+                "valid": false
+            },
+            {
+                "description": "more than one at-sign in the authority is invalid",
+                "data": "//â@b@ƒøø.ßår/",
+                "valid": false
             }
         ]
     }

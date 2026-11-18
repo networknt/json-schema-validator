@@ -132,6 +132,21 @@
                 "description": "an invalid URI with comma in scheme",
                 "data": "bar,baz:foo",
                 "valid": false
+            },
+            {
+                "description": "non-numeric port is invalid",
+                "data": "http://example.com:abc/path",
+                "valid": false
+            },
+            {
+                "description": "leading zero in an embedded IPv4 address is invalid",
+                "data": "http://[::ffff:01.2.3.4]",
+                "valid": false
+            },
+            {
+                "description": "an IPv6 address without enclosing brackets is invalid",
+                "data": "http://2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+                "valid": false
             }
         ]
     }

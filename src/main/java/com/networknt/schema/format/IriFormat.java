@@ -29,6 +29,11 @@ public class IriFormat extends AbstractRFC3986Format {
     }
 
     @Override
+    protected boolean isInternationalized() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "iri";
     }

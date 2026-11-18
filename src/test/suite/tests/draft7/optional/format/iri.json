@@ -77,6 +77,21 @@
                 "description": "an invalid IRI though valid IRI reference",
                 "data": "âππ",
                 "valid": false
+            },
+            {
+                "description": "an IPv6 host whose embedded IPv4 has a leading zero is invalid",
+                "data": "http://[::ffff:192.168.0.01]",
+                "valid": false
+            },
+            {
+                "description": "non-numeric port is invalid",
+                "data": "http://ƒøø.ßår:abc/path",
+                "valid": false
+            },
+            {
+                "description": "more than one at-sign in the authority is invalid",
+                "data": "http://â@b@ƒøø.ßår/",
+                "valid": false
             }
         ]
     }
