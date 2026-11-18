@@ -75,10 +75,18 @@ class UriAuthorityFormatTest {
             "uri | http://1%3A%3A2/ | true",
             "iri | http://1%3A%3A2/ | true",
             "iri-reference | //1%3A%3A2/ | true",
-            // RFC 3987 section 4.1 forbids bidirectional formatting characters
+            // RFC 3987 section 4.1 forbids bidirectional formatting characters anywhere in an IRI
             "iri | http://ex\u202Eample/ | false",
             "iri | http://ex\u200Fample/ | false",
             "iri-reference | //ex\u202Aample/p | false",
+            "iri | http://example.com/a\u202Eb | false",
+            "iri | http://example.com/?q=\u200F | false",
+            "iri-reference | /a\u202Db | false",
+            "iri | http://example.com/#\u202A | false",
+            "iri-reference | http://example.com/?q=\u200F | false",
+            "iri-reference | http://example.com/#\u202A | false",
+            "uri | http://example.com/a\u202Eb | false",
+            "uri | http://example.com/a%E2%80%AEb | true",
     })
     void authority(String format, String value, boolean valid) {
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)

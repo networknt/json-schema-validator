@@ -14,6 +14,10 @@ public abstract class AbstractRFC3986Format implements Format {
 
     @Override
     public final boolean matches(ExecutionContext executionContext, String value) {
+        if (isInternationalized() && value.codePoints().anyMatch(AbstractRFC3986Format::isBidiFormatting)) {
+            // RFC 3987 section 4.1: IRIs must not contain bidirectional formatting characters
+            return false;
+        }
         try {
             URI uri = new URI(value);
             String authority = uri.getRawAuthority();
@@ -28,7 +32,7 @@ public abstract class AbstractRFC3986Format implements Format {
 
     /**
      * Determines if the uri matches the format.
-     *
+     * 
      * @param uri the uri to match
      * @return true if matches
      */
@@ -130,13 +134,17 @@ public abstract class AbstractRFC3986Format implements Format {
     }
 
     /**
-     * RFC 3987 {@code ucschar}, without the bidirectional formatting characters that section 4.1 forbids in an IRI
-     * (LRM, RLM, LRE, RLE, PDF, LRO and RLO).
+     * The bidirectional formatting characters that RFC 3987 section 4.1 forbids in an IRI: LRM, RLM, LRE, RLE, PDF,
+     * LRO and RLO.
+     */
+    private static boolean isBidiFormatting(int cp) {
+        return cp == 0x200E || cp == 0x200F || (cp >= 0x202A && cp <= 0x202E);
+    }
+
+    /**
+     * RFC 3987 {@code ucschar}.
      */
     private static boolean isUcschar(int cp) {
-        if (cp == 0x200E || cp == 0x200F || (cp >= 0x202A && cp <= 0x202E)) {
-            return false;
-        }
         if (cp < 0x10000) {
             return (cp >= 0xA0 && cp <= 0xD7FF) || (cp >= 0xF900 && cp <= 0xFDCF) || (cp >= 0xFDF0 && cp <= 0xFFEF);
         }
