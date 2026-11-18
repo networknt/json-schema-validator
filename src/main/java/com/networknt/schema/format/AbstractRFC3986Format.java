@@ -133,12 +133,13 @@ public abstract class AbstractRFC3986Format implements Format {
     /**
      * Determines if the value contains a bidirectional formatting character: the ones RFC 3987 section 4.1 forbids in
      * an IRI (LRM, RLM, LRE, RLE, PDF, LRO and RLO), and the ones Unicode added later that can reorder the displayed
-     * text the same way (ALM and the isolates LRI, RLI, FSI and PDI).
+     * text the same way (ALM and the isolates LRI, RLI, FSI and PDI). {@code IriFormat} and {@code IriReferenceFormat}
+     * reject such values; a subclass for another IRI-like format can call this from its {@link #validate(URI)}.
      *
      * @param value the value
      * @return true if the value contains one
      */
-    static boolean containsBidiFormatting(String value) {
+    protected static boolean containsBidiFormatting(String value) {
         for (int i = 0; i < value.length(); i++) {
             char ch = value.charAt(i);
             if (ch == '\u061C' || ch == '\u200E' || ch == '\u200F' || (ch >= '\u202A' && ch <= '\u202E')
