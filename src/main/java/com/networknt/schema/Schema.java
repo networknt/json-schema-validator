@@ -1565,7 +1565,12 @@ public class Schema implements Validator {
         if (!executionContext.isEvaluationLimited() && !executionContext.isEvaluationAborted()) {
             executionContext.evaluationPath = atRoot();
         }
-        walk(executionContext, node, rootNode, instanceLocation, validate);
+        try {
+            walk(executionContext, node, rootNode, instanceLocation, validate);
+        } catch (FailFastAssertionException e) {
+            // As in validate, fail fast stops the walk at the first error
+            executionContext.setErrors(e.getErrors());
+        }
         executionContext.checkEvaluationAborted();
         return format.format(this, executionContext, this.schemaContext);
     }

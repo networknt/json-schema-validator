@@ -35,6 +35,11 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 - `uri-template` no longer throws `StackOverflowError` on long templates, such as a 5,000-character literal or an expression with a 1,000-character variable name. Runs of literal and variable-name characters are matched without recursion.
 - Prevent descendant discriminator state from leaking between `oneOf` and `anyOf` branches in OpenAPI 3.0 and 3.1. [#1378](https://github.com/networknt/json-schema-validator/issues/1378)
+- Report the `oneOf` error, the `oneOf` and `anyOf` discriminator errors and the `propertyNames` errors through `ExecutionContext.addError`. With fail fast, these errors now stop the evaluation and are the error returned; before, a later error replaced the `oneOf` and discriminator errors. An `ExecutionContext` that overrides `addError` now sees these errors too. [#1388](https://github.com/networknt/json-schema-validator/pull/1388)
+  - `propertyNames` reports its own error, at the object's location, for each error its inner schema finds in a property name. With fail fast it stops at the first invalid name and returns its error, where it used to return the error of its inner schema, such as `maxLength` or `pattern`, at the property's location, `/<property>`.
+  - With fail fast, a failing `anyOf` returns the first error of its branches and stops the evaluation. Before, it returned the errors of every branch, or none when a later error replaced them.
+  - With a discriminator and fail fast, a failing `oneOf` returns only its own error, without the errors of the branch the discriminator selects that it used to return after it; a failing `anyOf`, which has no error of its own, returns the first error of that branch.
+  - With fail fast, `walk` returns the first error instead of throwing `FailFastAssertionException`, as `validate` does.
 
 ## 3.0.9- 2026-11-03
 

@@ -17,7 +17,9 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -52,5 +54,91 @@ class PropertyNamesValidatorTest {
         assertEquals("{\"foo\":{},\"foobar\":{}}", message.getInstanceNode().toString());
         assertEquals(": property 'foobar' name is not valid: must be at most 3 characters long", message.toString());
         assertEquals("foobar", message.getProperty());
+    }
+
+    @Test
+    void failFastReportsPropertyNamesError() {
+        // Fail fast must stop at the propertyNames error, not at the maxLength
+        // error the property name raises inside it.
+        String schemaData = """
+                { "propertyNames": { "maxLength": 3 } }
+                """;
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        List<Error> messages = schema.validate("{ \"foobar\": {} }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("propertyNames", messages.get(0).getKeyword());
+        assertEquals("foobar", messages.get(0).getProperty());
+    }
+
+    @Test
+    void reportsPropertyNamesErrorThroughExecutionContext() {
+        String schemaData = """
+                { "propertyNames": { "maxLength": 3 } }
+                """;
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> reported = new ArrayList<>();
+        ExecutionContext executionContext = new ExecutionContext() {
+            @Override
+            public void addError(Error error) {
+                reported.add(error);
+                super.addError(error);
+            }
+        };
+        List<Error> messages = schema.validate(executionContext, "{ \"foobar\": {} }", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("propertyNames", messages.get(0).getKeyword());
+        assertTrue(reported.contains(messages.get(0)));
+    }
+
+    @Test
+    void reportsEveryInvalidPropertyName() {
+        String schemaData = """
+                { "propertyNames": { "maxLength": 3 } }
+                """;
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("{ \"foobar\": 1, \"ok\": 2, \"bazqux\": 3 }", InputFormat.JSON);
+        assertEquals(List.of("propertyNames", "propertyNames"), messages.stream().map(Error::getKeyword).toList());
+        assertEquals(List.of("foobar", "bazqux"), messages.stream().map(Error::getProperty).toList());
+    }
+
+    @Test
+    void failFastStopsAtFirstInvalidPropertyName() {
+        // Fail fast returns the error of the first invalid name either way, but
+        // the inner schema must not go on to check the other names: their
+        // maxLength errors would reach an ExecutionContext that overrides addError.
+        String schemaData = """
+                { "propertyNames": { "maxLength": 3 } }
+                """;
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> reported = new ArrayList<>();
+        ExecutionContext executionContext = new ExecutionContext(ExecutionConfig.builder().failFast(true).build()) {
+            @Override
+            public void addError(Error error) {
+                reported.add(error);
+                super.addError(error);
+            }
+        };
+        List<Error> messages = schema.validate(executionContext, "{ \"foobar\": 1, \"bazqux\": 2 }",
+                InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals("propertyNames", messages.get(0).getKeyword());
+        assertEquals("foobar", messages.get(0).getProperty());
+        assertEquals(List.of("maxLength"), reported.stream().map(Error::getKeyword)
+                .filter("maxLength"::equals).toList());
+    }
+
+    @Test
+    void walkWithFailFastReturnsPropertyNamesError() {
+        String schemaData = """
+                { "propertyNames": { "maxLength": 3 } }
+                """;
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        Result result = schema.walk("{ \"foobar\": {} }", InputFormat.JSON, true);
+        assertEquals(1, result.getErrors().size());
+        assertEquals("propertyNames", result.getErrors().get(0).getKeyword());
     }
 }
