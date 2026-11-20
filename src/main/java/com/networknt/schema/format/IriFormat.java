@@ -8,15 +8,11 @@ import java.net.URI;
 public class IriFormat extends AbstractRFC3986Format {
     @Override
     protected boolean validate(URI uri) {
+        if (containsBidiFormatting(uri.toString())) {
+            return false;
+        }
         boolean result = uri.isAbsolute();
         if (result) {
-            String authority = uri.getAuthority();
-            if (authority != null) {
-                if (IPv6Format.PATTERN.matcher(authority).matches() ) {
-                    return false;
-                }
-            }
-
             String query = uri.getRawQuery();
             if (query != null) {
                 // [ and ] must be percent encoded
@@ -26,6 +22,11 @@ public class IriFormat extends AbstractRFC3986Format {
             }
         }
         return result;
+    }
+
+    @Override
+    protected boolean isInternationalized() {
+        return true;
     }
 
     @Override

@@ -8,17 +8,19 @@ import java.net.URI;
 public class IriReferenceFormat extends AbstractRFC3986Format {
     @Override
     protected boolean validate(URI uri) {
-        String authority = uri.getAuthority();
-        if (authority != null) {
-            if (IPv6Format.PATTERN.matcher(authority).matches() ) {
-                return false;
-            }
+        if (containsBidiFormatting(uri.toString())) {
+            return false;
         }
         String query = uri.getRawQuery();
         if (query != null) {
             // [ and ] must be percent encoded
 	        return query.indexOf('[') == -1 && query.indexOf(']') == -1;
         }
+        return true;
+    }
+
+    @Override
+    protected boolean isInternationalized() {
         return true;
     }
 

@@ -14,6 +14,16 @@ public class IPv6Format implements Format {
 
     @Override
     public boolean matches(ExecutionContext executionContext, String value) {
+        return isValid(value);
+    }
+
+    /**
+     * Determines if the value is an RFC 4291 IPv6 address, without a zone id.
+     *
+     * @param value the value
+     * @return true if valid
+     */
+    public static boolean isValid(String value) {
         if (!value.trim().equals(value)) {
             // leading and trailing spaces
             return false;

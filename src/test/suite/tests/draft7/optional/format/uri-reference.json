@@ -67,6 +67,21 @@
                 "description": "an invalid URI fragment",
                 "data": "#frag\\ment",
                 "valid": false
+            },
+            {
+                "description": "a non-numeric port in a network-path reference",
+                "data": "//example.com:abc/p",
+                "valid": false
+            },
+            {
+                "description": "more than one at-sign in the authority",
+                "data": "//a@b@example.com/",
+                "valid": false
+            },
+            {
+                "description": "a leading zero in the IPv4 part of an IPv6 literal",
+                "data": "//[::ffff:192.168.0.01]/p",
+                "valid": false
             }
         ]
     }
