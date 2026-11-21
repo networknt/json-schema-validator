@@ -115,8 +115,8 @@ The built-in formats have their own key: `format.date`, `format.date-time`, `for
 | `dependentRequired` | `dependentRequired` | A property is present but a property it depends on is missing. Draft 2019-09 and later. | `{0}` the missing property, `{1}` the property that is present | `property` | `has a missing property '{0}' which is dependent required because '{1}' is present` |
 | `dependencies` | `dependencies` | A property is present but a property listed for it in `dependencies` is missing. Draft 7 and earlier. | `{0}` the list of dependencies | `property` | `has an error with dependencies {0}` |
 | `notAllowed` | `notAllowed` | A property listed in `notAllowed` is present. Only in dialects that add `notAllowed`. | `{0}` the property name | `property` | `property '{0}' is not allowed but it is in the data` |
-| `readOnly` | `readOnly` | A `readOnly` value is present and the execution config sets `readOnly(true)`. | none | | `is a readonly field, it cannot be changed` |
-| `writeOnly` | `writeOnly` | A `writeOnly` value is present and the execution config sets `writeOnly(true)`. | none | | `is a write-only field, it cannot appear in the data` |
+| `readOnly` | `readOnly` | A `readOnly` value is present, the value is not the boolean `false`, and the execution config sets `readOnly(true)`. | none | | `is a readonly field, it cannot be changed` |
+| `writeOnly` | `writeOnly` | A `writeOnly` value is present, the value is not the boolean `false`, and the execution config sets `writeOnly(true)`. | none | | `is a write-only field, it cannot appear in the data` |
 
 ### Combining schemas
 

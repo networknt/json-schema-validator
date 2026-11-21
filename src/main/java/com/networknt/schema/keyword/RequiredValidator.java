@@ -30,6 +30,8 @@ import java.util.*;
  */
 public class RequiredValidator extends BaseKeywordValidator implements KeywordValidator {
     private final List<String> fieldNames;
+    private final Map<String, JsonNode> readOnlyNodes;
+    private final Map<String, JsonNode> writeOnlyNodes;
 
     public RequiredValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext);
@@ -41,6 +43,10 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
         } else {
             this.fieldNames = Collections.emptyList();
         }
+        // The keyword values are immutable, so resolve them once. Only a declaration
+        // directly on the property schema is seen; $ref and allOf are not resolved.
+        this.readOnlyNodes = resolveFieldKeywords("readOnly");
+        this.writeOnlyNodes = resolveFieldKeywords("writeOnly");
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
@@ -56,16 +62,13 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
             if (propertyNode == null) {
                 Boolean readOnly = executionContext.getExecutionConfig().getReadOnly();
                 Boolean writeOnly = executionContext.getExecutionConfig().getWriteOnly();
-                if (Boolean.TRUE.equals(readOnly)) {
-                    JsonNode readOnlyNode = getFieldKeyword(fieldName, "readOnly");
-                    if (readOnlyNode != null && readOnlyNode.booleanValue()) {
-                        continue;
-                    }
-                } else if(Boolean.TRUE.equals(writeOnly)) {
-                    JsonNode writeOnlyNode = getFieldKeyword(fieldName, "writeOnly");
-                    if (writeOnlyNode != null && writeOnlyNode.booleanValue()) {
-                        continue;
-                    }
+                // Mirror the readOnly and writeOnly execution policies: each asserts for
+                // every value except the boolean false, so a property it would assert for
+                // must not be demanded here. The two are checked independently so that
+                // both are honoured when both policies are on.
+                if (ReadOnlyWriteOnlyPolicy.asserts(readOnly, this.readOnlyNodes.get(fieldName))
+                        || ReadOnlyWriteOnlyPolicy.asserts(writeOnly, this.writeOnlyNodes.get(fieldName))) {
+                    continue;
                 }
                 /**
                  * Note that for the required validation the instanceLocation does not contain the missing property
@@ -79,6 +82,42 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
         }
     }
 
+    /**
+     * Resolves the keyword value of each required property from its property schema.
+     * <p>
+     * Only a declaration directly on the property schema is seen; {@code $ref} and
+     * {@code allOf} are not resolved into the property schema. A property that does not
+     * declare the keyword does not get an entry, so the map is empty when no required
+     * property declares it.
+     *
+     * @param keyword the readOnly or writeOnly keyword
+     * @return the keyword value by property name
+     */
+    private Map<String, JsonNode> resolveFieldKeywords(String keyword) {
+        Map<String, JsonNode> keywordNodes = new HashMap<>();
+        for (String fieldName : this.fieldNames) {
+            JsonNode keywordNode = getFieldKeyword(fieldName, keyword);
+            if (keywordNode != null) {
+                keywordNodes.put(fieldName, keywordNode);
+            }
+        }
+        return keywordNodes.isEmpty() ? Collections.emptyMap() : keywordNodes;
+    }
+
+    /**
+     * Gets the keyword value of a required property from its property schema.
+     * <p>
+     * This is called once for each required property when the validator is constructed,
+     * so that validation only does map lookups.
+     *
+     * @param fieldName the property name
+     * @param keyword   the readOnly or writeOnly keyword
+     * @return the keyword value, or null when the property schema does not declare it
+     * @deprecated this hook is called from the constructor, before a subclass is
+     *             initialized; do not override it to resolve a keyword that is reached
+     *             through {@code $ref} or {@code allOf}
+     */
+    @Deprecated
     protected JsonNode getFieldKeyword(String fieldName, String keyword) {
         JsonNode propertiesNode = this.parentSchema.getSchemaNode().get("properties");
         if (propertiesNode != null) {
