@@ -30,7 +30,7 @@ public abstract class AbstractRFC3986Format implements Format {
             if (authority != null && !isValidAuthority(authority)) {
                 return false;
             }
-            return validate(uri);
+            return !containsMisplacedBracket(uri) && validate(uri);
         } catch (URISyntaxException e) {
             // Since JDK 25 the input of the exception can be trimmed, or empty, depending on the
             // jdk.includeInExceptions security property, so pass on the value as it is
@@ -64,11 +64,26 @@ public abstract class AbstractRFC3986Format implements Format {
         int hash = value.indexOf('#');
         int end = hash == -1 ? value.length() : hash;
         try {
-            return validate(new URI(value.substring(0, end) + "/" + value.substring(end)));
+            URI uri = new URI(value.substring(0, end) + "/" + value.substring(end));
+            return !containsMisplacedBracket(uri) && validate(uri);
         } catch (URISyntaxException invalid) {
             // for example, a fragment with a character that is not allowed
             return false;
         }
+    }
+
+    /**
+     * Determines if the uri contains {@code "["} or {@code "]"} outside an IP-literal. RFC 3986 allows them only
+     * around an IP-literal in the authority, but {@link URI} also accepts them in the query, the fragment and an opaque
+     * scheme-specific part, such as {@code urn:a[b}. It rejects them in a path.
+     */
+    private static boolean containsMisplacedBracket(URI uri) {
+        return containsBracket(uri.isOpaque() ? uri.getRawSchemeSpecificPart() : uri.getRawQuery())
+                || containsBracket(uri.getRawFragment());
+    }
+
+    private static boolean containsBracket(String value) {
+        return value != null && (value.indexOf('[') != -1 || value.indexOf(']') != -1);
     }
 
     /**
