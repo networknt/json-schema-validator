@@ -16,10 +16,11 @@ public abstract class AbstractRFC3986Format implements Format {
     private static final String SCHEME = "[A-Za-z][A-Za-z0-9+.-]*:";
 
     /**
-     * What {@link URI} rejects although RFC 3986 allows it: an empty authority, as in {@code http://} or the
-     * network-path reference {@code //}, and an empty hier-part, as in {@code about:}.
+     * What {@link URI} rejects although RFC 3986 allows it: an empty authority with nothing after it, as in
+     * {@code http://} or the network-path reference {@code //}, and an empty hier-part with no query, as in
+     * {@code about:} or {@code about:#fragment}.
      */
-    private static final Pattern VALID = Pattern.compile("(" + SCHEME + ")?//|" + SCHEME);
+    private static final Pattern VALID = Pattern.compile("(" + SCHEME + ")?//|" + SCHEME + "(#.*)?", Pattern.DOTALL);
 
     @Override
     public final boolean matches(ExecutionContext executionContext, String value) {
@@ -31,7 +32,9 @@ public abstract class AbstractRFC3986Format implements Format {
             }
             return validate(uri);
         } catch (URISyntaxException e) {
-            return handleException(e);
+            // Since JDK 25 the input of the exception can be trimmed, or empty, depending on the
+            // jdk.includeInExceptions security property, so pass on the value as it is
+            return handleException(new URISyntaxException(value, e.getReason(), e.getIndex()));
         }
     }
 
@@ -44,14 +47,28 @@ public abstract class AbstractRFC3986Format implements Format {
     protected abstract boolean validate(URI uri);
 
     /**
-     * Determines if a value that {@link URI} cannot parse still matches the format: {@code scheme ":"} or
-     * {@code [ scheme ":" ] "//"}.
+     * Determines if a value that {@link URI} cannot parse still matches the format: {@code scheme ":" "//"},
+     * {@code "//"} or {@code scheme ":" [ "#" fragment ]}. Such a value is checked with {@link #validate(URI)} as if
+     * its empty path were {@code "/"}, so {@code //} is rejected by a format that requires an absolute URI, and a
+     * subclass that requires a certain scheme rejects {@code http://} for another scheme.
      *
-     * @param e the URISyntaxException
+     * @param e the URISyntaxException, whose input is the value
      * @return false if it does not match
      */
     protected boolean handleException(URISyntaxException e) {
-        return VALID.matcher(e.getInput()).matches();
+        String value = e.getInput();
+        if (!VALID.matcher(value).matches()) {
+            return false;
+        }
+        // the empty path ends at the fragment, since "#" cannot be part of a scheme
+        int hash = value.indexOf('#');
+        int end = hash == -1 ? value.length() : hash;
+        try {
+            return validate(new URI(value.substring(0, end) + "/" + value.substring(end)));
+        } catch (URISyntaxException invalid) {
+            // for example, a fragment with a character that is not allowed
+            return false;
+        }
     }
 
     /**
