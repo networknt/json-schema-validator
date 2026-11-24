@@ -10,7 +10,16 @@ import com.networknt.schema.ExecutionContext;
  * {@link Format} for RFC 3986 Uniform Resource Identifier (URI): Generic Syntax.
  */
 public abstract class AbstractRFC3986Format implements Format {
-    private static final Pattern VALID = Pattern.compile("([A-Za-z0-9+-\\.]*:)?//|[A-Za-z0-9+-\\.]+:");
+    /**
+     * RFC 3986 section 3.1: {@code scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )}, followed by {@code ":"}.
+     */
+    private static final String SCHEME = "[A-Za-z][A-Za-z0-9+.-]*:";
+
+    /**
+     * What {@link URI} rejects although RFC 3986 allows it: an empty authority, as in {@code http://} or the
+     * network-path reference {@code //}, and an empty hier-part, as in {@code about:}.
+     */
+    private static final Pattern VALID = Pattern.compile("(" + SCHEME + ")?//|" + SCHEME);
 
     @Override
     public final boolean matches(ExecutionContext executionContext, String value) {
@@ -35,13 +44,14 @@ public abstract class AbstractRFC3986Format implements Format {
     protected abstract boolean validate(URI uri);
 
     /**
-     * Determines if the uri matches the format.
+     * Determines if a value that {@link URI} cannot parse still matches the format: {@code scheme ":"} or
+     * {@code [ scheme ":" ] "//"}.
      *
      * @param e the URISyntaxException
      * @return false if it does not match
      */
     protected boolean handleException(URISyntaxException e) {
-	    return VALID.matcher(e.getInput()).matches();
+        return VALID.matcher(e.getInput()).matches();
     }
 
     /**

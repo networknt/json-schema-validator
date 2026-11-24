@@ -1,6 +1,7 @@
 package com.networknt.schema.format;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Format for iri.
@@ -27,6 +28,12 @@ public class IriFormat extends AbstractRFC3986Format {
     @Override
     protected boolean isInternationalized() {
         return true;
+    }
+
+    @Override
+    protected boolean handleException(URISyntaxException e) {
+        // RFC 3986 section 4.3: an absolute URI starts with a scheme, so "//" is only a valid reference
+        return super.handleException(e) && !e.getInput().startsWith("//");
     }
 
     @Override
