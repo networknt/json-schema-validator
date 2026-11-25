@@ -89,14 +89,14 @@ class IriFormatTest {
     }
 
     @Test
-    void noSchemeNoAuthorityShouldPass() {
+    void noSchemeNoAuthorityShouldFail() {
         String schemaData = "{\r\n"
                 + "  \"format\": \"iri\"\r\n"
                 + "}";
 
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate("\"//\"", InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
-        assertTrue(messages.isEmpty());
+        assertFalse(messages.isEmpty());
     }
 
     @Test

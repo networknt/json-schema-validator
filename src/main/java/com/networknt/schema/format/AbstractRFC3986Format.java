@@ -10,7 +10,17 @@ import com.networknt.schema.ExecutionContext;
  * {@link Format} for RFC 3986 Uniform Resource Identifier (URI): Generic Syntax.
  */
 public abstract class AbstractRFC3986Format implements Format {
-    private static final Pattern VALID = Pattern.compile("([A-Za-z0-9+-\\.]*:)?//|[A-Za-z0-9+-\\.]+:");
+    /**
+     * RFC 3986 section 3.1: {@code scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )}, followed by {@code ":"}.
+     */
+    private static final String SCHEME = "[A-Za-z][A-Za-z0-9+.-]*:";
+
+    /**
+     * What {@link URI} rejects although RFC 3986 allows it: an empty authority with nothing after it, as in
+     * {@code http://} or the network-path reference {@code //}, and an empty hier-part with no query, as in
+     * {@code about:} or {@code about:#fragment}.
+     */
+    private static final Pattern VALID = Pattern.compile("(" + SCHEME + ")?//|" + SCHEME + "(#.*)?", Pattern.DOTALL);
 
     @Override
     public final boolean matches(ExecutionContext executionContext, String value) {
@@ -20,9 +30,11 @@ public abstract class AbstractRFC3986Format implements Format {
             if (authority != null && !isValidAuthority(authority)) {
                 return false;
             }
-            return validate(uri);
+            return check(uri);
         } catch (URISyntaxException e) {
-            return handleException(e);
+            // Since JDK 25 the input of the exception can be trimmed, or empty, depending on the
+            // jdk.includeInExceptions security property, so pass on the value as it is
+            return handleException(new URISyntaxException(value, e.getReason(), e.getIndex()));
         }
     }
 
@@ -34,14 +46,52 @@ public abstract class AbstractRFC3986Format implements Format {
      */
     protected abstract boolean validate(URI uri);
 
+    private boolean check(URI uri) {
+        return !containsMisplacedBracket(uri) && validate(uri);
+    }
+
     /**
-     * Determines if the uri matches the format.
+     * Determines if a value that {@link URI} cannot parse still matches the format: {@code scheme ":" "//"},
+     * {@code "//"} or {@code scheme ":" [ "#" fragment ]}. Such a value is checked with {@link #validate(URI)} as if
+     * its empty path were {@code "/"}, so {@code //} is rejected by a format that requires an absolute URI, and a
+     * subclass that requires a certain scheme rejects {@code http://} for another scheme.
      *
-     * @param e the URISyntaxException
+     * @param e the URISyntaxException, whose input is the value
      * @return false if it does not match
      */
     protected boolean handleException(URISyntaxException e) {
-	    return VALID.matcher(e.getInput()).matches();
+        String value = e.getInput();
+        if (!VALID.matcher(value).matches()) {
+            return false;
+        }
+        // the empty path ends at the fragment, since "#" cannot be part of a scheme
+        int hash = value.indexOf('#');
+        int end = hash == -1 ? value.length() : hash;
+        try {
+            URI uri = new URI(value.substring(0, end) + "/" + value.substring(end));
+            return check(uri);
+        } catch (URISyntaxException invalid) {
+            // for example, a fragment with a character that is not allowed
+            return false;
+        }
+    }
+
+    /**
+     * Determines if the uri contains {@code "["} or {@code "]"} outside an IP-literal. RFC 3986 allows them only
+     * around an IP-literal in the authority, but {@link URI} also accepts them in the query, the fragment and an opaque
+     * scheme-specific part, such as {@code urn:a[b}. It rejects them in a path. A subclass that accepts them, for
+     * example in a query such as {@code ?tags[]=a}, can override this to return false.
+     *
+     * @param uri the uri
+     * @return true if the uri contains one
+     */
+    protected boolean containsMisplacedBracket(URI uri) {
+        return containsBracket(uri.isOpaque() ? uri.getRawSchemeSpecificPart() : uri.getRawQuery())
+                || containsBracket(uri.getRawFragment());
+    }
+
+    private static boolean containsBracket(String value) {
+        return value != null && (value.indexOf('[') != -1 || value.indexOf(']') != -1);
     }
 
     /**
