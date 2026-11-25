@@ -19,7 +19,7 @@ The implementation supports the use of custom keywords, formats, vocabularies an
 
 There are currently no known issues with the required functionality from the specification.
 
-The following are the tests results after running the [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as at 18 Jun 2024 using version 1.4.1. As the test suite is continously updated, this can result in changes in the results subsequently.
+The following are the test results after running the [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as at 18 Jun 2024 using version 1.4.1. As the test suite is continuously updated, this can result in changes in the results subsequently.
 
 | Implementations | Overall                                                                 | DRAFT_03                                                          | DRAFT_04                                                            | DRAFT_06                                                           | DRAFT_07                                                               | DRAFT_2019_09                                                        | DRAFT_2020_12                                                          |
 |-----------------|-------------------------------------------------------------------------|-------------------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------|------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
