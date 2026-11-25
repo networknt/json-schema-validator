@@ -65,7 +65,7 @@ class UriFallbackFormatTest {
             "iri | 1http:// | false",
             "iri | about: | true",
             // the empty scheme that 3.0.9 accepted
-            "uri | :// | false",
+            "iri | :// | false",
             "uri-reference | :// | false",
             "iri-reference | :// | false",
             // scheme ":" "#" fragment, with an empty hier-part

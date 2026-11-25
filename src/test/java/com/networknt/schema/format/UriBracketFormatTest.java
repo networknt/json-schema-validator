@@ -16,9 +16,12 @@
 package com.networknt.schema.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.URI;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -57,5 +60,16 @@ class UriBracketFormatTest {
                 executionContext -> executionContext
                         .executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(valid, messages.isEmpty(), () -> format + " " + value + ": " + messages);
+    }
+
+    @Test
+    void subclassCanAcceptBrackets() {
+        AbstractRFC3986Format format = new UriFormat() {
+            @Override
+            protected boolean containsMisplacedBracket(URI uri) {
+                return false;
+            }
+        };
+        assertTrue(format.matches(null, "https://x/search?tags[]=a"));
     }
 }
