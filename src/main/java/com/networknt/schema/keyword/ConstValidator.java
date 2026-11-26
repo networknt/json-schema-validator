@@ -16,6 +16,7 @@
 package com.networknt.schema.keyword;
 
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.StringNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -36,7 +37,15 @@ public class ConstValidator extends BaseKeywordValidator implements KeywordValid
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath())
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .arguments(schemaNode.asString(schemaNode.toString()), node.asString(node.toString())).build());
+                    .arguments(asString(schemaNode), asString(node)).build());
         }
+    }
+
+    private static String asString(JsonNode node) {
+        // A StringNode never uses the default, so skip serializing the node for it
+        if (node.getClass() == StringNode.class) {
+            return node.asString();
+        }
+        return node.asString(node.toString());
     }
 }
