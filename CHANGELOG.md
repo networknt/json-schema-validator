@@ -36,6 +36,8 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
   - `idn-hostname` does not apply UTS 46 mapping.
 - Removed the unused `UnicodeDatabase.isGreek`, `isHebrew` and `isKatakana`, which tested code blocks rather than scripts.
 - Updated the vendored `hostname.json` and `idn-hostname.json` suite files to the current JSON-Schema-Test-Suite, including `draft-next`. Cases that need UTS 46 mapping are disabled with a reason.
+- `json-pointer` and `relative-json-pointer` accept `#` inside a reference token, as RFC 6901 section 3 allows: `/a#b`, `/#` and `0/a#b` are now valid, where 3.0.9 rejected them. A value that starts with `#` (the URI fragment form), such as `#/a`, remains invalid as `json-pointer`. Both formats match tokens possessively, so a long token, such as `/` followed by 100,000 characters, no longer makes validation throw `StackOverflowError`.
+- `relative-json-pointer` accepts an index manipulation after the integer in the 2020-12 dialects (Draft 2020-12 and OpenAPI 3.1), as draft-bhutton-relative-json-pointer-00 allows: `0+1/foo` and `1-1#` are now valid there. `+1/foo/bar`, `-1/foo/bar`, `0+0` and `0-01` remain invalid, and the earlier dialects, whose drafts have no index manipulation, are unchanged. `relative-json-pointer` is now implemented by `RelativeJsonPointerFormat` instead of a `PatternFormat`.
 ### Fixed
 
 - `uri`, `uri-reference`, `iri` and `iri-reference` check the value as it is when `java.net.URI` cannot parse it. Since JDK 25, the input of the `URISyntaxException` is trimmed, or empty, depending on the `jdk.includeInExceptions` security property, so `http://` with a leading space was accepted and `about:` could be rejected.

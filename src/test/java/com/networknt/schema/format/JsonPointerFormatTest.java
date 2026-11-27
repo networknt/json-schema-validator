@@ -1,0 +1,141 @@
+/*
+ * Copyright (c) 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.networknt.schema.format;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import com.networknt.schema.Error;
+import com.networknt.schema.InputFormat;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
+
+/**
+ * Tests for the json-pointer and relative-json-pointer formats.
+ * <p>
+ * RFC 6901 section 3: a reference token may contain any character except '/' and '~', which is escaped as '~0' or
+ * '~1'. A '#' is an ordinary character inside a token; only the URI fragment representation (section 6) starts with
+ * '#', and that is not a JSON Pointer string.
+ */
+class JsonPointerFormatTest {
+
+    private static boolean valid(String format, String value) {
+        return valid(SpecificationVersion.DRAFT_2020_12, format, value);
+    }
+
+    private static boolean valid(SpecificationVersion version, String format, String value) {
+        Schema schema = SchemaRegistry.withDefaultDialect(version)
+                .getSchema("{\"type\": \"string\", \"format\": \"" + format + "\"}");
+        List<Error> errors = schema.validate("\"" + value + "\"", InputFormat.JSON,
+                executionContext -> executionContext.executionConfig(config -> config.formatAssertionsEnabled(true)));
+        return errors.isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "", "/", "/foo", "/a#b", "/#", "/foo#bar/baz", "/~0#~1", "/c%d/e^f/g|h" })
+    void jsonPointerAccepts(String value) {
+        assertEquals(true, valid("json-pointer", value), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "#", "#/", "#/a", "a#b", "/a~2#", "/~#" })
+    void jsonPointerRejects(String value) {
+        assertEquals(false, valid("json-pointer", value), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "0", "0#", "1/foo", "0/a#b", "2/#", "10/foo#bar" })
+    void relativeJsonPointerAccepts(String value) {
+        assertEquals(true, valid("relative-json-pointer", value), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "#/a", "/a#b", "01/a", "0/a~2#", "0##" })
+    void relativeJsonPointerRejects(String value) {
+        assertEquals(false, valid("relative-json-pointer", value), value);
+    }
+
+    /**
+     * 2020-12 references draft-bhutton-relative-json-pointer-00, whose origin-specification may end with an index
+     * manipulation: {@code ("+" / "-") positive-integer}.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "0+1/foo", "1-1#", "0+1", "2-1/a#b", "10+20#", "0-1/" })
+    void relativeJsonPointerIndexManipulationAcceptedIn202012(String value) {
+        assertEquals(true, valid(SpecificationVersion.DRAFT_2020_12, "relative-json-pointer", value), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "+1/foo/bar", "-1/foo/bar", "0+0", "0-01", "0+", "0-", "0+1+1", "0++1", "01+1", "0+1##" })
+    void relativeJsonPointerInvalidIndexManipulationRejectedIn202012(String value) {
+        assertEquals(false, valid(SpecificationVersion.DRAFT_2020_12, "relative-json-pointer", value), value);
+    }
+
+    /**
+     * Drafts 7 and 2019-09 reference draft-handrews-relative-json-pointer, which has no index manipulation.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "0+1/foo", "1-1#", "0+1" })
+    void relativeJsonPointerIndexManipulationRejectedBefore202012(String value) {
+        assertEquals(false, valid(SpecificationVersion.DRAFT_2019_09, "relative-json-pointer", value), value);
+        assertEquals(false, valid(SpecificationVersion.DRAFT_7, "relative-json-pointer", value), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "0", "0#", "1/foo", "0/a#b", "10/foo#bar" })
+    void relativeJsonPointerWithoutIndexManipulationAcceptedBefore202012(String value) {
+        assertEquals(true, valid(SpecificationVersion.DRAFT_2019_09, "relative-json-pointer", value), value);
+        assertEquals(true, valid(SpecificationVersion.DRAFT_7, "relative-json-pointer", value), value);
+    }
+
+    private static String repeat(String s, int count) {
+        StringBuilder sb = new StringBuilder(s.length() * count);
+        for (int i = 0; i < count; i++) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * The token and pointer groups are possessive, so the regex engine does not recurse once per character and a long
+     * token cannot overflow the stack.
+     */
+    @ParameterizedTest
+    @ValueSource(ints = { 5_000, 100_000 })
+    void longTokensDoNotOverflow(int length) {
+        String token = repeat("a", length);
+        assertEquals(true, valid("json-pointer", "/" + token));
+        assertEquals(true, valid("json-pointer", "/" + repeat("a~0#", length / 4)));
+        assertEquals(false, valid("json-pointer", "/" + token + "~2"));
+        assertEquals(true, valid("json-pointer", repeat("/a", length / 2)));
+        assertEquals(true, valid("relative-json-pointer", "0/" + token));
+        assertEquals(true, valid("relative-json-pointer", "1" + repeat("/a~1", length / 4)));
+        assertEquals(false, valid("relative-json-pointer", "0/" + token + "~"));
+        assertEquals(true, valid("relative-json-pointer", "0" + repeat("/a", length / 2)));
+    }
+
+    @Test
+    void longTokenRejectedWithoutOverflow() {
+        assertEquals(false, valid("json-pointer", repeat("a", 100_000)));
+        assertEquals(false, valid("relative-json-pointer", "01/" + repeat("a", 100_000)));
+    }
+}

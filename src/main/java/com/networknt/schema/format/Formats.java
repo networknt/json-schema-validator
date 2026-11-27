@@ -64,6 +64,16 @@ public class Formats {
     private static final String URI_TEMPLATE_VARSPEC = "(?:\\w++|%\\p{XDigit}{2})++"
             + "(?:\\.(?:\\w++|%\\p{XDigit}{2})++)*+(?::[1-9]\\d{0,3}|\\*)?";
 
+    /**
+     * An RFC 6901 JSON Pointer: reference tokens, each preceded by {@code /}, whose characters are anything but
+     * {@code /} and {@code ~}, or the escapes {@code ~0} and {@code ~1}.
+     * <p>
+     * A token can be split into characters and escapes only one way, so the groups are possessive, as in
+     * {@link #URI_TEMPLATE_LITERALS}: the regex engine does not recurse once per character, and a long token cannot
+     * overflow the stack.
+     */
+    static final String JSON_POINTER = "(?:/(?:[^/~]|~[01])*+)*+";
+
     public static final List<Format> DEFAULT;
     
     static {
@@ -72,8 +82,8 @@ public class Formats {
         formats.add(new HostnameFormat());
         formats.add(pattern("ipv4", "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$", "format.ipv4"));
         formats.add(new IPv6Format());
-        formats.add(pattern("json-pointer", "^(/([^/#~]|[~](?=[01]))*)*$", "format.json-pointer"));
-        formats.add(pattern("relative-json-pointer", "^(0|([1-9]\\d*))(#|(/([^/#~]|[~](?=[01]))*)*)$", "format.relative-json-pointer"));
+        formats.add(pattern("json-pointer", "^" + JSON_POINTER + "$", "format.json-pointer"));
+        formats.add(new RelativeJsonPointerFormat());
         formats.add(pattern("uri-template", "^(?:" + URI_TEMPLATE_LITERALS + "|%\\p{XDigit}{2}|\\{[+#./;?&=,!@|]?" + URI_TEMPLATE_VARSPEC + "(?:," + URI_TEMPLATE_VARSPEC + ")*+\\})*+$", "format.uri-template"));
         formats.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$", "format.uuid"));
         formats.add(new DateFormat());
