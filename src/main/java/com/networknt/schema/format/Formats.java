@@ -72,8 +72,8 @@ public class Formats {
         formats.add(new HostnameFormat());
         formats.add(pattern("ipv4", "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$", "format.ipv4"));
         formats.add(new IPv6Format());
-        formats.add(pattern("json-pointer", "^(/([^/#~]|[~](?=[01]))*)*$", "format.json-pointer"));
-        formats.add(pattern("relative-json-pointer", "^(0|([1-9]\\d*))(#|(/([^/#~]|[~](?=[01]))*)*)$", "format.relative-json-pointer"));
+        formats.add(pattern("json-pointer", "^(/([^/~]|[~](?=[01]))*)*$", "format.json-pointer"));
+        formats.add(pattern("relative-json-pointer", "^(0|([1-9]\\d*))(#|(/([^/~]|[~](?=[01]))*)*)$", "format.relative-json-pointer"));
         formats.add(pattern("uri-template", "^(?:" + URI_TEMPLATE_LITERALS + "|%\\p{XDigit}{2}|\\{[+#./;?&=,!@|]?" + URI_TEMPLATE_VARSPEC + "(?:," + URI_TEMPLATE_VARSPEC + ")*+\\})*+$", "format.uri-template"));
         formats.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$", "format.uuid"));
         formats.add(new DateFormat());
