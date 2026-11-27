@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -67,5 +68,37 @@ class JsonPointerFormatTest {
     @ValueSource(strings = { "#/a", "/a#b", "01/a", "0/a~2#", "0##" })
     void relativeJsonPointerRejects(String value) {
         assertEquals(false, valid("relative-json-pointer", value), value);
+    }
+
+    private static String repeat(String s, int count) {
+        StringBuilder sb = new StringBuilder(s.length() * count);
+        for (int i = 0; i < count; i++) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * The token and pointer groups are possessive, so the regex engine does not recurse once per character and a long
+     * token cannot overflow the stack.
+     */
+    @ParameterizedTest
+    @ValueSource(ints = { 5_000, 100_000 })
+    void longTokensDoNotOverflow(int length) {
+        String token = repeat("a", length);
+        assertEquals(true, valid("json-pointer", "/" + token));
+        assertEquals(true, valid("json-pointer", "/" + repeat("a~0#", length / 4)));
+        assertEquals(false, valid("json-pointer", "/" + token + "~2"));
+        assertEquals(true, valid("json-pointer", repeat("/a", length / 2)));
+        assertEquals(true, valid("relative-json-pointer", "0/" + token));
+        assertEquals(true, valid("relative-json-pointer", "1" + repeat("/a~1", length / 4)));
+        assertEquals(false, valid("relative-json-pointer", "0/" + token + "~"));
+        assertEquals(true, valid("relative-json-pointer", "0" + repeat("/a", length / 2)));
+    }
+
+    @Test
+    void longTokenRejectedWithoutOverflow() {
+        assertEquals(false, valid("json-pointer", repeat("a", 100_000)));
+        assertEquals(false, valid("relative-json-pointer", "01/" + repeat("a", 100_000)));
     }
 }
