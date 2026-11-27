@@ -23,6 +23,7 @@ import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.ExecutionContext.DiscriminatorScope;
+import com.networknt.schema.FailFastAssertionException;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaException;
@@ -165,7 +166,9 @@ public class AnyOfValidator extends BaseKeywordValidator {
                 // Note that this is related to the DiscriminatorValidator by default not
                 // generating an assertion
                 // if the discriminatingValue is not set in the payload
-                existingErrors.add(error().keyword("discriminator").instanceNode(node)
+                // Report through the execution context so fail fast and execution
+                // contexts that override addError see the error
+                executionContext.addError(error().keyword("discriminator").instanceNode(node)
                         .instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .messageKey("discriminator.anyOf.no_match_found").arguments(state.getDiscriminatingValue())
                         .build());
@@ -176,13 +179,17 @@ public class AnyOfValidator extends BaseKeywordValidator {
             // Successful so return only the existing errors, ie. no new errors
             executionContext.setErrors(existingErrors);
         } else {
-            if (discriminatorErrors != null) {
-                // If errors are present matching the discriminator, only these errors should be
-                // reported
-                existingErrors.addAll(discriminatorErrors);
-            } else if (allErrors != null) {
-                // As the anyOf has failed, report all the errors
-                existingErrors.addAll(allErrors);
+            // If errors are present matching the discriminator, only these errors should be
+            // reported. Otherwise, as the anyOf has failed, report all the errors.
+            List<Error> branchErrors = discriminatorErrors != null ? discriminatorErrors : allErrors;
+            if (branchErrors != null && !branchErrors.isEmpty()) {
+                existingErrors.addAll(branchErrors);
+                if (failFast) {
+                    // The branches ran with fail fast off, so their errors went through
+                    // addError without stopping the evaluation. Stop it at the first, as
+                    // addError would, without reporting it to the execution context again.
+                    throw new FailFastAssertionException(branchErrors.get(0));
+                }
             }
             executionContext.setErrors(existingErrors);
         }
