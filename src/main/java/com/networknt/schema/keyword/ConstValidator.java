@@ -36,7 +36,11 @@ public class ConstValidator extends BaseKeywordValidator implements KeywordValid
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath())
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .arguments(schemaNode.asString(schemaNode.toString()), node.asString(node.toString())).build());
+                    .arguments(asString(schemaNode), asString(node)).build());
         }
+    }
+
+    private static String asString(JsonNode node) {
+        return node.asStringOpt().orElseGet(node::toString);
     }
 }
