@@ -72,7 +72,7 @@ public class Formats {
      * {@link #URI_TEMPLATE_LITERALS}: the regex engine does not recurse once per character, and a long token cannot
      * overflow the stack.
      */
-    private static final String JSON_POINTER = "(?:/(?:[^/~]|~[01])*+)*+";
+    static final String JSON_POINTER = "(?:/(?:[^/~]|~[01])*+)*+";
 
     public static final List<Format> DEFAULT;
     
@@ -83,7 +83,7 @@ public class Formats {
         formats.add(pattern("ipv4", "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$", "format.ipv4"));
         formats.add(new IPv6Format());
         formats.add(pattern("json-pointer", "^" + JSON_POINTER + "$", "format.json-pointer"));
-        formats.add(pattern("relative-json-pointer", "^(?:0|[1-9]\\d*+)(?:#|" + JSON_POINTER + ")$", "format.relative-json-pointer"));
+        formats.add(new RelativeJsonPointerFormat());
         formats.add(pattern("uri-template", "^(?:" + URI_TEMPLATE_LITERALS + "|%\\p{XDigit}{2}|\\{[+#./;?&=,!@|]?" + URI_TEMPLATE_VARSPEC + "(?:," + URI_TEMPLATE_VARSPEC + ")*+\\})*+$", "format.uri-template"));
         formats.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$", "format.uuid"));
         formats.add(new DateFormat());

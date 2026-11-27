@@ -39,7 +39,11 @@ import com.networknt.schema.SpecificationVersion;
 class JsonPointerFormatTest {
 
     private static boolean valid(String format, String value) {
-        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+        return valid(SpecificationVersion.DRAFT_2020_12, format, value);
+    }
+
+    private static boolean valid(SpecificationVersion version, String format, String value) {
+        Schema schema = SchemaRegistry.withDefaultDialect(version)
                 .getSchema("{\"type\": \"string\", \"format\": \"" + format + "\"}");
         List<Error> errors = schema.validate("\"" + value + "\"", InputFormat.JSON,
                 executionContext -> executionContext.executionConfig(config -> config.formatAssertionsEnabled(true)));
@@ -68,6 +72,39 @@ class JsonPointerFormatTest {
     @ValueSource(strings = { "#/a", "/a#b", "01/a", "0/a~2#", "0##" })
     void relativeJsonPointerRejects(String value) {
         assertEquals(false, valid("relative-json-pointer", value), value);
+    }
+
+    /**
+     * 2020-12 references draft-bhutton-relative-json-pointer-00, whose origin-specification may end with an index
+     * manipulation: {@code ("+" / "-") positive-integer}.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "0+1/foo", "1-1#", "0+1", "2-1/a#b", "10+20#", "0-1/" })
+    void relativeJsonPointerIndexManipulationAcceptedIn202012(String value) {
+        assertEquals(true, valid(SpecificationVersion.DRAFT_2020_12, "relative-json-pointer", value), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "+1/foo/bar", "-1/foo/bar", "0+0", "0-01", "0+", "0-", "0+1+1", "0++1", "01+1", "0+1##" })
+    void relativeJsonPointerInvalidIndexManipulationRejectedIn202012(String value) {
+        assertEquals(false, valid(SpecificationVersion.DRAFT_2020_12, "relative-json-pointer", value), value);
+    }
+
+    /**
+     * Drafts 7 and 2019-09 reference draft-handrews-relative-json-pointer, which has no index manipulation.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "0+1/foo", "1-1#", "0+1" })
+    void relativeJsonPointerIndexManipulationRejectedBefore202012(String value) {
+        assertEquals(false, valid(SpecificationVersion.DRAFT_2019_09, "relative-json-pointer", value), value);
+        assertEquals(false, valid(SpecificationVersion.DRAFT_7, "relative-json-pointer", value), value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "0", "0#", "1/foo", "0/a#b", "10/foo#bar" })
+    void relativeJsonPointerWithoutIndexManipulationAcceptedBefore202012(String value) {
+        assertEquals(true, valid(SpecificationVersion.DRAFT_2019_09, "relative-json-pointer", value), value);
+        assertEquals(true, valid(SpecificationVersion.DRAFT_7, "relative-json-pointer", value), value);
     }
 
     private static String repeat(String s, int count) {
