@@ -59,6 +59,13 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
         Predicate<Annotation> validEvaluationPathFilter = a -> a.isValid();
         //Predicate<Annotation> validEvaluationPathFilter = a -> executionContext.getInstanceResults().isValid(instanceLocation, a.getEvaluationPath());
 
+        // An annotation collected from a schema node may share a name with a keyword this
+        // validator consumes. It reports the raw schema value, not the evaluation result, so it
+        // must not count as an evaluated-properties annotation. This covers unknown keywords,
+        // document-container root fields, keywords a dialect registers as annotation keywords,
+        // and readOnly/writeOnly.
+        Predicate<Annotation> schemaNodeAnnotationFilter = a -> !a.isSchemaNodeAnnotation();
+
         Predicate<Annotation> adjacentEvaluationPathFilter = a -> a.getEvaluationPath()
                 .startsWith(executionContext.getEvaluationPath().getParent());
 
@@ -69,7 +76,8 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
         Set<String> existingEvaluatedProperties = new LinkedHashSet<>();
         // Get all the "properties" for the instanceLocation
         List<Annotation> properties = instanceLocationAnnotations.stream()
-                .filter(a -> "properties".equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
+                .filter(a -> "properties".equals(a.getKeyword())).filter(schemaNodeAnnotationFilter)
+                .filter(adjacentEvaluationPathFilter)
                 .filter(validEvaluationPathFilter).collect(Collectors.toList());
         for (Annotation annotation : properties) {
             if (annotation.getValue() instanceof Set) {
@@ -80,7 +88,8 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
 
         // Get all the "patternProperties" for the instanceLocation
         List<Annotation> patternProperties = instanceLocationAnnotations.stream()
-                .filter(a -> "patternProperties".equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
+                .filter(a -> "patternProperties".equals(a.getKeyword())).filter(schemaNodeAnnotationFilter)
+                .filter(adjacentEvaluationPathFilter)
                 .filter(validEvaluationPathFilter).collect(Collectors.toList());
         for (Annotation annotation : patternProperties) {
             if (annotation.getValue() instanceof Set) {
@@ -91,7 +100,8 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
 
         // Get all the "patternProperties" for the instanceLocation
         List<Annotation> additionalProperties = instanceLocationAnnotations.stream()
-                .filter(a -> "additionalProperties".equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
+                .filter(a -> "additionalProperties".equals(a.getKeyword())).filter(schemaNodeAnnotationFilter)
+                .filter(adjacentEvaluationPathFilter)
                 .filter(validEvaluationPathFilter).collect(Collectors.toList());
         for (Annotation annotation : additionalProperties) {
             if (annotation.getValue() instanceof Set) {
@@ -102,7 +112,8 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
 
         // Get all the "unevaluatedProperties" for the instanceLocation
         List<Annotation> unevaluatedProperties = instanceLocationAnnotations.stream()
-                .filter(a -> "unevaluatedProperties".equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
+                .filter(a -> "unevaluatedProperties".equals(a.getKeyword())).filter(schemaNodeAnnotationFilter)
+                .filter(adjacentEvaluationPathFilter)
                 .filter(validEvaluationPathFilter).collect(Collectors.toList());
         for (Annotation annotation : unevaluatedProperties) {
             if (annotation.getValue() instanceof Set) {

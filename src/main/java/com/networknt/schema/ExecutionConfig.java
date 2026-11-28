@@ -206,18 +206,24 @@ public class ExecutionConfig {
     }
 
     /**
-     * Returns the value of the read only flag.
+     * Returns the read only policy.
+     * <p>
+     * See {@link BuilderSupport#readOnly(Boolean)} for what the policy does.
      *
      * @return the value of read only flag or null if not set
+     * @see BuilderSupport#readOnly(Boolean)
      */
     public Boolean getReadOnly() {
         return this.readOnly;
     }
 
     /**
-     * Returns the value of the write only flag.
+     * Returns the write only policy.
+     * <p>
+     * See {@link BuilderSupport#writeOnly(Boolean)} for what the policy does.
      *
      * @return the value of the write only flag or null if not set
+     * @see BuilderSupport#writeOnly(Boolean)
      */
     public Boolean getWriteOnly() {
         return this.writeOnly;
@@ -254,6 +260,14 @@ public class ExecutionConfig {
 
     /**
      * Builder for {@link ExecutionConfig}.
+     * <p>
+     * The {@code readOnly} and {@code writeOnly} policies apply to the keyword in
+     * Draft 7 and later, including the OpenAPI 3.0 and 3.1 dialects. When a policy is
+     * true, the keyword reports an error unless its value is the boolean false. A
+     * property whose keyword the policy asserts for (any value but the boolean false)
+     * is also exempt from required, whether or not the dialect defines the keyword,
+     * although only a declaration directly on the property schema is seen, not one
+     * reached through $ref or allOf.
      */
     public static abstract class BuilderSupport<T> {
         protected Locale locale = Locale.ROOT;
@@ -336,11 +350,25 @@ public class ExecutionConfig {
             return self();
         }
 
+        /**
+         * Sets the read only policy. See {@link BuilderSupport} for what the policy does.
+         *
+         * @param readOnly the read only policy, null clears it so that the getter returns
+         *                 null
+         * @return the builder
+         */
         public T readOnly(Boolean readOnly) {
             this.readOnly = readOnly;
             return self();
         }
 
+        /**
+         * Sets the write only policy. See {@link BuilderSupport} for what the policy does.
+         *
+         * @param writeOnly the write only policy, null clears it so that the getter
+         *                  returns null
+         * @return the builder
+         */
         public T writeOnly(Boolean writeOnly) {
             this.writeOnly = writeOnly;
             return self();
